@@ -1,7 +1,2 @@
 name = "cloudflare-pages-iframe-url"
 type = "javascript"
-[[migrations]]
-tag = "turnstile-js-mime-type" # 此标签可以是任意唯一字符串
-new_types = [
-    {type = "application/javascript", extensions = ["js"]}
-]
