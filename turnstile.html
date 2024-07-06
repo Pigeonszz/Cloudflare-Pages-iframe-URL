@@ -30,6 +30,22 @@
   <div id="turnstile-container"></div>
 
   <script>
+    // 获取人机验证开关状态
+    const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
+
+    if (turnstileEnabled) {
+      console.log('Trying to access TURNSTILE_SITE_KEY:', window.env.TURNSTILE_SITE_KEY);
+      const siteKey = process.env.TURNSTILE_SITE_KEY;; // 从环境变量中获取 siteKey
+      if (siteKey) {
+        initializeTurnstile(siteKey);
+      } else {
+        console.error('TURNSTILE_SITE_KEY is not defined.');
+      }
+    } else {
+      console.error('Turnstile verification is not enabled.');
+      // 处理错误：例如显示错误信息或者允许继续，具体情况取决于您的需求
+    }
+
     // 初始化 Turnstile 验证组件
     function initializeTurnstile(siteKey) {
       const container = document.getElementById('turnstile-container');
@@ -38,14 +54,6 @@
       } else {
         console.error('Turnstile container element not found.');
       }
-    }
-
-    // 获取环境变量中的 siteKey
-    const siteKey = window.env.TURNSTILE_SITE_KEY;
-    if (siteKey) {
-      initializeTurnstile(siteKey);
-    } else {
-      console.error('TURNSTILE_SITE_KEY is not defined.');
     }
 
     // Turnstile 验证成功的回调函数
