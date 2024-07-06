@@ -54,24 +54,36 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    // 检查 sessionStorage 中是否有验证状态
-    const turnstileValidUntil = sessionStorage.getItem('turnstileValidUntil');
-    const currentTime = new Date().getTime();
+    // 从服务器获取环境变量
+    fetch('/Turnstile')
+      .then(response => response.json())
+      .then(env => {
+        const isTurnstileEnabled = env.TURNSTILE_ENABLED === 'true';
+        if (isTurnstileEnabled) {
+          // 检查 sessionStorage 中是否有验证状态
+          const turnstileValidUntil = sessionStorage.getItem('turnstileValidUntil');
+          const currentTime = new Date().getTime();
 
-    if (turnstileValidUntil && currentTime < turnstileValidUntil) {
-      // 如果验证状态仍有效，则直接显示 iframe
-      showIframe();
-    } else {
-      // 否则，进行 Turnstile 验证
-      fetch('/turnstile-keys')
-        .then(response => response.json())
-        .then(keys => {
-          const siteKey = keys.siteKey;
-          const container = document.getElementById('turnstile-container');
-          container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
-        })
-        .catch(error => console.error('Error fetching Turnstile keys:', error));
-    }
+          if (turnstileValidUntil && currentTime < turnstileValidUntil) {
+            // 如果验证状态仍有效，则直接显示 iframe
+            showIframe();
+          } else {
+            // 否则，进行 Turnstile 验证
+            fetch('/turnstile-keys')
+              .then(response => response.json())
+              .then(keys => {
+                const siteKey = keys.siteKey;
+                const container = document.getElementById('turnstile-container');
+                container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
+              })
+              .catch(error => console.error('Error fetching Turnstile keys:', error));
+          }
+        } else {
+          // 如果没有启用 Turnstile，直接显示 iframe
+          showIframe();
+        }
+      })
+      .catch(error => console.error('Error fetching environment variables:', error));
 
     // Turnstile验证成功的回调函数
     function onTurnstileSuccess(token) {
