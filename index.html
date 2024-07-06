@@ -65,6 +65,9 @@
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
     }
+
+    // 设置页面标题为环境变量 SITE_TITLE 的值
+    document.title = window.env.SITE_TITLE || 'Main Content';
   </script>
 </body>
 </html>
