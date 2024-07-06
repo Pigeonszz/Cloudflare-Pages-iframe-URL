@@ -31,38 +31,15 @@
 
   <script>
     // 获取人机验证开关状态
-    fetch('/Turnstile')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('无法获取 Turnstile 状态');
-        }
-        return response.json();
-      })
-      .then(env => {
-        if (env.TURNSTILE_ENABLED === 'true') {
-          // 获取 siteKey 并初始化 Turnstile
-          return fetch('/turnstile-keys');
-        } else {
-          throw new Error('Turnstile 验证未启用');
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('无法获取 Turnstile 密钥');
-        }
-        return response.json();
-      })
-      .then(data => {
-        const siteKey = data.TURNSTILE_SITE_KEY;
-        if (siteKey) {
-          initializeTurnstile(siteKey);
-        } else {
-          throw new Error('Turnstile 密钥未定义');
-        }
-      })
-      .catch(error => {
-        console.error(error.message);
-      });
+    const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
+
+    if (turnstileEnabled) {
+      const siteKey = process.env.TURNSTILE_SITE_KEY; // 从环境变量中获取 siteKey
+      initializeTurnstile(siteKey);
+    } else {
+      console.error('Turnstile verification is not enabled.');
+      // 处理错误：例如显示错误信息或者允许继续，具体情况取决于您的需求
+    }
 
     // 初始化 Turnstile 验证组件
     function initializeTurnstile(siteKey) {
@@ -70,7 +47,7 @@
       if (container) {
         container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
       } else {
-        console.error('Turnstile 容器元素未找到。');
+        console.error('Turnstile container element not found.');
       }
     }
 
