@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "build": "sed -i 's|__IFRAME_URL__|$IFRAME_URL|g' index.html"
+  }
+}
