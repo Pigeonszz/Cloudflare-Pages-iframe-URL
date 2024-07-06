@@ -13,6 +13,8 @@ Fork一份此项目，登录Cloudflare dashboard —— Workers and Pages ——
 
 IFRAME_URL (iframe所要展示的URL)
 
+TURNSTILE_ENABLED (Turnstile 验证的开关)
+
 TURNSTILE_SITE_KEY (Cloudflare Turnstile 站点密钥)
 
 部署
