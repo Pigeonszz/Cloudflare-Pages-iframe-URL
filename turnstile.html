@@ -30,13 +30,12 @@
   <div id="turnstile-container"></div>
 
   <script>
-    // 硬性刷新页面
-    function forceRefresh() {
-      window.location.reload(true); // 第一个参数为 true 表示强制从服务器加载页面，忽略缓存
+    // 通过检查 sessionStorage 中的标志确保只进行一次硬性刷新
+    const hasRefreshed = sessionStorage.getItem('hasRefreshed');
+    if (!hasRefreshed) {
+      sessionStorage.setItem('hasRefreshed', 'true');
+      window.location.reload(true); // 强制从服务器加载页面，忽略缓存
     }
-
-    // 在页面加载时执行硬性刷新
-    window.onload = forceRefresh;
 
     // 获取人机验证开关状态
     const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
