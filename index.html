@@ -53,7 +53,7 @@
       })
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
-    // 显示 iframe 并尝试获取 favicon 和 title
+    // 显示 iframe
     function showIframe() {
       fetch('/iframe-url')
         .then(response => response.text())
@@ -67,34 +67,22 @@
           try {
             const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
             const iframeTitle = iframeDocument.title;
-            const favicon = getFaviconFromIframe(iframeDocument);
-            document.title = iframeTitle || window.env.SITE_TITLE || 'Main Content';
-            setFavicon(favicon);
+            document.title = iframeTitle || 'Main Content'; // 如果 iframe 中没有 title，则使用默认值
           } catch (error) {
             console.error('Error accessing iframe content:', error);
-            document.title = window.env.SITE_TITLE || 'Main Content';
+            fetch('/getSiteTitle') // 获取 Cloudflare SITE_TITLE 变量
+              .then(response => response.json())
+              .then(data => {
+                const siteTitle = data.siteTitle || 'Main Content'; // 使用 SITE_TITLE 变量或默认标题
+                document.title = siteTitle;
+              })
+              .catch(error => {
+                console.error('Error fetching SITE_TITLE:', error);
+                document.title = 'Main Content'; // 处理无法获取 SITE_TITLE 的情况
+              });
           }
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
-    }
-
-    // 从 iframe 内部文档中获取 favicon
-    function getFaviconFromIframe(doc) {
-      const faviconElement = doc.querySelector('link[rel="icon"]') || doc.querySelector('link[rel="shortcut icon"]');
-      return faviconElement ? faviconElement.href : '';
-    }
-
-    // 设置页面的 favicon
-    function setFavicon(faviconUrl) {
-      const faviconElement = document.querySelector('link[rel="icon"]');
-      if (faviconElement) {
-        faviconElement.href = faviconUrl;
-      } else {
-        const newFaviconElement = document.createElement('link');
-        newFaviconElement.rel = 'icon';
-        newFaviconElement.href = faviconUrl;
-        document.head.appendChild(newFaviconElement);
-      }
     }
   </script>
 </body>
