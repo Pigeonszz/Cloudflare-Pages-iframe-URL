@@ -34,7 +34,7 @@
     const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
 
     if (turnstileEnabled) {
-      const siteKey = process.env.TURNSTILE_SITE_KEY; // 从环境变量中获取 siteKey
+      const siteKey = window.env.TURNSTILE_SITE_KEY; // 从环境变量中获取 siteKey
       initializeTurnstile(siteKey);
     } else {
       console.error('Turnstile verification is not enabled.');
