@@ -18,7 +18,6 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
-      background-color: #f0f0f0; /* 设置一个背景色 */
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
@@ -31,12 +30,12 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    // 检查是否需要进行 Turnstile 验证
-    fetch('/turnstile-status')
+    // 获取 Turnstile 验证状态
+    fetch('/Turnstile')
       .then(response => response.json())
-      .then(data => {
-        if (data.turnstileEnabled === true) {
-          // 检查本地存储中的验证状态
+      .then(env => {
+        if (env.TURNSTILE_ENABLED === 'true') {
+          // 检查 localStorage 中是否有验证状态
           const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
           const currentTime = new Date().getTime();
 
@@ -48,29 +47,23 @@
             window.location.href = 'turnstile.html';
           }
         } else {
-          // 如果 Turnstile 验证不启用，直接显示 iframe
+          // TURNSTILE_ENABLED 为 false，直接显示 iframe
           showIframe();
         }
       })
-      .catch(error => {
-        console.error('Error fetching Turnstile status:', error);
-        // 处理错误情况，例如显示错误信息或允许继续
-      });
+      .catch(error => console.error('Error fetching Turnstile status:', error));
 
     // 显示 iframe
     function showIframe() {
       fetch('/iframe-url')
         .then(response => response.text())
         .then(iframeUrl => {
-          // 设置 iframe 的 src 属性
+          // 显示 iframe 并设置 src
           const iframe = document.getElementById('dynamic-iframe');
           iframe.src = iframeUrl;
           iframe.style.display = 'block';
         })
-        .catch(error => {
-          console.error('Error fetching iframe URL:', error);
-          // 处理错误情况，例如显示错误信息或允许继续
-        });
+        .catch(error => console.error('Error fetching iframe URL:', error));
     }
   </script>
 </body>
