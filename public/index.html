@@ -16,18 +16,20 @@
   <iframe id="dynamic-iframe" width="100%" height="600px" style="display:none;"></iframe>
 
   <script>
-    // 获取Cloudflare环境变量（这个变量在构建时被替换）
-    const iframeUrl = "$IFRAME_URL";
-
     // Turnstile验证成功的回调函数
     function onTurnstileSuccess(token) {
-      // 隐藏Turnstile验证框
-      document.getElementById('turnstile-wrapper').style.display = 'none';
-
-      // 显示iframe并设置src
-      const iframe = document.getElementById('dynamic-iframe');
-      iframe.src = iframeUrl;
-      iframe.style.display = 'block';
+      // 获取 Cloudflare 环境变量
+      fetch('/__IFRAME_URL__')
+        .then(response => response.text())
+        .then(iframeUrl => {
+          // 隐藏 Turnstile 验证框
+          document.getElementById('turnstile-wrapper').style.display = 'none';
+          
+          // 显示 iframe 并设置 src
+          const iframe = document.getElementById('dynamic-iframe');
+          iframe.src = iframeUrl;
+          iframe.style.display = 'block';
+        });
     }
   </script>
 </body>
