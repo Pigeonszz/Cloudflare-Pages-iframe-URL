@@ -51,25 +51,43 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    // Fetch Turnstile keys
-    fetch('/turnstile-keys')
-      .then(response => response.json())
-      .then(keys => {
-        const siteKey = keys.siteKey;
-        const container = document.getElementById('turnstile-container');
-        container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
-      })
-      .catch(error => console.error('Error fetching Turnstile keys:', error));
+    // 检查 localStorage 中是否有验证状态
+    const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
+    const currentTime = new Date().getTime();
+
+    if (turnstileValidUntil && currentTime < turnstileValidUntil) {
+      // 如果验证状态仍有效，则直接显示 iframe
+      showIframe();
+    } else {
+      // 否则，进行 Turnstile 验证
+      fetch('/turnstile-keys')
+        .then(response => response.json())
+        .then(keys => {
+          const siteKey = keys.siteKey;
+          const container = document.getElementById('turnstile-container');
+          container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
+        })
+        .catch(error => console.error('Error fetching Turnstile keys:', error));
+    }
 
     // Turnstile验证成功的回调函数
     function onTurnstileSuccess(token) {
-      // 获取 iframe URL
+      // 存储验证状态有效期为 4 小时
+      const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000; // 4小时后的时间戳
+      localStorage.setItem('turnstileValidUntil', validUntil);
+
+      // 显示 iframe
+      showIframe();
+    }
+
+    // 显示 iframe
+    function showIframe() {
       fetch('/iframe-url')
         .then(response => response.text())
         .then(iframeUrl => {
           // 隐藏 Turnstile 验证框
           document.getElementById('turnstile-wrapper').style.display = 'none';
-          
+
           // 显示 iframe 并设置 src
           const iframe = document.getElementById('dynamic-iframe');
           iframe.src = iframeUrl;
