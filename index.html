@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,15 +30,22 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    console.log('Script loaded');
+    
     // 检查 localStorage 中是否有验证状态
     const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
     const currentTime = new Date().getTime();
 
+    console.log('Turnstile valid until:', turnstileValidUntil);
+    console.log('Current time:', currentTime);
+
     if (turnstileValidUntil && currentTime < turnstileValidUntil) {
       // 如果验证状态仍有效，则直接显示 iframe
+      console.log('Validation still valid, showing iframe');
       showIframe();
     } else {
       // 否则，跳转到 Turnstile 验证页面
+      console.log('Validation expired or not present, redirecting to Turnstile');
       window.location.href = 'turnstile.html';
     }
 
@@ -48,6 +55,7 @@
         .then(response => response.text())
         .then(iframeUrl => {
           // 显示 iframe 并设置 src
+          console.log('Fetched iframe URL:', iframeUrl);
           const iframe = document.getElementById('dynamic-iframe');
           iframe.src = iframeUrl;
           iframe.style.display = 'block';
