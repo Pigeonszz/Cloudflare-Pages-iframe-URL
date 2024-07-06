@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-cn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,10 +71,9 @@
           } catch (error) {
             console.error('Error accessing iframe content:', error);
             fetch('/getSiteTitle') // 获取 Cloudflare SITE_TITLE 变量
-              .then(response => response.json())
-              .then(data => {
-                const siteTitle = data.siteTitle || 'Main Content'; // 使用 SITE_TITLE 变量或默认标题
-                document.title = siteTitle;
+              .then(response => response.text()) // 注意此处修改为 text() 方法
+              .then(siteTitle => {
+                document.title = siteTitle || 'Main Content'; // 使用 SITE_TITLE 变量或默认标题
               })
               .catch(error => {
                 console.error('Error fetching SITE_TITLE:', error);
