@@ -24,58 +24,57 @@
       height: 100vh; /* 占据整个视口高度 */
       border: none;
     }
+    .favicon {
+      width: 32px;
+      height: 32px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <iframe id="dynamic-iframe"></iframe>
+  <img id="favicon" class="favicon" src="" alt="Favicon">
 
   <script>
-    // 获取 Turnstile 验证状态
-    fetch('/Turnstile')
-      .then(response => response.json())
-      .then(env => {
-        if (env.TURNSTILE_ENABLED === 'true') {
-          // 检查 localStorage 中是否有验证状态
-          const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
-          const currentTime = new Date().getTime();
-
-          if (turnstileValidUntil && currentTime < turnstileValidUntil) {
-            // 如果验证状态仍有效，则直接显示 iframe
-            showIframe();
-          } else {
-            // 否则，跳转到 Turnstile 验证页面
-            window.location.href = 'turnstile.html';
-          }
-        } else {
-          // TURNSTILE_ENABLED 为 false，直接显示 iframe
-          showIframe();
-        }
-      })
-      .catch(error => console.error('Error fetching Turnstile status:', error));
-
     // 显示 iframe
     function showIframe() {
       fetch('/iframe-url')
         .then(response => response.text())
         .then(iframeUrl => {
-          // 显示 iframe 并设置 src
           const iframe = document.getElementById('dynamic-iframe');
           iframe.src = iframeUrl;
           iframe.style.display = 'block';
+
+          // 提取并显示 favicon
+          const faviconUrl = extractFaviconUrl(iframeUrl);
+          if (faviconUrl) {
+            const faviconImg = document.getElementById('favicon');
+            faviconImg.src = faviconUrl;
+            faviconImg.style.display = 'inline';
+          }
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
     }
 
-    // 获取 Cloudflare SITE_TITLE 变量并设置页面标题
-    fetch('/getSiteTitle')
-      .then(response => response.text())
-      .then(siteTitle => {
-        document.title = siteTitle || 'Main Content'; // 使用 SITE_TITLE 变量或默认标题
+    // 提取 favicon URL
+    function extractFaviconUrl(url) {
+      // 根据 URL 构造 favicon URL
+      let baseFaviconUrl = url.replace(/^(https?:\/\/[^\/]+).*$/, '$1');
+      return baseFaviconUrl + '/favicon.ico'; // 默认使用 /favicon.ico
+    }
+
+    // 获取 Turnstile 验证状态和显示 iframe
+    fetch('/Turnstile')
+      .then(response => response.json())
+      .then(env => {
+        if (env.TURNSTILE_ENABLED === 'true') {
+          showIframe();
+        } else {
+          console.error('Turnstile verification is not enabled.');
+          // 处理验证未启用的情况，可能显示错误信息或允许继续
+        }
       })
-      .catch(error => {
-        console.error('Error fetching SITE_TITLE:', error);
-        document.title = 'Main Content'; // 处理无法获取 SITE_TITLE 的情况
-      });
+      .catch(error => console.error('Error fetching Turnstile status:', error));
   </script>
 </body>
 </html>
