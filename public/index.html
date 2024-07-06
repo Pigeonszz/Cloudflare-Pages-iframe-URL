@@ -3,18 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic iFrame</title>
+  <title>Turnstile Protected iFrame</title>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
-  <h1>Embedded iFrame</h1>
-  <iframe id="dynamic-iframe" width="100%" height="600px"></iframe>
+  <h1>Protected iFrame</h1>
+  <div id="turnstile-wrapper">
+    <div class="cf-turnstile" 
+         data-sitekey="0x4AAAAAAAeYUKj94JWW36YK" 
+         data-callback="onTurnstileSuccess"></div>
+  </div>
+  <iframe id="dynamic-iframe" width="100%" height="600px" style="display:none;"></iframe>
 
   <script>
     // 获取Cloudflare环境变量（这个变量在构建时被替换）
     const iframeUrl = "__IFRAME_URL__";
 
-    // 设置iframe的src属性
-    document.getElementById("dynamic-iframe").src = iframeUrl;
+    // Turnstile验证成功的回调函数
+    function onTurnstileSuccess(token) {
+      // 隐藏Turnstile验证框
+      document.getElementById('turnstile-wrapper').style.display = 'none';
+
+      // 显示iframe并设置src
+      const iframe = document.getElementById('dynamic-iframe');
+      iframe.src = iframeUrl;
+      iframe.style.display = 'block';
+    }
   </script>
 </body>
 </html>
