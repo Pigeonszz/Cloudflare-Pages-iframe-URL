@@ -5,15 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Turnstile Protected iFrame</title>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #turnstile-wrapper {
+      text-align: center;
+    }
+    iframe {
+      display: none;
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-  <h1>Protected iFrame</h1>
   <div id="turnstile-wrapper">
+    <h1>在继续前，需要验证你是否为人类</h1>
     <div class="cf-turnstile" 
          data-sitekey="0x4AAAAAAAeYUKj94JWW36YK" 
          data-callback="onTurnstileSuccess"></div>
   </div>
-  <iframe id="dynamic-iframe" width="100%" height="600px" style="display:none;"></iframe>
+  <iframe id="dynamic-iframe"></iframe>
 
   <script>
     // Turnstile验证成功的回调函数
