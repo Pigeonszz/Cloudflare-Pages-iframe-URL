@@ -35,7 +35,7 @@
 
     if (turnstileEnabled) {
       console.log('Trying to access TURNSTILE_SITE_KEY:', window.env.TURNSTILE_SITE_KEY);
-      const siteKey = window.env.TURNSTILE_SITE_KEY; // 从环境变量中获取 siteKey
+      const siteKey = process.env.TURNSTILE_SITE_KEY;; // 从环境变量中获取 siteKey
       if (siteKey) {
         initializeTurnstile(siteKey);
       } else {
