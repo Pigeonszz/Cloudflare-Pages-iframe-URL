@@ -1,5 +1,3 @@
-// turnstiles.js
-
 // 获取环境变量并初始化 Turnstile 验证
 fetch('/Turnstile')
   .then(response => response.json())
