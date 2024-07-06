@@ -18,8 +18,8 @@
   <script>
     // Turnstile验证成功的回调函数
     function onTurnstileSuccess(token) {
-      // 获取 Cloudflare 环境变量
-      fetch('/__IFRAME_URL__')
+      // 获取 iframe URL
+      fetch('/iframe-url')
         .then(response => response.text())
         .then(iframeUrl => {
           // 隐藏 Turnstile 验证框
