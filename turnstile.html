@@ -31,7 +31,7 @@
 
   <script>
     // 获取环境变量并初始化 Turnstile 验证
-    fetch('/Turnstile')
+    fetch('/turnstile-keys')
       .then(response => response.json())
       .then(env => {
         if (env.TURNSTILE_ENABLED === 'true') {
