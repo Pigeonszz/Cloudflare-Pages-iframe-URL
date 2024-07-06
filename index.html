@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -68,10 +68,9 @@
 
     // 获取 Cloudflare SITE_TITLE 变量并设置页面标题
     fetch('/getSiteTitle')
-      .then(response => response.json())
-      .then(data => {
-        const siteTitle = data.siteTitle || 'Main Content'; // 使用 SITE_TITLE 变量或默认标题
-        document.title = siteTitle;
+      .then(response => response.text())
+      .then(siteTitle => {
+        document.title = siteTitle || 'Main Content'; // 使用 SITE_TITLE 变量或默认标题
       })
       .catch(error => {
         console.error('Error fetching SITE_TITLE:', error);
