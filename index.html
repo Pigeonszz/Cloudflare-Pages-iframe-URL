@@ -30,8 +30,8 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    // 检查 sessionStorage 中是否有验证状态
-    const turnstileValidUntil = sessionStorage.getItem('turnstileValidUntil');
+    // 检查 localStorage 中是否有验证状态
+    const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
     const currentTime = new Date().getTime();
 
     if (turnstileValidUntil && currentTime < turnstileValidUntil) {
