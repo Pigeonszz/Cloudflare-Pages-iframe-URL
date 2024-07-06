@@ -64,13 +64,16 @@
     <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
     <div id="turnstile-container"></div>
   </div>
-  <div id="iframe-controls">
+  <div id="iframe-controls" style="display: none;">
     <button id="back-button">后退</button>
     <button id="forward-button">前进</button>
   </div>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    let iframeHistory = [];
+    let currentHistoryIndex = -1;
+
     // 从服务器获取环境变量
     fetch('/Turnstile')
       .then(response => response.json())
@@ -128,13 +131,23 @@
           // 显示 iframe 控制按钮
           document.getElementById('iframe-controls').style.display = 'flex';
 
+          // 初始化历史记录
+          iframeHistory.push(iframeUrl);
+          currentHistoryIndex++;
+
           // 为 iframe 控制按钮添加事件监听器
           document.getElementById('back-button').addEventListener('click', () => {
-            iframe.contentWindow.history.back();
+            if (currentHistoryIndex > 0) {
+              currentHistoryIndex--;
+              iframe.src = iframeHistory[currentHistoryIndex];
+            }
           });
 
           document.getElementById('forward-button').addEventListener('click', () => {
-            iframe.contentWindow.history.forward();
+            if (currentHistoryIndex < iframeHistory.length - 1) {
+              currentHistoryIndex++;
+              iframe.src = iframeHistory[currentHistoryIndex];
+            }
           });
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
