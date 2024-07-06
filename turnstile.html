@@ -34,8 +34,13 @@
     const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
 
     if (turnstileEnabled) {
+      console.log('Trying to access TURNSTILE_SITE_KEY:', window.env.TURNSTILE_SITE_KEY);
       const siteKey = window.env.TURNSTILE_SITE_KEY; // 从环境变量中获取 siteKey
-      initializeTurnstile(siteKey);
+      if (siteKey) {
+        initializeTurnstile(siteKey);
+      } else {
+        console.error('TURNSTILE_SITE_KEY is not defined.');
+      }
     } else {
       console.error('Turnstile verification is not enabled.');
       // 处理错误：例如显示错误信息或者允许继续，具体情况取决于您的需求
