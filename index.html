@@ -54,9 +54,6 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    let iframeHistory = [];
-    let currentHistoryIndex = -1;
-
     // 从服务器获取环境变量
     fetch('/Turnstile')
       .then(response => response.json())
@@ -110,27 +107,6 @@
           const iframe = document.getElementById('dynamic-iframe');
           iframe.src = iframeUrl;
           iframe.style.display = 'block';
-
-          // 初始化历史记录
-          iframeHistory.push(iframeUrl);
-          currentHistoryIndex++;
-
-          // 添加键盘事件监听器
-          window.addEventListener('keydown', (event) => {
-            if (event.key === 'ArrowLeft') {
-              // 后退
-              if (currentHistoryIndex > 0) {
-                currentHistoryIndex--;
-                iframe.src = iframeHistory[currentHistoryIndex];
-              }
-            } else if (event.key === 'ArrowRight') {
-              // 前进
-              if (currentHistoryIndex < iframeHistory.length - 1) {
-                currentHistoryIndex++;
-                iframe.src = iframeHistory[currentHistoryIndex];
-              }
-            }
-          });
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
     }
