@@ -67,17 +67,17 @@
           try {
             const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
             const iframeTitle = iframeDocument.title;
-            document.title = iframeTitle || 'Main Content'; // 如果 iframe 中没有 title，则使用默认值
+            document.title = iframeTitle; // 如果 iframe 中没有 title，则保持默认值
           } catch (error) {
             console.error('Error accessing iframe content:', error);
             fetch('/getSiteTitle') // 获取 Cloudflare SITE_TITLE 变量
               .then(response => response.text()) // 注意此处修改为 text() 方法
               .then(siteTitle => {
-                document.title = siteTitle || 'Main Content'; // 使用 SITE_TITLE 变量或默认标题
+                document.title = siteTitle; // 使用 SITE_TITLE 变量或默认标题
               })
               .catch(error => {
                 console.error('Error fetching SITE_TITLE:', error);
-                document.title = 'Main Content'; // 处理无法获取 SITE_TITLE 的情况
+                // 不设置默认标题，保持页面加载中...
               });
           }
         })
