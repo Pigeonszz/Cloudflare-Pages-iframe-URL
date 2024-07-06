@@ -53,18 +53,19 @@
       })
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
-    // 显示 iframe
+    // 显示 iframe 并提取 favicon 和 title
     function showIframe() {
+      const iframe = document.getElementById('dynamic-iframe');
+      iframe.addEventListener('load', () => {
+        extractFaviconAndTitle(iframe.contentDocument || iframe.contentWindow.document);
+      });
+
       fetch('/iframe-url')
         .then(response => response.text())
         .then(iframeUrl => {
-          // 显示 iframe 并设置 src
-          const iframe = document.getElementById('dynamic-iframe');
+          // 设置 iframe 的 src
           iframe.src = iframeUrl;
           iframe.style.display = 'block';
-
-          // 提取 iframe 页面中的 favicon 和 title
-          extractFaviconAndTitle(iframe.contentDocument || iframe.contentWindow.document);
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
     }
@@ -72,8 +73,8 @@
     // 从 iframe 页面中提取 favicon 和 title
     function extractFaviconAndTitle(doc) {
       // 获取 <title> 标签的内容
-      const pageTitle = doc.querySelector('title').textContent;
-      document.title = pageTitle || 'Main Content';
+      const pageTitle = doc.querySelector('title');
+      document.title = pageTitle ? pageTitle.textContent : 'Main Content';
 
       // 获取 <link rel="icon"> 标签的 href 属性值
       const faviconLink = doc.querySelector('link[rel="icon"]');
