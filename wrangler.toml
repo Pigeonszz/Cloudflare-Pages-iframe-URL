@@ -3,3 +3,6 @@ type = "javascript"
 
 [env.production]
 workers_dev = true
+
+[vars]
+IFRAME_URL = "https://ipv4.01.jellyfin.pigeonsz.cc:1041"  # 替换为你的实际 URL
