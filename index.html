@@ -6,8 +6,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Turnstile Protected iFrame</title>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <title>Turnstile Protected iFrame Example</title>
+  <script src="script.js" defer></script>
   <style>
     body {
       display: flex;
@@ -24,7 +24,7 @@
       margin-top: 20px; /* 调整 Turnstile 与文本的间距 */
     }
     #turnstile-wrapper {
-      display: flex;
+      display: none; /* 默认隐藏 Turnstile 容器 */
       flex-direction: column;
       align-items: center;
       position: absolute;
@@ -52,54 +52,5 @@
     <div id="turnstile-container"></div>
   </div>
   <iframe id="dynamic-iframe"></iframe>
-
-  <script>
-    // 检查 localStorage 中是否有验证状态
-    const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
-    const currentTime = new Date().getTime();
-
-    const enableTurnstile = '${ENABLE_TURNSTILE}' === 'true';
-
-    if (enableTurnstile && (!turnstileValidUntil || currentTime >= turnstileValidUntil)) {
-      // 启用 Turnstile 验证
-      fetch('/turnstile-keys')
-        .then(response => response.json())
-        .then(keys => {
-          const siteKey = keys.siteKey;
-          const container = document.getElementById('turnstile-container');
-          container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
-        })
-        .catch(error => console.error('Error fetching Turnstile keys:', error));
-    } else {
-      // 直接显示 iframe
-      showIframe();
-    }
-
-    // Turnstile验证成功的回调函数
-    function onTurnstileSuccess(token) {
-      // 存储验证状态有效期为 4 小时
-      const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000; // 4小时后的时间戳
-      localStorage.setItem('turnstileValidUntil', validUntil);
-
-      // 显示 iframe
-      showIframe();
-    }
-
-    // 显示 iframe
-    function showIframe() {
-      fetch('/iframe-url')
-        .then(response => response.text())
-        .then(iframeUrl => {
-          // 隐藏 Turnstile 验证框
-          document.getElementById('turnstile-wrapper').style.display = 'none';
-
-          // 显示 iframe 并设置 src
-          const iframe = document.getElementById('dynamic-iframe');
-          iframe.src = iframeUrl;
-          iframe.style.display = 'block';
-        })
-        .catch(error => console.error('Error fetching iframe URL:', error));
-    }
-  </script>
 </body>
 </html>
