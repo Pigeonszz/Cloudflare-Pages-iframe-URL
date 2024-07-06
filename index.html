@@ -1,103 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Turnstile Protected iFrame</title>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      overflow: hidden; /* 防止 iframe 溢出 */
-    }
-    #turnstile-container {
-      margin-top: 20px; /* 调整 Turnstile 与文本的间距 */
-    }
-    #turnstile-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(0, 0, 0, 0.8); /* 半透明背景 */
-      padding: 20px;
-      border-radius: 10px;
-      z-index: 1000; /* 确保在最顶层 */
-    }
-    .cf-turnstile {
-      z-index: 2000; /* 确保在最顶层 */
-    }
-    iframe {
-      width: 100vw; /* 占据整个视口宽度 */
-      height: 100vh; /* 占据整个视口高度 */
-      border: none;
-    }
-  </style>
-</head>
-<body>
-  <div id="turnstile-wrapper">
-    <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
-    <div id="turnstile-container"></div>
-  </div>
-  <iframe id="dynamic-iframe"></iframe>
+<script>
+  // 从服务器获取环境变量
+  fetch('/environment')
+    .then(response => response.json())
+    .then(env => {
+      const isTurnstileEnabled = env.TURNSTILE_ENABLED === 'true';
+      if (isTurnstileEnabled) {
+        // 检查 sessionStorage 中是否有验证状态
+        const turnstileValidUntil = sessionStorage.getItem('turnstileValidUntil');
+        const currentTime = new Date().getTime();
 
-  <script>
-    // 检查 sessionStorage 中是否有验证状态
-    const turnstileValidUntil = sessionStorage.getItem('turnstileValidUntil');
-    const currentTime = new Date().getTime();
+        if (turnstileValidUntil && currentTime < turnstileValidUntil) {
+          // 如果验证状态仍有效，则直接显示 iframe
+          showIframe();
+        } else {
+          // 否则，进行 Turnstile 验证
+          fetch('/turnstile-keys')
+            .then(response => response.json())
+            .then(keys => {
+              const siteKey = keys.siteKey;
+              const container = document.getElementById('turnstile-container');
+              container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
+            })
+            .catch(error => console.error('Error fetching Turnstile keys:', error));
+        }
+      } else {
+        // 如果没有启用 Turnstile，直接显示 iframe
+        showIframe();
+      }
+    })
+    .catch(error => console.error('Error fetching environment variables:', error));
 
-    if (turnstileValidUntil && currentTime < turnstileValidUntil) {
-      // 如果验证状态仍有效，则直接显示 iframe
-      showIframe();
-    } else {
-      // 否则，进行 Turnstile 验证
-      fetch('/turnstile-keys')
-        .then(response => response.json())
-        .then(keys => {
-          const siteKey = keys.siteKey;
-          const container = document.getElementById('turnstile-container');
-          container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
-        })
-        .catch(error => console.error('Error fetching Turnstile keys:', error));
-    }
-
-    // Turnstile验证成功的回调函数
-    function onTurnstileSuccess(token) {
-      // 存储验证状态有效期为 4 小时
-      const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000; // 4小时后的时间戳
-      sessionStorage.setItem('turnstileValidUntil', validUntil);
-
-      // 显示 iframe
-      showIframe();
-    }
+  // Turnstile验证成功的回调函数
+  function onTurnstileSuccess(token) {
+    // 存储验证状态有效期为 4 小时
+    const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000; // 4小时后的时间戳
+    sessionStorage.setItem('turnstileValidUntil', validUntil);
 
     // 显示 iframe
-    function showIframe() {
-      fetch('/iframe-url')
-        .then(response => response.text())
-        .then(iframeUrl => {
-          // 隐藏 Turnstile 验证框
-          document.getElementById('turnstile-wrapper').style.display = 'none';
+    showIframe();
+  }
 
-          // 显示 iframe 并设置 src
-          const iframe = document.getElementById('dynamic-iframe');
-          iframe.src = iframeUrl;
-          iframe.style.display = 'block';
-        })
-        .catch(error => console.error('Error fetching iframe URL:', error));
-    }
-  </script>
-</body>
-</html>
+  // 显示 iframe
+  function showIframe() {
+    fetch('/iframe-url')
+      .then(response => response.text())
+      .then(iframeUrl => {
+        // 隐藏 Turnstile 验证框
+        document.getElementById('turnstile-wrapper').style.display = 'none';
+
+        // 显示 iframe 并设置 src
+        const iframe = document.getElementById('dynamic-iframe');
+        iframe.src = iframeUrl;
+        iframe.style.display = 'block';
+      })
+      .catch(error => console.error('Error fetching iframe URL:', error));
+  }
+</script>
