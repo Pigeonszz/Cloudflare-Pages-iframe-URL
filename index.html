@@ -18,32 +18,30 @@
       overflow: hidden; /* 防止 iframe 溢出 */
     }
     #turnstile-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
+      position: relative;
       width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8); /* 半透明背景 */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000; /* 确保 Turnstile 在最顶层 */
+      margin-top: 20px; /* 调整 Turnstile 与文本之间的间距 */
     }
     .cf-turnstile {
-      z-index: 2000; /* 确保 Turnstile 在最顶层 */
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
-      height: 100vh; /* 占据整个视口高度 */
+      height: calc(100vh - 40px); /* 占据整个视口高度，留出一些空间给 Turnstile */
       border: none;
+      margin-top: 20px; /* 调整 iframe 与顶部的间距 */
     }
   </style>
 </head>
 <body>
+  <h1>在继续前，需要验证你是否为人类</h1>
+  
   <div id="turnstile-wrapper">
-    <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
     <div id="turnstile-container"></div>
   </div>
+  
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
