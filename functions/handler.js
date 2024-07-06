@@ -1,29 +1,31 @@
-// 返回 TURNSTILE_ENABLED 环境变量的值
-export async function onTurnstileRequest(context) {
-  const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED || 'false';
+export async function onRequest(request) {
+  const url = new URL(request.url);
 
-  return new Response(
-    JSON.stringify({ TURNSTILE_ENABLED }),
-    {
+  if (url.pathname === '/Turnstile') {
+    // 返回 TURNSTILE_ENABLED 环境变量的值
+    const TURNSTILE_ENABLED = request.env.TURNSTILE_ENABLED || 'false';
+    return new Response(
+      JSON.stringify({ TURNSTILE_ENABLED }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  } else if (url.pathname === '/iframe-url') {
+    // 返回 IFRAME_URL 环境变量的值
+    return new Response(request.env.IFRAME_URL, {
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  } else if (url.pathname === '/turnstile-keys') {
+    // 返回 TURNSTILE_SITE_KEY 和 TURNSTILE_SECRET_KEY 环境变量的值
+    const keys = {
+      siteKey: request.env.TURNSTILE_SITE_KEY,
+      secretKey: request.env.TURNSTILE_SECRET_KEY,
+    };
+    return new Response(JSON.stringify(keys), {
       headers: { 'Content-Type': 'application/json' },
-    }
-  );
-}
-
-// 返回 iframe 的 URL
-export async function onIframeUrlRequest(context) {
-  return new Response(context.env.IFRAME_URL, {
-    headers: { 'Content-Type': 'application/json' }
-  });
-}
-
-// 返回 Turnstile 的 siteKey 和 secretKey
-export async function onTurnstileKeysRequest(context) {
-  const keys = {
-    siteKey: context.env.TURNSTILE_SITE_KEY,
-    secretKey: context.env.TURNSTILE_SECRET_KEY,
-  };
-  return new Response(JSON.stringify(keys), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+    });
+  } else {
+    // 如果路径不匹配任何上述条件，返回 404 Not Found
+    return new Response('Not Found', { status: 404 });
+  }
 }
