@@ -30,6 +30,13 @@
   <div id="turnstile-container"></div>
 
   <script>
+    // 通过检查 sessionStorage 中的标志确保只进行一次硬性刷新
+    const hasRefreshed = sessionStorage.getItem('hasRefreshed');
+    if (!hasRefreshed) {
+      sessionStorage.setItem('hasRefreshed', 'true');
+      window.location.reload(true); // 强制从服务器加载页面，忽略缓存
+    }
+
     // 获取人机验证开关状态
     const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
 
