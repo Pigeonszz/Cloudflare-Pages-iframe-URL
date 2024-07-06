@@ -13,7 +13,7 @@ export async function onTurnstileRequest(context) {
 // 返回 iframe 的 URL
 export async function onIframeUrlRequest(context) {
   return new Response(context.env.IFRAME_URL, {
-    headers: { 'Content-Type': 'text/plain' }
+    headers: { 'Content-Type': 'application/json' }
   });
 }
 
