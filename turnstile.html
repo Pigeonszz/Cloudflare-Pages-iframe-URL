@@ -46,7 +46,7 @@
     function onTurnstileSuccess(token) {
       // 存储验证状态有效期为 4 小时
       const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000; // 4小时后的时间戳
-      sessionStorage.setItem('turnstileValidUntil', validUntil);
+      localStorage.setItem('turnstileValidUntil', validUntil);
 
       // 跳转回主内容页面
       window.location.href = 'index.html';
