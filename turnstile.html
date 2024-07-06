@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Turnstile Verification</title>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.8); /* 半透明背景 */
+    }
+    #turnstile-container {
+      margin-top: 20px; /* 调整 Turnstile 与文本的间距 */
+    }
+  </style>
+</head>
+<body>
+  <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
+  <div id="turnstile-container"></div>
+
+  <script>
+    // 从服务器获取环境变量
+    fetch('/Turnstile')
+      .then(response => response.json())
+      .then(env => {
+        const siteKey = env.TURNSTILE_ENABLED === 'true' ? env.TURNSTILE_SITE_KEY : null;
+        if (siteKey) {
+          const container = document.getElementById('turnstile-container');
+          container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
+        }
+      })
+      .catch(error => console.error('Error fetching Turnstile keys:', error));
+
+    // Turnstile验证成功的回调函数
+    function onTurnstileSuccess(token) {
+      // 存储验证状态有效期为 4 小时
+      const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000; // 4小时后的时间戳
+      sessionStorage.setItem('turnstileValidUntil', validUntil);
+
+      // 跳转回主内容页面
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
