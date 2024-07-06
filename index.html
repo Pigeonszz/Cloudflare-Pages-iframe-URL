@@ -15,25 +15,48 @@
       margin: 0;
       font-family: Arial, sans-serif;
       text-align: center;
+      overflow: hidden; /* 防止 iframe 溢出 */
+    }
+    #turnstile-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8); /* 半透明背景 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000; /* 确保 Turnstile 在最顶层 */
+    }
+    .cf-turnstile {
+      z-index: 2000; /* 确保 Turnstile 在最顶层 */
     }
     iframe {
-      display: none;
-      width: 100%;
-      height: 600px;
+      width: 100vw; /* 占据整个视口宽度 */
+      height: 100vh; /* 占据整个视口高度 */
       border: none;
     }
   </style>
 </head>
 <body>
   <div id="turnstile-wrapper">
-    <h1>在继续前，需要验证你是否为人类</h1>
-    <div class="cf-turnstile" 
-         data-sitekey="0x4AAAAAAAeYUKj94JWW36YK" 
-         data-callback="onTurnstileSuccess"></div>
+    <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
+    <div id="turnstile-container"></div>
   </div>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    // Fetch Turnstile keys
+    fetch('/turnstile-keys')
+      .then(response => response.json())
+      .then(keys => {
+        const siteKey = keys.siteKey;
+        const container = document.getElementById('turnstile-container');
+        container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
+      })
+      .catch(error => console.error('Error fetching Turnstile keys:', error));
+
     // Turnstile验证成功的回调函数
     function onTurnstileSuccess(token) {
       // 获取 iframe URL
