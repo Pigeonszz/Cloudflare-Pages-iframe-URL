@@ -22,7 +22,7 @@ function initializeTurnstile(siteKey) {
 // Turnstile 验证成功的回调函数
 function onTurnstileSuccess(token) {
   // 存储验证状态有效期为 4 小时
-  const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000;
+  const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000; // 4小时后的时间戳
   localStorage.setItem('turnstileValidUntil', validUntil);
 
   // 跳转回主内容页面
