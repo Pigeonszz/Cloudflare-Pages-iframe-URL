@@ -44,29 +44,12 @@
       height: 100vh; /* 占据整个视口高度 */
       border: none;
     }
-    #iframe-controls {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 10px;
-    }
-    #iframe-controls button {
-      padding: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
   <div id="turnstile-wrapper">
     <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
     <div id="turnstile-container"></div>
-  </div>
-  <div id="iframe-controls" style="display: none;">
-    <button id="back-button">后退</button>
-    <button id="forward-button">前进</button>
   </div>
   <iframe id="dynamic-iframe"></iframe>
 
@@ -128,25 +111,24 @@
           iframe.src = iframeUrl;
           iframe.style.display = 'block';
 
-          // 显示 iframe 控制按钮
-          document.getElementById('iframe-controls').style.display = 'flex';
-
           // 初始化历史记录
           iframeHistory.push(iframeUrl);
           currentHistoryIndex++;
 
-          // 为 iframe 控制按钮添加事件监听器
-          document.getElementById('back-button').addEventListener('click', () => {
-            if (currentHistoryIndex > 0) {
-              currentHistoryIndex--;
-              iframe.src = iframeHistory[currentHistoryIndex];
-            }
-          });
-
-          document.getElementById('forward-button').addEventListener('click', () => {
-            if (currentHistoryIndex < iframeHistory.length - 1) {
-              currentHistoryIndex++;
-              iframe.src = iframeHistory[currentHistoryIndex];
+          // 添加键盘事件监听器
+          window.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') {
+              // 后退
+              if (currentHistoryIndex > 0) {
+                currentHistoryIndex--;
+                iframe.src = iframeHistory[currentHistoryIndex];
+              }
+            } else if (event.key === 'ArrowRight') {
+              // 前进
+              if (currentHistoryIndex < iframeHistory.length - 1) {
+                currentHistoryIndex++;
+                iframe.src = iframeHistory[currentHistoryIndex];
+              }
             }
           });
         })
