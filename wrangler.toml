@@ -1,5 +1,5 @@
 name = "cloudflare-pages-iframe-url"
 type = "javascript"
 
-[env.production]
-workers_dev = true
+[vars]
+IFRAME_URL = "$IFRAME_URL"  # 替换为你的实际 URL
