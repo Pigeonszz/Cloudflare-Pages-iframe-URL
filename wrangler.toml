@@ -1,2 +1,11 @@
 name = "cloudflare-pages-iframe-url"
 type = "javascript"
+
+[[routes]]
+pattern = "/*"
+custom_domain = true
+
+[[redirects]]
+source = "/"
+destination = "/index.html"
+status_code = 200
