@@ -214,15 +214,16 @@ async function handleTurnstileHtmlRequest(context) {
       // 处理错误：例如显示错误信息或者允许继续，具体情况取决于您的需求
     }
 
-    // 初始化 Turnstile 验证组件
-    function initializeTurnstile(siteKey) {
-      const container = document.getElementById('turnstile-container');
-      if (container) {
-        container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
-      } else {
-        console.error('Turnstile container element not found.');
-      }
+  // Initialize Turnstile 验证组件
+  function initializeTurnstile(siteKey) {
+    const container = document.getElementById('turnstile-container');
+    if (container) {
+      container.innerHTML = '<div class="cf-turnstile" data-sitekey="' + siteKey + '" data-callback="onTurnstileSuccess"></div>';
+    } else {
+      console.error('Turnstile container element not found.');
     }
+  }
+
 
     // Turnstile 验证成功的回调函数
     function onTurnstileSuccess(token) {
