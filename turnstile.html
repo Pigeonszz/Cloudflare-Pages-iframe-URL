@@ -47,7 +47,7 @@
         .then(keys => {
           const siteKey = keys.siteKey; // 从返回的 JSON 中获取 siteKey
           initializeTurnstile(siteKey); // 初始化 Turnstile 验证
-          checkTurnstileStatus(siteKey); // 检测 Turnstile 状态
+          checkTurnstileStatus(20000); // 检测 Turnstile 状态，超时 20 秒
         })
         .catch(error => console.error('Error fetching Turnstile keys:', error));
     } else {
@@ -76,14 +76,19 @@
       window.location.href = 'index.html';
     }
 
-    // 检测 Turnstile 状态的函数
-    function checkTurnstileStatus(siteKey) {
-      const container = document.querySelector('.cf-turnstile');
-      if (!container) {
-        // 如果 Turnstile 组件未加载，则强制刷新页面
-        console.error('Turnstile component not loaded, refreshing the page.');
-        window.location.reload(true); // 强制从服务器加载页面，忽略缓存
-      }
+    // 检测 Turnstile 状态的函数，超时为 20 秒
+    function checkTurnstileStatus(timeout) {
+      const startTime = Date.now();
+      const interval = setInterval(() => {
+        const container = document.querySelector('.cf-turnstile');
+        if (container) {
+          clearInterval(interval); // 如果 Turnstile 检测框已加载，则清除定时器
+        } else if (Date.now() - startTime >= timeout) {
+          clearInterval(interval); // 如果超过超时限制，则清除定时器并强制刷新页面
+          console.error('Turnstile component not loaded, refreshing the page.');
+          window.location.reload(true); // 强制从服务器加载页面，忽略缓存
+        }
+      }, 100); // 每 100 毫秒检测一次
     }
   </script>
 </body>
