@@ -92,21 +92,25 @@
     }
 
     // 清除缓存并硬性刷新页面
-    async function clearCacheAndRefresh() {
-      // 清除 caches 中的所有缓存
+    function clearCacheAndRefresh() {
+      // 清除所有缓存
       if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        for (let name of cacheNames) {
-          await caches.delete(name);
-        }
+        caches.keys().then(names => {
+          for (let name of names) caches.delete(name);
+        });
       }
 
-      // 清除 sessionStorage 和 localStorage 中的所有数据
-      sessionStorage.clear();
-      localStorage.clear();
-
-      // 强制从服务器加载页面，忽略缓存
-      window.location.href = window.location.href + '?clearCache=true';
+      // 清除浏览器的全部缓存
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+          window.location.reload(true); // 强制从服务器加载页面，忽略缓存
+        });
+      } else {
+        window.location.reload(true); // 强制从服务器加载页面，忽略缓存
+      }
     }
   </script>
 </body>
