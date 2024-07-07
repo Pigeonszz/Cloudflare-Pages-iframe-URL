@@ -22,11 +22,32 @@
     #turnstile-container {
       margin-top: 20px; /* 调整 Turnstile 与文本的间距 */
     }
+    #noscript-message {
+      display: none; /* 默认隐藏，JavaScript 启用后会显示 */
+      color: white;
+      background-color: red;
+      padding: 10px;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
   <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
   <div id="turnstile-container"></div>
+  <div id="noscript-message">
+    您的浏览器禁用了 JavaScript，请启用 JavaScript 以继续。
+  </div>
+  <noscript>
+    <style>
+      #noscript-message {
+        display: block; /* 显示 noscript 提示 */
+      }
+      #turnstile-container,
+      h1 {
+        display: none; /* 隐藏原有内容 */
+      }
+    </style>
+  </noscript>
 
   <script>
     // 获取人机验证开关状态
