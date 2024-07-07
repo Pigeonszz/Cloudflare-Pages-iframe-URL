@@ -7,7 +7,6 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Turnstile Verification</title>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     body {
       display: flex;
@@ -23,20 +22,34 @@
     #turnstile-container {
       margin-top: 20px; /* 调整 Turnstile 与文本的间距 */
     }
+    #noscript-message {
+      display: none; /* 默认隐藏，JavaScript 启用后会显示 */
+      color: white;
+      background-color: red;
+      padding: 10px;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
   <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
   <div id="turnstile-container"></div>
+  <div id="noscript-message">
+    您的浏览器禁用了 JavaScript，请启用 JavaScript 以继续。
+  </div>
+  <noscript>
+    <style>
+      #noscript-message {
+        display: block; /* 显示 noscript 提示 */
+      }
+      #turnstile-container,
+      h1 {
+        display: none; /* 隐藏原有内容 */
+      }
+    </style>
+  </noscript>
 
   <script>
-    // 通过检查 sessionStorage 中的标志确保只进行一次硬性刷新
-    const hasRefreshed = sessionStorage.getItem('hasRefreshed');
-    if (!hasRefreshed) {
-      sessionStorage.setItem('hasRefreshed', 'true');
-      window.location.reload(true); // 强制从服务器加载页面，忽略缓存
-    }
-
     // 获取人机验证开关状态
     const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
 
@@ -53,12 +66,23 @@
         .then(response => response.json())
         .then(keys => {
           const siteKey = keys.siteKey; // 从返回的 JSON 中获取 siteKey
+          loadTurnstileScript(); // 动态加载 Turnstile 脚本
           initializeTurnstile(siteKey); // 初始化 Turnstile 验证
+          checkTurnstileStatus(20000); // 检测 Turnstile 状态，超时 20 秒
         })
         .catch(error => console.error('Error fetching Turnstile keys:', error));
     } else {
       console.error('Turnstile verification is not enabled.');
       // 处理错误：例如显示错误信息或者允许继续，具体情况取决于您的需求
+    }
+
+    // 动态加载 Turnstile 脚本
+    function loadTurnstileScript() {
+      const script = document.createElement('script');
+      script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?_=${new Date().getTime()}`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
     }
 
     // 初始化 Turnstile 验证组件
@@ -80,6 +104,33 @@
 
       // 跳转回主内容页面
       window.location.href = 'index.html';
+    }
+
+    // 检测 Turnstile 状态的函数，超时为 20 秒
+    function checkTurnstileStatus(timeout) {
+      const startTime = Date.now();
+      const interval = setInterval(() => {
+        const container = document.querySelector('.cf-turnstile iframe');
+        if (container) {
+          clearInterval(interval); // 如果 Turnstile 检测框已加载，则清除定时器
+        } else if (Date.now() - startTime >= timeout) {
+          clearInterval(interval); // 如果超过超时限制，则清除定时器并强制刷新页面
+          console.error('Turnstile component not loaded, clearing cache and refreshing the page.');
+          clearCacheAndRefresh(); // 清除缓存并硬性刷新页面
+        }
+      }, 100); // 每 100 毫秒检测一次
+    }
+
+    // 清除缓存并硬性刷新页面
+    function clearCacheAndRefresh() {
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          for (let name of names) caches.delete(name);
+        });
+      }
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.reload(true); // 强制从服务器加载页面，忽略缓存
     }
   </script>
 </body>
