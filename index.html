@@ -47,13 +47,13 @@
             window.location.href = 'turnstile.html';
           }
         } else {
-          // TURNSTILE_ENABLED 为 false，直接显示 iframe
+          // 如果 TURNSTILE_ENABLED 为 false，直接显示 iframe
           showIframe();
         }
       })
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
-    // 显示 iframe
+    // 显示 iframe 的函数
     function showIframe() {
       fetch('/iframe-url')
         .then(response => response.text())
@@ -71,7 +71,7 @@
           } catch (error) {
             console.error('Error accessing iframe content:', error);
             fetch('/getSiteTitle') // 获取 Cloudflare SITE_TITLE 变量
-              .then(response => response.text()) // 注意此处修改为 text() 方法
+              .then(response => response.text()) // 获取纯文本响应
               .then(siteTitle => {
                 setTitle(siteTitle); // 设置页面标题
               })
@@ -86,7 +86,7 @@
 
     // 设置页面标题的函数
     function setTitle(title) {
-      document.title = title || 'Main Content';
+      document.title = title; // 设置页面标题
     }
   </script>
 </body>
