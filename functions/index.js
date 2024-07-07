@@ -1,3 +1,4 @@
+// 主处理函数，根据请求路径选择对应的处理函数
 export async function onRequest(context) {
   // 解析请求的 URL
   const url = new URL(context.request.url);
