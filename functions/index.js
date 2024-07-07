@@ -28,12 +28,14 @@ export async function onRequest(context) {
 async function handleTurnstile(context) {
   const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED || 'false';
   console.log(`TURNSTILE_ENABLED: ${TURNSTILE_ENABLED}`);
-  return new Response(
-    JSON.stringify({ TURNSTILE_ENABLED }), // 返回 JSON 格式的响应
-    {
-      headers: { 'Content-Type': 'application/json' }, // 设置响应头为 JSON 格式
-    }
-  );
+  
+  // 构造 JSON 响应
+  const jsonResponse = JSON.stringify({ TURNSTILE_ENABLED });
+  
+  // 返回 JSON 响应
+  return new Response(jsonResponse, {
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
 // 处理 /getSiteTitle 请求，返回 SITE_TITLE 的值
