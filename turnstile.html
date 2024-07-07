@@ -93,6 +93,7 @@
 
     // 清除缓存并硬性刷新页面
     function clearCacheAndRefresh() {
+      // 清除缓存
       if ('caches' in window) {
         caches.keys().then(names => {
           for (let name of names) caches.delete(name);
@@ -100,7 +101,10 @@
       }
       sessionStorage.clear();
       localStorage.clear();
-      window.location.reload(true); // 强制从服务器加载页面，忽略缓存
+      // 通过添加查询字符串来强制刷新页面
+      const url = new URL(window.location.href);
+      url.searchParams.set('t', Date.now());
+      window.location.href = url.href;
     }
   </script>
 </body>
