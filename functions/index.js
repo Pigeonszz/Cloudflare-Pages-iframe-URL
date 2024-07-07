@@ -7,7 +7,9 @@ export async function onRequest(context) {
   console.log(`Request received for path: ${path}`);
 
   // 根据请求路径选择对应的处理函数
-  if (path === '/Turnstile') {
+  if (path === '/') {
+    return new Response('Welcome to Cloudflare Pages!', { status: 200 });
+  } else if (path === '/Turnstile') {
     return handleTurnstile(context);
   } else if (path === '/getSiteTitle') {
     return handleGetSiteTitle(context);
