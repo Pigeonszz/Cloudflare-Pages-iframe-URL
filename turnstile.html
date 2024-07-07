@@ -93,23 +93,15 @@
 
     // 清除缓存并硬性刷新页面
     function clearCacheAndRefresh() {
-      // 清除所有缓存
       if ('caches' in window) {
         caches.keys().then(names => {
           for (let name of names) caches.delete(name);
-        });
-      }
-
-      // 清除浏览器的全部缓存
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          for (let registration of registrations) {
-            registration.unregister();
-          }
-          window.location.reload(true); // 强制从服务器加载页面，忽略缓存
+        }).then(() => {
+          // 强制从服务器加载页面，忽略缓存
+          window.location.href = window.location.href.split('?')[0] + '?cache_bust=' + new Date().getTime();
         });
       } else {
-        window.location.reload(true); // 强制从服务器加载页面，忽略缓存
+        window.location.href = window.location.href.split('?')[0] + '?cache_bust=' + new Date().getTime();
       }
     }
   </script>
