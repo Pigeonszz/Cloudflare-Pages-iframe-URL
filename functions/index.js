@@ -54,14 +54,23 @@ async function handleIframeUrl(context) {
   });
 }
 
-// 处理 /turnstile-keys 请求，返回 Turnstile 的 siteKey 和 secretKey
+// 处理 /turnstile-keys 请求，返回 Turnstile 的 keys
 async function handleTurnstileKeys(context) {
-  const keys = {
-    siteKey: context.env.TURNSTILE_SITE_KEY,
-    secretKey: context.env.TURNSTILE_SECRET_KEY,
-  };
-  console.log(`Turnstile Keys: ${JSON.stringify(keys)}`);
-  return new Response(JSON.stringify(keys), {
-    headers: { 'Content-Type': 'application/json' } // 设置响应头为 JSON 格式
-  });
+  try {
+    const keys = {
+      siteKey: context.env.TURNSTILE_SITE_KEY,
+      secretKey: context.env.TURNSTILE_SECRET_KEY,
+    };
+    
+    // 构造 JSON 响应
+    const jsonResponse = JSON.stringify(keys);
+    
+    // 返回 JSON 响应
+    return new Response(jsonResponse, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error fetching Turnstile keys:', error);
+    return new Response('Internal Server Error', { status: 500 });
+  }
 }
