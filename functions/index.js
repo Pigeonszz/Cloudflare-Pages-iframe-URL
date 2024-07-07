@@ -1,73 +1,35 @@
-/**
- * Cloudflare Worker to handle various endpoint requests.
- * Handles Turnstile status, fetching site title, iframe URL, and Turnstile keys.
- */
-
-// Main entry point to handle incoming requests
 export async function onRequest(context) {
-  const url = new URL(context.request.url);
-  const path = url.pathname;
+  const { request } = context;
+  const url = new URL(request.url);
+  const pathname = url.pathname;
 
-  // Route requests based on path
-  if (path === '/Turnstile') {
-    return handleTurnstile(context);
-  } else if (path === '/getSiteTitle') {
-    return handleGetSiteTitle(context);
-  } else if (path === '/iframe-url') {
-    return handleIframeUrl(context);
-  } else if (path === '/turnstile-keys') {
-    return handleTurnstileKeys(context);
+  // 根据请求路径处理不同的功能
+  if (pathname === '/Turnstile') {
+    const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED || 'false';
+    return new Response(JSON.stringify({ TURNSTILE_ENABLED }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } else if (pathname === '/getSiteTitle') {
+    return new Response(context.env.SITE_TITLE, {
+      headers: { 'Content-Type': 'text/plain' },
+    });
+  } else if (pathname === '/iframe-url') {
+    return new Response(context.env.IFRAME_URL, {
+      headers: { 'Content-Type': 'text/plain' },
+    });
+  } else if (pathname === '/turnstile-keys') {
+    const keys = {
+      siteKey: context.env.TURNSTILE_SITE_KEY,
+      secretKey: context.env.TURNSTILE_SECRET_KEY,
+    };
+    return new Response(JSON.stringify(keys), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } else if (pathname === '/' || pathname === '/index.html') {
+    // 返回 index.html 文件的内容
+    return fetch('https://test.cloudflare-pages-iframe-url.pages.dev/index.html');
   } else {
-    // Handle undefined routes with a 404 response
+    // 返回 404 错误
     return new Response('Not Found', { status: 404 });
   }
-}
-
-// Handler for /Turnstile endpoint to return Turnstile status
-async function handleTurnstile(context) {
-  const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED || 'false';
-
-  // Return JSON response with TURNSTILE_ENABLED status
-  return new Response(
-    JSON.stringify({ TURNSTILE_ENABLED }),
-    {
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
-}
-
-// Handler for /getSiteTitle endpoint to fetch and return SITE_TITLE
-async function handleGetSiteTitle(context) {
-  // Fetch SITE_TITLE from environment variables
-  const siteTitle = context.env.SITE_TITLE;
-
-  // Return plain text response with SITE_TITLE
-  return new Response(siteTitle, {
-    headers: { 'Content-Type': 'text/plain' }
-  });
-}
-
-// Handler for /iframe-url endpoint to fetch and return IFRAME_URL
-async function handleIframeUrl(context) {
-  // Fetch IFRAME_URL from environment variables
-  const iframeUrl = context.env.IFRAME_URL;
-
-  // Return plain text response with IFRAME_URL
-  return new Response(iframeUrl, {
-    headers: { 'Content-Type': 'text/plain' }
-  });
-}
-
-// Handler for /turnstile-keys endpoint to fetch and return Turnstile keys
-async function handleTurnstileKeys(context) {
-  // Fetch TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY from environment variables
-  const keys = {
-    siteKey: context.env.TURNSTILE_SITE_KEY,
-    secretKey: context.env.TURNSTILE_SECRET_KEY,
-  };
-
-  // Return JSON response with Turnstile keys
-  return new Response(JSON.stringify(keys), {
-    headers: { 'Content-Type': 'application/json' },
-  });
 }
