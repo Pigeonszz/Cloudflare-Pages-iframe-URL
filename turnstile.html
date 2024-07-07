@@ -85,10 +85,22 @@
           clearInterval(interval); // 如果 Turnstile 检测框已加载，则清除定时器
         } else if (Date.now() - startTime >= timeout) {
           clearInterval(interval); // 如果超过超时限制，则清除定时器并强制刷新页面
-          console.error('Turnstile component not loaded, refreshing the page.');
-          window.location.reload(true); // 强制从服务器加载页面，忽略缓存
+          console.error('Turnstile component not loaded, clearing cache and refreshing the page.');
+          clearCacheAndRefresh(); // 清除缓存并硬性刷新页面
         }
       }, 100); // 每 100 毫秒检测一次
+    }
+
+    // 清除缓存并硬性刷新页面
+    function clearCacheAndRefresh() {
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          for (let name of names) caches.delete(name);
+        });
+      }
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.reload(true); // 强制从服务器加载页面，忽略缓存
     }
   </script>
 </body>
