@@ -7,8 +7,6 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Turnstile Verification</title>
-  <!-- 增加查询参数 -->
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?ts=${new Date().getTime()}" async defer></script>
   <style>
     body {
       display: flex;
@@ -47,6 +45,7 @@
         .then(response => response.json())
         .then(keys => {
           const siteKey = keys.siteKey; // 从返回的 JSON 中获取 siteKey
+          loadTurnstileScript(); // 动态加载 Turnstile 脚本
           initializeTurnstile(siteKey); // 初始化 Turnstile 验证
           checkTurnstileStatus(20000); // 检测 Turnstile 状态，超时 20 秒
         })
@@ -54,6 +53,15 @@
     } else {
       console.error('Turnstile verification is not enabled.');
       // 处理错误：例如显示错误信息或者允许继续，具体情况取决于您的需求
+    }
+
+    // 动态加载 Turnstile 脚本
+    function loadTurnstileScript() {
+      const script = document.createElement('script');
+      script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?_=${new Date().getTime()}`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
     }
 
     // 初始化 Turnstile 验证组件
