@@ -57,29 +57,22 @@
         })
         .catch(error => console.error('Error fetching Turnstile keys:', error));
     } else {
-      console.error('Turnstile verification is not enabled.');
-      // 处理错误：例如显示错误信息或者允许继续，具体情况取决于您的需求
-    }
-
-    // 初始化 Turnstile 验证组件
-    function initializeTurnstile(siteKey) {
-      const container = document.getElementById('turnstile-container');
-      if (container) {
-        // 在 Turnstile 容器中插入 Turnstile 验证组件
-        container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
-      } else {
-        console.error('Turnstile container element not found.');
-      }
-    }
-
-    // Turnstile 验证成功的回调函数
-    function onTurnstileSuccess(token) {
-      // 存储验证状态有效期为 4 小时
-      const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000; // 4小时后的时间戳
-      localStorage.setItem('turnstileValidUntil', validUntil);
-
-      // 跳转回主内容页面
+      // TURNSTILE_ENABLED 为 false，直接跳转回主内容页面
       window.location.href = 'index.html';
+    }
+
+    // 初始化 Turnstile 验证
+    function initializeTurnstile(siteKey) {
+      const turnstileContainer = document.getElementById('turnstile-container');
+      turnstile.render(turnstileContainer, {
+        sitekey: siteKey,
+        callback: function(token) {
+          // 将验证状态存储在 localStorage 中，有效期为 30 分钟
+          const validUntil = new Date().getTime() + 30 * 60 * 1000;
+          localStorage.setItem('turnstileValidUntil', validUntil);
+          window.location.href = 'index.html'; // 验证成功后跳转回主内容页面
+        },
+      });
     }
   </script>
 </body>
