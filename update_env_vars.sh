@@ -15,7 +15,7 @@ curl -X PATCH \
         "env_vars": {
           "IFRAME_URL": {
             "type": "plain_text",
-            "value": "https://${ruleName}:${port}"
+            "value": ""
           }
         }
       }
