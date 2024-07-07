@@ -100,7 +100,8 @@
       }
       sessionStorage.clear();
       localStorage.clear();
-      window.location.reload(true); // 强制从服务器加载页面，忽略缓存
+      // 通过添加一个随机参数来绕过缓存
+      window.location.href = window.location.href.split('?')[0] + '?t=' + new Date().getTime();
     }
   </script>
 </body>
