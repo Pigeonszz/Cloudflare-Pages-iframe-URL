@@ -65,6 +65,7 @@
     function initializeTurnstile(siteKey) {
       const container = document.getElementById('turnstile-container');
       if (container) {
+        // 在 Turnstile 容器中插入 Turnstile 验证组件
         container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
       } else {
         console.error('Turnstile container element not found.');
