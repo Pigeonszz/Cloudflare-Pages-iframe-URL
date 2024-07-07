@@ -63,23 +63,25 @@
           iframe.src = iframeUrl;
           iframe.style.display = 'block';
 
-          // 尝试从 iframe 获取 favicon 和 title
-          try {
-            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-            const iframeTitle = iframeDocument.querySelector('title').textContent;
-            setTitle(iframeTitle); // 设置页面标题
-          } catch (error) {
-            console.error('Error accessing iframe content:', error);
-            fetch('/getSiteTitle') // 获取 Cloudflare SITE_TITLE 变量
-              .then(response => response.text()) // 注意此处修改为 text() 方法
-              .then(siteTitle => {
-                setTitle(siteTitle); // 设置页面标题
-              })
-              .catch(error => {
-                console.error('Error fetching SITE_TITLE:', error);
-                // 不设置默认标题，保持页面加载中...
-              });
-          }
+          // 尝试从 iframe 获取 title
+          iframe.onload = function() {
+            try {
+              const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+              const iframeTitle = iframeDocument.querySelector('title').textContent;
+              setTitle(iframeTitle); // 设置页面标题
+            } catch (error) {
+              console.error('Error accessing iframe content:', error);
+              fetch('/getSiteTitle') // 获取 Cloudflare SITE_TITLE 变量
+                .then(response => response.text()) // 注意此处修改为 text() 方法
+                .then(siteTitle => {
+                  setTitle(siteTitle); // 设置页面标题
+                })
+                .catch(error => {
+                  console.error('Error fetching SITE_TITLE:', error);
+                  // 不设置默认标题，保持页面加载中...
+                });
+            }
+          };
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
     }
