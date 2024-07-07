@@ -80,7 +80,7 @@
     function checkTurnstileStatus(timeout) {
       const startTime = Date.now();
       const interval = setInterval(() => {
-        const container = document.querySelector('.cf-turnstile');
+        const container = document.querySelector('.cf-turnstile iframe');
         if (container) {
           clearInterval(interval); // 如果 Turnstile 检测框已加载，则清除定时器
         } else if (Date.now() - startTime >= timeout) {
