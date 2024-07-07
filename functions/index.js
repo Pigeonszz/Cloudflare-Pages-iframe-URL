@@ -13,9 +13,6 @@ export async function onRequest(context) {
     return handleIframeUrl(context);
   } else if (path === '/turnstile-keys') {
     return handleTurnstileKeys(context);
-  } else {
-    // 如果请求路径不匹配任何已知路径，则返回404 Not Found
-    return new Response('Not Found', { status: 404 });
   }
 }
 
