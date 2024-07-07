@@ -92,19 +92,21 @@
     }
 
     // 清除缓存并硬性刷新页面
-    function clearCacheAndRefresh() {
-      // 清除缓存
+    async function clearCacheAndRefresh() {
+      // 清除 caches 中的所有缓存
       if ('caches' in window) {
-        caches.keys().then(names => {
-          for (let name of names) caches.delete(name);
-        });
+        const cacheNames = await caches.keys();
+        for (let name of cacheNames) {
+          await caches.delete(name);
+        }
       }
+
+      // 清除 sessionStorage 和 localStorage 中的所有数据
       sessionStorage.clear();
       localStorage.clear();
-      // 通过添加查询字符串来强制刷新页面
-      const url = new URL(window.location.href);
-      url.searchParams.set('t', Date.now());
-      window.location.href = url.href;
+
+      // 强制从服务器加载页面，忽略缓存
+      window.location.href = window.location.href + '?clearCache=true';
     }
   </script>
 </body>
