@@ -20,9 +20,9 @@
       overflow: hidden; /* 防止 iframe 溢出 */
       position: relative; /* 设置相对定位 */
     }
-    .select-container {
+    select {
       position: fixed; /* 设置固定定位 */
-      top: -40px; /* 初始隐藏在页面上方 */
+      top: 10px; /* 距离顶部 10px */
       left: 50%; /* 居中 */
       transform: translateX(-50%); /* 水平居中 */
       padding: 10px;
@@ -32,39 +32,21 @@
       border: 1px solid #ccc; /* 设置边框 */
       border-radius: 5px; /* 设置圆角 */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 设置阴影 */
-      transition: top 0.3s ease; /* 添加过渡效果 */
-    }
-    .select-container.active {
-      top: 10px; /* 显示在页面顶部 */
     }
     iframe {
       width: 100%; /* 占据整个视口宽度 */
-      height: calc(100vh - 40px); /* 占据整个视口高度，留出选择框高度 */
+      height: 100vh; /* 占据整个视口高度 */
       border: none;
     }
   </style>
 </head>
 <body>
-  <div class="select-container" id="selectContainer">
-    <select id="siteSelection">
-      <option value="">Select a site...</option>
-    </select>
-  </div>
+  <select id="siteSelection">
+    <option value="">Select a site...</option>
+  </select>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    const selectContainer = document.getElementById('selectContainer');
-
-    // 监听鼠标移动到选择框位置时，显示选择框
-    selectContainer.addEventListener('mouseenter', function() {
-      selectContainer.classList.add('active');
-    });
-
-    // 监听鼠标离开选择框位置时，收起选择框
-    selectContainer.addEventListener('mouseleave', function() {
-      selectContainer.classList.remove('active');
-    });
-
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
