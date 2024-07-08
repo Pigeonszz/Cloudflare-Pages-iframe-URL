@@ -24,9 +24,14 @@
       height: 100vh; /* 占据整个视口高度 */
       border: none;
     }
+    #url-selector {
+      display: none;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
+  <select id="url-selector"></select>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
@@ -56,32 +61,58 @@
     // 显示 iframe 的函数
     function showIframe() {
       fetch('/iframe-url')
-        .then(response => response.text())
-        .then(iframeUrl => {
-          // 显示 iframe 并设置 src
-          const iframe = document.getElementById('dynamic-iframe');
-          iframe.src = iframeUrl;
-          iframe.style.display = 'block';
-
-          // 尝试从 iframe 获取 favicon 和 title
-          try {
-            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-            const iframeTitle = iframeDocument.querySelector('title').textContent;
-            setTitle(iframeTitle); // 设置页面标题
-          } catch (error) {
-            console.error('Error accessing iframe content:', error);
-            fetch('/getSiteTitle') // 获取 Cloudflare SITE_TITLE 变量
-              .then(response => response.text()) // 获取纯文本响应
-              .then(siteTitle => {
-                setTitle(siteTitle); // 设置页面标题
-              })
-              .catch(error => {
-                console.error('Error fetching SITE_TITLE:', error);
-                // 不设置默认标题，保持页面加载中...
-              });
+        .then(response => response.json())
+        .then(data => {
+          const urls = data.urls;
+          if (urls.length > 1) {
+            // 如果有多个 URL，显示下拉选择框
+            const selector = document.getElementById('url-selector');
+            selector.style.display = 'block';
+            urls.forEach(url => {
+              const option = document.createElement('option');
+              option.value = url;
+              option.textContent = url;
+              selector.appendChild(option);
+            });
+            // 当选择框值变化时加载相应的 iframe
+            selector.addEventListener('change', event => {
+              loadIframe(event.target.value);
+            });
+            // 默认加载第一个 URL
+            loadIframe(urls[0]);
+          } else if (urls.length === 1) {
+            // 如果只有一个 URL，直接加载 iframe
+            loadIframe(urls[0]);
+          } else {
+            console.error('No URLs available.');
           }
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
+    }
+
+    // 加载 iframe 的函数
+    function loadIframe(url) {
+      const iframe = document.getElementById('dynamic-iframe');
+      iframe.src = url;
+      iframe.style.display = 'block';
+
+      // 尝试从 iframe 获取 favicon 和 title
+      try {
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        const iframeTitle = iframeDocument.querySelector('title').textContent;
+        setTitle(iframeTitle); // 设置页面标题
+      } catch (error) {
+        console.error('Error accessing iframe content:', error);
+        fetch('/getSiteTitle') // 获取 Cloudflare SITE_TITLE 变量
+          .then(response => response.text()) // 获取纯文本响应
+          .then(siteTitle => {
+            setTitle(siteTitle); // 设置页面标题
+          })
+          .catch(error => {
+            console.error('Error fetching SITE_TITLE:', error);
+            // 不设置默认标题，保持页面加载中...
+          });
+      }
     }
 
     // 设置页面标题的函数
