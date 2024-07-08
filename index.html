@@ -20,9 +20,10 @@
       overflow: hidden; /* 防止 iframe 溢出 */
       position: relative; /* 设置相对定位 */
     }
-    select {
-      position: absolute; /* 设置绝对定位 */
-      top: -40px; /* 初始隐藏在视口上方 */
+    #siteSelection {
+      display: none; /* 默认隐藏选择框 */
+      position: fixed; /* 设置固定定位 */
+      top: 0; /* 距离顶部 0 */
       left: 50%; /* 居中 */
       transform: translateX(-50%); /* 水平居中 */
       padding: 10px;
@@ -32,17 +33,10 @@
       border: 1px solid #ccc; /* 设置边框 */
       border-radius: 5px; /* 设置圆角 */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 设置阴影 */
-      visibility: hidden; /* 初始隐藏 */
-      opacity: 0; /* 初始透明 */
-      transition: visibility 0s, opacity 0.5s linear; /* 过渡效果 */
-    }
-    select.active {
-      visibility: visible; /* 显示 */
-      opacity: 1; /* 不透明 */
     }
     iframe {
       width: 100%; /* 占据整个视口宽度 */
-      height: calc(100vh - 40px); /* 占据整个视口高度，减去选择框的高度 */
+      height: 100vh; /* 占据整个视口高度 */
       border: none;
     }
   </style>
@@ -118,23 +112,24 @@
           console.error('Error fetching iframe URL:', error);
           // 处理错误：例如显示错误信息或者保持页面加载中状态
         });
+
+      // 监听鼠标移动到选择框位置，显示选择框
+      const body = document.querySelector('body');
+      const siteSelection = document.getElementById('siteSelection');
+      body.addEventListener('mousemove', function(event) {
+        const y = event.clientY;
+        if (y <= 50) { // 当鼠标位置在顶部 50px 以内时显示选择框
+          siteSelection.style.display = 'block';
+        } else {
+          siteSelection.style.display = 'none';
+        }
+      });
     }
 
     // 设置页面标题的函数
     function setTitle(title) {
       document.title = title || 'Main Content';
     }
-
-    // 鼠标移动到选择框位置时显示选择框
-    const select = document.getElementById('siteSelection');
-    select.addEventListener('mouseover', function() {
-      select.classList.add('active');
-    });
-
-    // 鼠标移出选择框位置时隐藏选择框
-    select.addEventListener('mouseleave', function() {
-      select.classList.remove('active');
-    });
   </script>
 </body>
 </html>
