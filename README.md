@@ -11,7 +11,17 @@ Fork一份此项目，登录Cloudflare dashboard —— Workers and Pages ——
 
 设置四个环境变量
 
-1, IFRAME_URL (iframe所要加载的URL)
+1, IFRAME_URL (iframe所要加载的URL，支持多URL，)
+
+格式为:   
+
+        URL1;名称1,
+        URL2;Name2,
+
+示例:   
+
+        https://example.com;example,
+        https://default.com;default,
 
 2, TURNSTILE_ENABLED (Turnstile 人机验证的开关 , true/false )
 
