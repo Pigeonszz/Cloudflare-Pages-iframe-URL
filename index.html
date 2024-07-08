@@ -18,8 +18,14 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
-      background-color: #f9f9f9; /* 设备暗黑模式下的背景色 */
-      color: #333; /* 设备暗黑模式下的文本颜色 */
+      background-color: #fff; /* 默认背景色为白色 */
+      color: #000; /* 默认文字颜色为黑色 */
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #333; /* 暗黑模式背景色 */
+        color: #fff; /* 暗黑模式文字颜色 */
+      }
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
@@ -34,9 +40,14 @@
       transform: translate(-50%, -50%);
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: top 0.3s, transform 0.3s; /* 添加动画效果 */
-      z-index: 9999; /* 确保在最顶层显示 */
+      transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
       display: none; /* 初始隐藏选择框 */
+      z-index: 1000; /* 确保选择框在最上层 */
+    }
+    #url-selector-container.top {
+      top: -50px; /* 移动到顶部并隐藏 */
+      left: 0;
+      transform: none;
     }
     #url-selector {
       width: 300px;
@@ -44,12 +55,10 @@
       border: none;
       font-size: 16px;
       background: transparent;
-      color: #333; /* 设备暗黑模式下的文本颜色 */
     }
     /* 当鼠标悬停在页面顶部时显示选择框 */
-    body:hover #url-selector-container {
+    body:hover #url-selector-container.top {
       top: 0;
-      transform: translateX(-50%);
     }
   </style>
 </head>
@@ -107,7 +116,7 @@
               if (event.target.value) {
                 loadIframe(event.target.value);
                 // 移动选择框到顶部并隐藏
-                selectorContainer.style.display = 'none';
+                selectorContainer.classList.add('top');
               }
             });
           } else if (urls.length === 1) {
