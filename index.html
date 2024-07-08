@@ -18,6 +18,15 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
+      transition: background-color 0.3s, color 0.3s;
+    }
+    body.light-mode {
+      background-color: #ffffff;
+      color: #000000;
+    }
+    body.dark-mode {
+      background-color: #000000;
+      color: #ffffff;
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
@@ -33,16 +42,17 @@
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
-      z-index: 1000;
+      display: flex;
+      align-items: center;
+      padding: 10px;
     }
     #url-selector-container.top {
       top: -50px; /* 移动到顶部并隐藏 */
       left: 50%;
-      transform: translate(-50%, -100%);
+      transform: translateX(-50%);
     }
-    #url-selector-container.hover {
-      top: 0;
-      transform: translate(-50%, 0);
+    #url-selector-container:hover {
+      top: 0; /* 鼠标悬停时显示 */
     }
     #url-selector {
       width: 300px;
@@ -51,20 +61,18 @@
       font-size: 16px;
       background: transparent;
     }
-    #hover-area {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 20px;
-      z-index: 999;
+    #mode-toggle {
+      margin-right: 10px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 16px;
     }
   </style>
 </head>
-<body>
-  <div id="hover-area"></div>
+<body class="light-mode">
   <div id="url-selector-container">
+    <button id="mode-toggle">深色模式</button>
     <select id="url-selector">
       <option value="" selected disabled>请选择一个URL</option>
     </select>
@@ -105,7 +113,7 @@
             // 如果有多个 URL，显示下拉选择框
             const selector = document.getElementById('url-selector');
             const selectorContainer = document.getElementById('url-selector-container');
-            selectorContainer.style.display = 'block';
+            selectorContainer.style.display = 'flex';
             urls.forEach(url => {
               const option = document.createElement('option');
               option.value = url;
@@ -119,21 +127,6 @@
                 // 移动选择框到顶部并隐藏
                 selectorContainer.classList.add('top');
               }
-            });
-
-            // 鼠标悬停检测
-            const hoverArea = document.getElementById('hover-area');
-            let hoverTimeout;
-
-            hoverArea.addEventListener('mouseenter', () => {
-              hoverTimeout = setTimeout(() => {
-                selectorContainer.classList.add('hover');
-              }, 300); // 0.3 秒延迟
-            });
-
-            hoverArea.addEventListener('mouseleave', () => {
-              clearTimeout(hoverTimeout);
-              selectorContainer.classList.remove('hover');
             });
           } else if (urls.length === 1) {
             // 如果只有一个 URL，直接加载 iframe
@@ -174,6 +167,24 @@
     function setTitle(title) {
       document.title = title; // 设置页面标题
     }
+
+    // 切换浅色/深色模式的函数
+    function toggleMode() {
+      const body = document.body;
+      const modeToggle = document.getElementById('mode-toggle');
+      if (body.classList.contains('light-mode')) {
+        body.classList.remove('light-mode');
+        body.classList.add('dark-mode');
+        modeToggle.textContent = '浅色模式';
+      } else {
+        body.classList.remove('dark-mode');
+        body.classList.add('light-mode');
+        modeToggle.textContent = '深色模式';
+      }
+    }
+
+    // 添加事件监听器以切换模式
+    document.getElementById('mode-toggle').addEventListener('click', toggleMode);
   </script>
 </body>
 </html>
