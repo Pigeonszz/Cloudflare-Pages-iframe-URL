@@ -55,6 +55,9 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    const body = document.body;
+    const selectorContainer = document.getElementById('url-selector-container');
+
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -87,37 +90,41 @@
           if (urls.length > 1) {
             // 如果有多个 URL，显示选择框
             const selector = document.getElementById('url-selector');
-            const selectorContainer = document.getElementById('url-selector-container');
-            selectorContainer.style.display = 'block';
+            selector.innerHTML = ''; // 清空之前的选项
             urls.forEach(url => {
               const option = document.createElement('option');
               option.value = url;
               option.textContent = url;
               selector.appendChild(option);
             });
-            // 当选择框值变化时加载相应的 iframe
+            // 显示选择框
+            selectorContainer.style.display = 'block';
+
+            // 监听选择框变化
             selector.addEventListener('change', event => {
               if (event.target.value) {
                 loadIframe(event.target.value);
-                hideSelector(); // 选择后隐藏选择框
               }
             });
 
             // 监听鼠标移动事件，控制选择框显示和隐藏
             let isHovering = false;
             body.addEventListener('mousemove', event => {
-              const bodyRect = body.getBoundingClientRect();
-              const mouseY = event.clientY - bodyRect.top;
-              if (mouseY <= 10 && !isHovering) {
+              const mouseY = event.clientY;
+              const selectorRect = selectorContainer.getBoundingClientRect();
+              const threshold = 10; // 阈值，控制在顶部显示的位置
+
+              if (!isHovering && mouseY < threshold) {
                 // 鼠标进入顶部区域，显示选择框
                 isHovering = true;
                 selectorContainer.style.top = '0';
-              } else if (mouseY > 10 && isHovering) {
-                // 鼠标移出顶部区域，隐藏选择框
+              } else if (isHovering && mouseY >= selectorRect.bottom) {
+                // 鼠标移出选择框范围，隐藏选择框
                 isHovering = false;
-                selectorContainer.style.top = '50%';
+                selectorContainer.style.top = '-100%';
               }
             });
+
           } else if (urls.length === 1) {
             // 如果只有一个 URL，直接加载 iframe
             loadIframe(urls[0]);
@@ -156,12 +163,6 @@
     // 设置页面标题的函数
     function setTitle(title) {
       document.title = title; // 设置页面标题
-    }
-
-    // 隐藏选择框的函数
-    function hideSelector() {
-      const selectorContainer = document.getElementById('url-selector-container');
-      selectorContainer.style.display = 'none';
     }
   </script>
 </body>
