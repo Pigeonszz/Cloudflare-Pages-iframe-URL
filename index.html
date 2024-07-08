@@ -18,16 +18,21 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
+      position: relative; /* 设置相对定位 */
+    }
+    select {
+      position: absolute; /* 设置绝对定位 */
+      top: 10px; /* 距离顶部 10px */
+      left: 50%; /* 居中 */
+      transform: translateX(-50%); /* 水平居中 */
+      padding: 10px;
+      font-size: 16px;
+      z-index: 100; /* 确保选择框位于最上层 */
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
-      height: 100vh; /* 占据整个视口高度 */
+      height: calc(100vh - 40px); /* 占据整个视口高度减去选择框高度和 margin */
       border: none;
-    }
-    select {
-      margin-top: 20px;
-      padding: 10px;
-      font-size: 16px;
     }
   </style>
 </head>
