@@ -18,6 +18,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
+      position: relative; /* 相对定位 */
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
@@ -26,15 +27,17 @@
       display: none; /* 初始隐藏 iframe */
     }
     #url-selector-container {
-      position: fixed;
-      top: 0;
+      position: absolute;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: top 0.3s, transform 0.3s; /* 添加动画效果 */
+      transition: top 0.3s; /* 添加动画效果 */
       display: none; /* 初始隐藏选择框 */
-      z-index: 1000; /* 确保选择框在顶层 */
+    }
+    #url-selector-container.active {
+      top: 0; /* 移动到顶部 */
     }
     #url-selector {
       width: 300px;
@@ -43,21 +46,14 @@
       font-size: 16px;
       background: transparent;
     }
-    /* 当鼠标悬停在页面顶部时显示选择框 */
+    /* 当鼠标悬停在选择框区域时显示选择框 */
     body:hover #url-selector-container {
-      top: 50%; /* 移动到页面中间 */
-      transform: translate(-50%, -50%);
-      display: block; /* 显示选择框 */
-    }
-    #url-selector-container.hidden {
-      top: 0; /* 移动到顶部 */
-      opacity: 0; /* 完全隐藏 */
-      pointer-events: none; /* 禁用鼠标事件 */
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div id="url-selector-container" class="hidden">
+  <div id="url-selector-container">
     <select id="url-selector">
       <option value="" selected disabled>请选择一个URL</option>
     </select>
@@ -95,22 +91,25 @@
         .then(data => {
           const urls = data.urls;
           if (urls.length > 1) {
-            // 如果有多个 URL，显示下拉选择框
+            // 如果有多个 URL，显示选择框并填充选项
             const selector = document.getElementById('url-selector');
-            const selectorContainer = document.getElementById('url-selector-container');
-            selectorContainer.classList.remove('hidden');
             urls.forEach(url => {
               const option = document.createElement('option');
               option.value = url;
               option.textContent = url;
               selector.appendChild(option);
             });
-            // 当选择框值变化时加载相应的 iframe
+            // 显示选择框
+            const selectorContainer = document.getElementById('url-selector-container');
+            selectorContainer.style.display = 'block';
+            selectorContainer.classList.add('active');
+            // 监听选择框的改变事件
             selector.addEventListener('change', event => {
               if (event.target.value) {
                 loadIframe(event.target.value);
-                // 收起选择框
-                selectorContainer.classList.add('hidden');
+                // 隐藏选择框
+                selectorContainer.style.display = 'none';
+                selectorContainer.classList.remove('active');
               }
             });
           } else if (urls.length === 1) {
