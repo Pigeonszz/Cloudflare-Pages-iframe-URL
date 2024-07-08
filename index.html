@@ -18,12 +18,14 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
-      background-color: #fff; /* 默认背景色，适配暗黑模式 */
-      color: #000; /* 默认文字颜色，适配暗黑模式 */
+      background-color: #fff; /* 默认白色背景 */
+      color: #000; /* 默认黑色字体 */
     }
-    body.dark-mode {
-      background-color: #333; /* 暗黑模式背景色 */
-      color: #fff; /* 暗黑模式文字颜色 */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #333; /* 暗黑模式背景色 */
+        color: #fff; /* 暗黑模式字体色 */
+      }
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
@@ -39,12 +41,8 @@
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
-      z-index: 1000; /* 确保在最上层 */
-    }
-    #url-selector-container.top {
-      top: 0; /* 移动到顶部 */
-      left: 0;
-      transform: none;
+      display: none; /* 初始隐藏选择框 */
+      z-index: 1000; /* 确保在顶层显示 */
     }
     #url-selector {
       width: 300px;
@@ -54,9 +52,10 @@
       background: transparent;
     }
     /* 当鼠标悬停在页面顶部时显示选择框 */
-    body.dark-mode #url-selector-container,
-    body:not(.dark-mode):hover #url-selector-container.top {
-      top: 0; /* 暗黑模式或鼠标在顶部时显示 */
+    body:hover #url-selector-container {
+      display: block; /* 鼠标在顶部时显示选择框 */
+      top: 0; /* 移动到顶部 */
+      transform: translateX(-50%);
     }
   </style>
 </head>
@@ -114,7 +113,7 @@
               if (event.target.value) {
                 loadIframe(event.target.value);
                 // 移动选择框到顶部并隐藏
-                selectorContainer.classList.add('top');
+                selectorContainer.style.display = 'none'; // 隐藏选择框
               }
             });
           } else if (urls.length === 1) {
@@ -155,11 +154,6 @@
     // 设置页面标题的函数
     function setTitle(title) {
       document.title = title; // 设置页面标题
-    }
-
-    // 检测暗黑模式并应用样式
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.body.classList.add('dark-mode');
     }
   </script>
 </body>
