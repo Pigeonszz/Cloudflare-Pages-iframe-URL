@@ -2,23 +2,29 @@ Cloudflare Pages iframe URL
 
 这是一个使用 Cloudflare Pages 部署的项目，用于显示一个包含 Turnstile 验证的 iframe。
 
-使用 Cloudflare 的 Turnstile API 进行人机验证,
+使用 Cloudflare 的 Turnstile API 进行人机验证(可选功能),
 在验证成功后加载指定的 iframe 内容。
 
 如何使用
 
 Fork一份此项目，登录Cloudflare dashboard —— Workers and Pages —— 创建 —— pages —— 连接到Git，选择刚刚Fork的仓库
 
-设置三个变量
+设置四个环境变量
 
-IFRAME_URL (iframe所要展示的URL)
+1, IFRAME_URL (iframe所要加载的URL)
 
-TURNSTILE_ENABLED (Turnstile 验证的开关)
+2, TURNSTILE_ENABLED (Turnstile 人机验证的开关 , true/false )
 
-TURNSTILE_SITE_KEY (Cloudflare Turnstile 站点密钥)
+3, TURNSTILE_SITE_KEY (Cloudflare Turnstile 人机验证的站点密钥 )
+
+#在Cloudflare dashboard —— Turnstile —— 添加站点 —— 根据需要配置 —— 创建
+
+4, SITE_TITLE (站点标题，默认会从iframe中获取，获取不到时回退到此变量)
 
 部署
 
 享受
 
-powered by ChatGPT and Cloudflare Pages
+部分站点可能不接受被嵌入在iframe里
+
+Powered by ChatGPT and Cloudflare Pages
