@@ -5,7 +5,7 @@
 # 1 , 在我的个人资料 —— api令牌 —— 创建令牌 —— 权限为（帐户——Cloudflare Pages——编辑）
 #
 # 2 , 在浏览器的地址栏里，获取账户的唯一ID，形如 https://dash.cloudflare.com/4e39dda94a985e84e93cb5e2e07c5ff3/
-# 这个 "c299f4beb4ee6bca0e2046a642b52ab9" 就是你的账户ID
+# 这个 "4e39dda94a985e84e93cb5e2e07c5ff39" 就是你的账户ID
 #
 # 3 , 在浏览器的地址栏里，获取项目名称，形如 https://dash.cloudflare.com/4e39dda94a985e84e93cb5e2e07c5ff3/pages/view/cloudflare-pages-iframe-url
 # 这个 "cloudflare-pages-iframe-url" 就是项目名称
