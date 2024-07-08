@@ -33,12 +33,11 @@
       background-color: white; /* 设置背景颜色 */
       border: 1px solid #ccc; /* 设置边框 */
       border-radius: 5px; /* 设置圆角 */
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* 设置描边 */
-      transition: transform 0.3s ease, box-shadow 0.3s ease; /* 添加过渡效果 */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 设置阴影 */
+      transition: transform 0.3s ease; /* 添加过渡效果 */
     }
     select.active {
       transform: translateX(-50%) translateY(0); /* 激活时向下显示 */
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 激活时增加描边 */
     }
     iframe {
       width: 100%; /* 占据整个视口宽度 */
@@ -55,11 +54,7 @@
       select {
         background-color: #1e1e1e; /* 深色背景 */
         color: white; /* 深色文本 */
-        border-color: #888; /* 深色边框颜色 */
-        box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); /* 深色描边 */
-      }
-      select.active {
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* 深色激活描边 */
+        border-color: #444; /* 深色边框颜色 */
       }
     }
   </style>
