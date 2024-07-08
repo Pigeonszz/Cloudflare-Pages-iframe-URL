@@ -22,9 +22,9 @@
     }
     select {
       position: fixed; /* 设置固定定位 */
-      top: 10px; /* 距离顶部 10px */
+      top: 10px; /* 初始位置距离顶部 10px */
       left: 50%; /* 居中 */
-      transform: translateX(-50%); /* 水平居中 */
+      transform: translateX(-50%) translateY(-100%); /* 初始隐藏到顶部 */
       padding: 10px;
       font-size: 16px;
       z-index: 100; /* 确保选择框位于最上层 */
@@ -32,6 +32,10 @@
       border: 1px solid #ccc; /* 设置边框 */
       border-radius: 5px; /* 设置圆角 */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 设置阴影 */
+      transition: transform 0.3s ease; /* 添加过渡效果 */
+    }
+    select.active {
+      transform: translateX(-50%) translateY(0); /* 激活时向下显示 */
     }
     iframe {
       width: 100%; /* 占据整个视口宽度 */
@@ -117,6 +121,15 @@
     function setTitle(title) {
       document.title = title || 'Main Content';
     }
+
+    // 监听鼠标移动事件，控制选择框显示
+    const select = document.getElementById('siteSelection');
+    select.addEventListener('mouseenter', function() {
+      select.classList.add('active'); // 鼠标移入时激活选择框显示
+    });
+    select.addEventListener('mouseleave', function() {
+      select.classList.remove('active'); // 鼠标移出时隐藏选择框
+    });
   </script>
 </body>
 </html>
