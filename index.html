@@ -18,46 +18,27 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
-      position: relative; /* 设置相对定位，用于绝对定位的选择框 */
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
       height: 100vh; /* 占据整个视口高度 */
       border: none;
-      display: none; /* 初始隐藏 iframe */
     }
-    #url-selector-container {
-      position: absolute; /* 绝对定位 */
-      top: 50%; /* 初始在中间 */
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #f9f9f9;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: top 0.3s; /* 添加动画效果 */
-      display: none; /* 初始隐藏 */
-      z-index: 999; /* 确保在顶部显示 */
-    }
-    #url-selector {
-      width: 300px;
+    select {
+      margin-top: 20px;
       padding: 10px;
-      border: none;
       font-size: 16px;
-      background: transparent;
     }
   </style>
 </head>
 <body>
-  <div id="url-selector-container">
-    <select id="url-selector">
-      <option value="" selected disabled>请选择一个URL</option>
-    </select>
-  </div>
+  <h1>Loading...</h1>
+  <select id="siteSelection">
+    <option value="">Select a site...</option>
+  </select>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    const body = document.body;
-    const selectorContainer = document.getElementById('url-selector-container');
-
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -75,94 +56,55 @@
             window.location.href = 'turnstile.html';
           }
         } else {
-          // 如果 TURNSTILE_ENABLED 为 false，直接显示 iframe
+          // TURNSTILE_ENABLED 为 false，直接显示 iframe
           showIframe();
         }
       })
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
-    // 显示 iframe 的函数
+    // 显示 iframe
     function showIframe() {
       fetch('/iframe-url')
         .then(response => response.json())
-        .then(data => {
-          const urls = data.urls;
-          if (urls.length > 1) {
-            // 如果有多个 URL，显示选择框
-            const selector = document.getElementById('url-selector');
-            selector.innerHTML = ''; // 清空之前的选项
-            urls.forEach(url => {
-              const option = document.createElement('option');
-              option.value = url.url; // 使用 URL 作为选项值
-              option.textContent = url.service; // 使用服务名称作为选项文本
-              selector.appendChild(option);
-            });
-            // 显示选择框
-            selectorContainer.style.display = 'block';
+        .then(urls => {
+          const select = document.getElementById('siteSelection');
+          const iframe = document.getElementById('dynamic-iframe');
 
-            // 监听选择框变化
-            selector.addEventListener('change', event => {
-              if (event.target.value) {
-                loadIframe(event.target.value);
-              }
-            });
-
-            // 监听鼠标移动事件，控制选择框显示和隐藏
-            let isHovering = false;
-            body.addEventListener('mousemove', event => {
-              const mouseY = event.clientY;
-              const selectorRect = selectorContainer.getBoundingClientRect();
-              const threshold = 10; // 阈值，控制在顶部显示的位置
-
-              if (!isHovering && mouseY < threshold) {
-                // 鼠标进入顶部区域，显示选择框
-                isHovering = true;
-                selectorContainer.style.top = '0';
-              } else if (isHovering && mouseY >= selectorRect.bottom) {
-                // 鼠标移出选择框范围，隐藏选择框
-                isHovering = false;
-                selectorContainer.style.top = '-100%';
-              }
-            });
-
-          } else if (urls.length === 1) {
-            // 如果只有一个 URL，直接加载 iframe
-            loadIframe(urls[0].url);
-          } else {
-            console.error('No URLs available.');
-          }
-        })
-        .catch(error => console.error('Error fetching iframe URL:', error));
-    }
-
-    // 加载 iframe 的函数
-    function loadIframe(url) {
-      const iframe = document.getElementById('dynamic-iframe');
-      iframe.src = url;
-      iframe.style.display = 'block';
-
-      // 尝试从 iframe 获取 favicon 和 title
-      try {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        const iframeTitle = iframeDocument.querySelector('title').textContent;
-        setTitle(iframeTitle); // 设置页面标题
-      } catch (error) {
-        console.error('Error accessing iframe content:', error);
-        fetch('/getSiteTitle') // 获取 Cloudflare SITE_TITLE 变量
-          .then(response => response.text()) // 获取纯文本响应
-          .then(siteTitle => {
-            setTitle(siteTitle); // 设置页面标题
-          })
-          .catch(error => {
-            console.error('Error fetching SITE_TITLE:', error);
-            // 不设置默认标题，保持页面加载中...
+          // 遍历 URL 对象数组，为选择框添加选项并设置 iframe 的 src
+          urls.forEach(urlObj => {
+            const option = document.createElement('option');
+            option.value = urlObj.url;
+            option.textContent = urlObj.service;
+            select.appendChild(option);
           });
-      }
+
+          // 设置选择框变化时加载对应 URL 的事件
+          select.addEventListener('change', function() {
+            const selectedUrl = select.value;
+            if (selectedUrl) {
+              iframe.src = selectedUrl;
+            }
+          });
+
+          // 默认加载第一个选项的 URL
+          if (urls.length > 0) {
+            iframe.src = urls[0].url;
+          }
+
+          // 更新页面标题
+          const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+          const iframeTitle = iframeDocument.querySelector('title').textContent;
+          setTitle(iframeTitle); // 设置页面标题
+        })
+        .catch(error => {
+          console.error('Error fetching iframe URL:', error);
+          // 处理错误：例如显示错误信息或者保持页面加载中状态
+        });
     }
 
     // 设置页面标题的函数
     function setTitle(title) {
-      document.title = title; // 设置页面标题
+      document.title = title || 'Main Content';
     }
   </script>
 </body>
