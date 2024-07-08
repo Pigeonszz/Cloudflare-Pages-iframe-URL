@@ -19,6 +19,8 @@
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
       position: relative; /* 设置相对定位 */
+      background-color: white; /* 默认背景颜色 */
+      color: black; /* 默认文本颜色 */
     }
     select {
       position: fixed; /* 设置固定定位 */
@@ -41,6 +43,19 @@
       width: 100%; /* 占据整个视口宽度 */
       height: 100vh; /* 占据整个视口高度 */
       border: none;
+    }
+
+    /* 根据设备浅色/深色模式调整样式 */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1e1e1e; /* 深色背景 */
+        color: white; /* 深色文本 */
+      }
+      select {
+        background-color: #1e1e1e; /* 深色背景 */
+        color: white; /* 深色文本 */
+        border-color: #888; /* 深色边框颜色 */
+      }
     }
   </style>
 </head>
