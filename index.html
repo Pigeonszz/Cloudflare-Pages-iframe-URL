@@ -93,8 +93,8 @@
             selector.innerHTML = ''; // 清空之前的选项
             urls.forEach(url => {
               const option = document.createElement('option');
-              option.value = url;
-              option.textContent = url;
+              option.value = url.url; // 使用 url 属性作为值
+              option.textContent = url.service; // 使用 service 属性作为文本内容
               selector.appendChild(option);
             });
             // 显示选择框
@@ -127,7 +127,7 @@
 
           } else if (urls.length === 1) {
             // 如果只有一个 URL，直接加载 iframe
-            loadIframe(urls[0]);
+            loadIframe(urls[0].url);
           } else {
             console.error('No URLs available.');
           }
