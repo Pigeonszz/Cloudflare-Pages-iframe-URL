@@ -34,11 +34,14 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
       display: none; /* 初始隐藏选择框 */
+      z-index: 1000; /* 确保选择框在顶层 */
     }
     #url-selector-container.top {
       top: 0; /* 移动到顶部 */
-      left: 50%;
+      left: 50%; /* 水平居中 */
       transform: translateX(-50%);
+      opacity: 0; /* 完全隐藏 */
+      pointer-events: none; /* 禁用鼠标事件 */
     }
     #url-selector {
       width: 300px;
@@ -49,7 +52,8 @@
     }
     /* 当鼠标悬停在页面顶部时显示选择框 */
     body:hover #url-selector-container.top {
-      top: 0;
+      opacity: 1; /* 显示选择框 */
+      pointer-events: auto; /* 启用鼠标事件 */
     }
   </style>
 </head>
@@ -108,9 +112,6 @@
                 loadIframe(event.target.value);
                 // 移动选择框到顶部并隐藏
                 selectorContainer.classList.add('top');
-                setTimeout(() => {
-                  selectorContainer.style.display = 'none';
-                }, 500); // 设置延迟以确保动画完成后隐藏
               }
             });
           } else if (urls.length === 1) {
