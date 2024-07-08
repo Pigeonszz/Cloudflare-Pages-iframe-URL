@@ -18,8 +18,8 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
-      background-color: #f0f0f0; /* 设备暗黑模式背景色 */
-      color: #333; /* 设备暗黑模式文本颜色 */
+      background-color: #1a1a1a; /* 设置暗黑模式背景颜色 */
+      color: #ffffff; /* 设置暗黑模式文字颜色 */
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
@@ -32,15 +32,14 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #f9f9f9;
+      background-color: #333; /* 选择框背景颜色 */
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
+      transition: top 0.3s, transform 0.3s; /* 添加动画效果 */
       display: none; /* 初始隐藏选择框 */
     }
-    #url-selector-container.visible {
+    #url-selector-container.active {
       top: 0; /* 移动到顶部 */
-      left: 0;
-      transform: none;
+      transform: translate(-50%, 0);
     }
     #url-selector {
       width: 300px;
@@ -48,10 +47,11 @@
       border: none;
       font-size: 16px;
       background: transparent;
+      color: #ffffff; /* 选择框文字颜色 */
     }
     /* 当鼠标悬停在页面顶部时显示选择框 */
-    body:hover #url-selector-container.visible {
-      display: block; /* 鼠标在顶部时显示 */
+    body:hover #url-selector-container {
+      display: block; /* 悬停时显示选择框 */
     }
   </style>
 </head>
@@ -97,7 +97,7 @@
             // 如果有多个 URL，显示下拉选择框
             const selector = document.getElementById('url-selector');
             const selectorContainer = document.getElementById('url-selector-container');
-            selectorContainer.classList.add('visible'); // 显示选择框
+            selectorContainer.style.display = 'block';
             urls.forEach(url => {
               const option = document.createElement('option');
               option.value = url;
@@ -108,8 +108,8 @@
             selector.addEventListener('change', event => {
               if (event.target.value) {
                 loadIframe(event.target.value);
-                // 隐藏选择框
-                selectorContainer.style.display = 'none';
+                // 移动选择框到顶部并隐藏
+                selectorContainer.classList.add('active');
               }
             });
           } else if (urls.length === 1) {
