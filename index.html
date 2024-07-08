@@ -24,14 +24,34 @@
       height: 100vh; /* 占据整个视口高度 */
       border: none;
     }
+    #url-selector-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #f9f9f9;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
+    }
     #url-selector {
-      display: none;
-      margin-bottom: 20px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      font-size: 16px;
+      background: transparent;
+    }
+    /* 当选择框移动到顶部时隐藏 */
+    #url-selector-container.hidden {
+      top: -50px;
+      left: 0;
+      transform: translate(0, 0);
     }
   </style>
 </head>
 <body>
-  <select id="url-selector"></select>
+  <div id="url-selector-container">
+    <select id="url-selector"></select>
+  </div>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
@@ -67,7 +87,8 @@
           if (urls.length > 1) {
             // 如果有多个 URL，显示下拉选择框
             const selector = document.getElementById('url-selector');
-            selector.style.display = 'block';
+            const selectorContainer = document.getElementById('url-selector-container');
+            selectorContainer.style.display = 'block';
             urls.forEach(url => {
               const option = document.createElement('option');
               option.value = url;
@@ -77,6 +98,8 @@
             // 当选择框值变化时加载相应的 iframe
             selector.addEventListener('change', event => {
               loadIframe(event.target.value);
+              // 移动选择框到顶部并隐藏
+              selectorContainer.classList.add('hidden');
             });
             // 默认加载第一个 URL
             loadIframe(urls[0]);
