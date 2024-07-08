@@ -32,19 +32,15 @@
       transform: translate(-50%, -50%);
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 10px;
-      transition: top 0.3s, transform 0.3s; /* 添加动画效果 */
+      transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
     }
     #url-selector-container.top {
-      top: -50px;
-      transform: translate(0, 0);
+      top: -50px; /* 移动到顶部并隐藏 */
       left: 0;
-      right: 0;
-      margin: 0 auto;
-      width: 100%;
+      transform: none;
     }
     #url-selector {
-      width: 100%;
+      width: 300px;
       padding: 10px;
       border: none;
       font-size: 16px;
@@ -58,7 +54,9 @@
 </head>
 <body>
   <div id="url-selector-container">
-    <select id="url-selector"></select>
+    <select id="url-selector">
+      <option value="" selected disabled>请选择一个URL</option>
+    </select>
   </div>
   <iframe id="dynamic-iframe"></iframe>
 
@@ -105,20 +103,15 @@
             });
             // 当选择框值变化时加载相应的 iframe
             selector.addEventListener('change', event => {
-              const selectedUrl = event.target.value;
-              loadIframe(selectedUrl);
-              // 移动选择框到页面顶部
-              selectorContainer.classList.add('top');
-              // 显示 iframe
-              document.getElementById('dynamic-iframe').style.display = 'block';
+              if (event.target.value) {
+                loadIframe(event.target.value);
+                // 移动选择框到顶部并隐藏
+                selectorContainer.classList.add('top');
+              }
             });
           } else if (urls.length === 1) {
             // 如果只有一个 URL，直接加载 iframe
             loadIframe(urls[0]);
-            // 隐藏选择框
-            document.getElementById('url-selector-container').style.display = 'none';
-            // 显示 iframe
-            document.getElementById('dynamic-iframe').style.display = 'block';
           } else {
             console.error('No URLs available.');
           }
@@ -130,6 +123,7 @@
     function loadIframe(url) {
       const iframe = document.getElementById('dynamic-iframe');
       iframe.src = url;
+      iframe.style.display = 'block';
 
       // 尝试从 iframe 获取 favicon 和 title
       try {
