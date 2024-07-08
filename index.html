@@ -33,11 +33,16 @@
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
+      z-index: 10; /* 确保选择框在最上层 */
     }
     #url-selector-container.top {
-      top: -50px; /* 移动到顶部并隐藏 */
-      left: 0;
-      transform: none;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -100%);
+    }
+    #url-selector-container.show {
+      top: 0;
+      transform: translate(-50%, 0);
     }
     #url-selector {
       width: 300px;
@@ -45,10 +50,6 @@
       border: none;
       font-size: 16px;
       background: transparent;
-    }
-    /* 当鼠标悬停在页面顶部时显示选择框 */
-    body:hover #url-selector-container.top {
-      top: 0;
     }
   </style>
 </head>
@@ -105,8 +106,20 @@
             selector.addEventListener('change', event => {
               if (event.target.value) {
                 loadIframe(event.target.value);
-                // 移动选择框到顶部并隐藏
+                // 移动选择框到顶部中间并隐藏
                 selectorContainer.classList.add('top');
+                setTimeout(() => {
+                  selectorContainer.classList.add('hide');
+                }, 300);
+              }
+            });
+
+            // 鼠标悬停在页面顶部中间时显示选择框
+            document.addEventListener('mousemove', (event) => {
+              if (event.clientY < 50 && event.clientX > window.innerWidth / 2 - 150 && event.clientX < window.innerWidth / 2 + 150) {
+                selectorContainer.classList.add('show');
+              } else {
+                selectorContainer.classList.remove('show');
               }
             });
           } else if (urls.length === 1) {
