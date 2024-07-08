@@ -18,7 +18,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
-      position: relative; /* 相对定位，以便处理选择框的绝对定位 */
+      position: relative; /* 添加相对定位 */
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
@@ -27,18 +27,15 @@
       display: none; /* 初始隐藏 iframe */
     }
     #url-selector-container {
-      position: absolute;
-      top: 50%; /* 初始位置位于页面中间 */
+      position: absolute; /* 绝对定位 */
+      top: 50%; /* 初始在中间 */
       left: 50%;
       transform: translate(-50%, -50%);
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: top 0.3s; /* 添加动画效果 */
+      transition: top 0.3s, transform 0.3s; /* 添加动画效果 */
       display: none; /* 初始隐藏选择框 */
-      z-index: 1000; /* 确保在顶部显示 */
-    }
-    #url-selector.visible {
-      top: 0; /* 移动到顶部显示 */
+      z-index: 1000; /* 确保在最上层 */
     }
     #url-selector {
       width: 300px;
@@ -48,8 +45,9 @@
       background: transparent;
     }
     /* 当鼠标悬停在页面顶部时显示选择框 */
-    body:hover #url-selector.visible {
-      top: 50px; /* 移动到顶部显示 */
+    body:hover #url-selector-container {
+      top: 0; /* 移动到顶部 */
+      transform: translateX(-50%); /* 水平居中 */
     }
   </style>
 </head>
@@ -106,8 +104,8 @@
             selector.addEventListener('change', event => {
               if (event.target.value) {
                 loadIframe(event.target.value);
-                // 添加 visible 类移动选择框到顶部并隐藏
-                selectorContainer.classList.add('visible');
+                // 移动选择框到顶部并隐藏
+                selectorContainer.style.display = 'none';
               }
             });
           } else if (urls.length === 1) {
