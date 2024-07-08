@@ -91,10 +91,10 @@
             // 如果有多个 URL，显示选择框
             const selector = document.getElementById('url-selector');
             selector.innerHTML = ''; // 清空之前的选项
-            urls.forEach(url => {
+            urls.forEach(urlObj => {
               const option = document.createElement('option');
-              option.value = url.url; // 使用 url 属性作为值
-              option.textContent = url.service; // 使用 service 属性作为文本内容
+              option.value = urlObj.url;
+              option.textContent = urlObj.service; // 使用服务名称作为显示内容
               selector.appendChild(option);
             });
             // 显示选择框
@@ -117,7 +117,7 @@
               if (!isHovering && mouseY < threshold) {
                 // 鼠标进入顶部区域，显示选择框
                 isHovering = true;
-                selectorContainer.style.top = '0';
+                selectorContainer.style.top = '10';
               } else if (isHovering && mouseY >= selectorRect.bottom) {
                 // 鼠标移出选择框范围，隐藏选择框
                 isHovering = false;
