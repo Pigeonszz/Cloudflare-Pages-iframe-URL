@@ -18,7 +18,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden; /* 防止 iframe 溢出 */
-      position: relative; /* 相对定位 */
+      position: relative; /* 设置相对定位，用于绝对定位的选择框 */
     }
     iframe {
       width: 100vw; /* 占据整个视口宽度 */
@@ -27,14 +27,14 @@
       display: none; /* 初始隐藏 iframe */
     }
     #url-selector-container {
-      position: absolute;
-      top: 50%;
+      position: absolute; /* 绝对定位 */
+      top: 50%; /* 初始在中间 */
       left: 50%;
       transform: translate(-50%, -50%);
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: top 0.3s; /* 添加动画效果 */
-      display: none; /* 初始隐藏选择框 */
+      display: none; /* 初始隐藏 */
     }
     #url-selector-container.active {
       top: 0; /* 移动到顶部 */
@@ -46,9 +46,9 @@
       font-size: 16px;
       background: transparent;
     }
-    /* 当鼠标悬停在选择框区域时显示选择框 */
+    /* 当鼠标悬停在页面顶部时显示选择框 */
     body:hover #url-selector-container {
-      display: block;
+      display: block; /* 悬停时显示选择框 */
     }
   </style>
 </head>
@@ -91,25 +91,22 @@
         .then(data => {
           const urls = data.urls;
           if (urls.length > 1) {
-            // 如果有多个 URL，显示选择框并填充选项
+            // 如果有多个 URL，显示下拉选择框
             const selector = document.getElementById('url-selector');
+            const selectorContainer = document.getElementById('url-selector-container');
+            selectorContainer.style.display = 'block';
             urls.forEach(url => {
               const option = document.createElement('option');
               option.value = url;
               option.textContent = url;
               selector.appendChild(option);
             });
-            // 显示选择框
-            const selectorContainer = document.getElementById('url-selector-container');
-            selectorContainer.style.display = 'block';
-            selectorContainer.classList.add('active');
-            // 监听选择框的改变事件
+            // 当选择框值变化时加载相应的 iframe
             selector.addEventListener('change', event => {
               if (event.target.value) {
                 loadIframe(event.target.value);
-                // 隐藏选择框
-                selectorContainer.style.display = 'none';
-                selectorContainer.classList.remove('active');
+                // 添加 .active 类移动选择框到顶部
+                selectorContainer.classList.add('active');
               }
             });
           } else if (urls.length === 1) {
