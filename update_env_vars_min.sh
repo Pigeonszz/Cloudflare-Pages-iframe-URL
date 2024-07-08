@@ -1,5 +1,6 @@
 TOKEN=""
 ACCOUNT_ID=""
+
 curl -X PATCH \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
@@ -16,7 +17,9 @@ curl -X PATCH \
   }
 }' \
   "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_ID"
+
 sleep 5
+
 curl -X POST \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
