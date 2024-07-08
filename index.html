@@ -32,12 +32,11 @@
       transform: translate(-50%, -50%);
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
+      transition: top 0.3s, transform 0.3s; /* 添加动画效果 */
     }
     #url-selector-container.top {
-      top: 0; /* 移动到顶部并隐藏 */
-      left: 0;
-      transform: none;
+      top: 0; /* 移动到顶部 */
+      transform: translate(-50%, 0);
     }
     #url-selector {
       width: 300px;
@@ -47,7 +46,7 @@
       background: transparent;
     }
     /* 当鼠标悬停在页面顶部时显示选择框 */
-    body:hover #url-selector-container.top {
+    body:hover #url-selector-container {
       top: 0;
     }
   </style>
@@ -94,7 +93,6 @@
             // 如果有多个 URL，显示下拉选择框
             const selector = document.getElementById('url-selector');
             const selectorContainer = document.getElementById('url-selector-container');
-            selectorContainer.style.display = 'block';
             urls.forEach(url => {
               const option = document.createElement('option');
               option.value = url;
