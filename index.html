@@ -50,8 +50,11 @@
       font-size: 16px;
       background: transparent;
     }
-    /* 当鼠标悬停在页面顶部时显示选择框 */
-    body:hover #url-selector-container.top {
+    /* 鼠标移到页面中间最顶端时显示选择框 */
+    body:hover #url-selector-container {
+      top: 0; /* 移动到顶部 */
+      left: 50%; /* 水平居中 */
+      transform: translateX(-50%);
       opacity: 1; /* 显示选择框 */
       pointer-events: auto; /* 启用鼠标事件 */
     }
