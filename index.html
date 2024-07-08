@@ -23,6 +23,7 @@
       width: 100vw; /* 占据整个视口宽度 */
       height: 100vh; /* 占据整个视口高度 */
       border: none;
+      display: none; /* 初始隐藏 iframe */
     }
     #url-selector-container {
       position: fixed;
@@ -31,7 +32,16 @@
       transform: translate(-50%, -50%);
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
+      padding: 10px;
+      transition: top 0.3s, transform 0.3s; /* 添加动画效果 */
+    }
+    #url-selector-container.top {
+      top: -50px;
+      transform: translate(0, 0);
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: 100%;
     }
     #url-selector {
       width: 100%;
@@ -40,11 +50,9 @@
       font-size: 16px;
       background: transparent;
     }
-    /* 当选择框移动到顶部时隐藏 */
-    #url-selector-container.hidden {
-      top: -50px;
-      left: 0;
-      transform: translate(0, 0);
+    /* 当鼠标悬停在页面顶部时显示选择框 */
+    body:hover #url-selector-container.top {
+      top: 0;
     }
   </style>
 </head>
@@ -97,15 +105,20 @@
             });
             // 当选择框值变化时加载相应的 iframe
             selector.addEventListener('change', event => {
-              loadIframe(event.target.value);
-              // 移动选择框到顶部并隐藏
-              selectorContainer.classList.add('hidden');
+              const selectedUrl = event.target.value;
+              loadIframe(selectedUrl);
+              // 移动选择框到页面顶部
+              selectorContainer.classList.add('top');
+              // 显示 iframe
+              document.getElementById('dynamic-iframe').style.display = 'block';
             });
-            // 默认加载第一个 URL
-            loadIframe(urls[0]);
           } else if (urls.length === 1) {
             // 如果只有一个 URL，直接加载 iframe
             loadIframe(urls[0]);
+            // 隐藏选择框
+            document.getElementById('url-selector-container').style.display = 'none';
+            // 显示 iframe
+            document.getElementById('dynamic-iframe').style.display = 'block';
           } else {
             console.error('No URLs available.');
           }
@@ -117,7 +130,6 @@
     function loadIframe(url) {
       const iframe = document.getElementById('dynamic-iframe');
       iframe.src = url;
-      iframe.style.display = 'block';
 
       // 尝试从 iframe 获取 favicon 和 title
       try {
