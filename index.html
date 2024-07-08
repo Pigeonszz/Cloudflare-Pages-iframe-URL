@@ -10,6 +10,7 @@
   <style>
     body {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
@@ -25,35 +26,37 @@
       border: none;
       display: none; /* 初始隐藏 iframe */
     }
-    #url-selector {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-      background-color: #ffffff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 5px;
-      font-size: 14px;
+    #url-selector-container {
+      position: absolute; /* 绝对定位 */
+      top: 50%; /* 初始在中间 */
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #f9f9f9;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: top 0.3s; /* 添加动画效果 */
+      display: none; /* 初始隐藏 */
+      z-index: 999; /* 确保在顶部显示 */
     }
-    #dynamic-iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+    #url-selector {
+      width: 300px;
+      padding: 10px;
+      border: none;
+      font-size: 16px;
+      background: transparent;
     }
   </style>
 </head>
 <body>
-  <select id="url-selector">
-    <option value="" selected disabled>请选择一个URL</option>
-  </select>
+  <div id="url-selector-container">
+    <select id="url-selector">
+      <option value="" selected disabled>请选择一个URL</option>
+    </select>
+  </div>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    const selector = document.getElementById('url-selector');
-    const iframe = document.getElementById('dynamic-iframe');
+    const body = document.body;
+    const selectorContainer = document.getElementById('url-selector-container');
 
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
@@ -84,14 +87,18 @@
         .then(response => response.json())
         .then(data => {
           const urls = data.urls;
-          if (urls.length > 0) {
-            // 添加选项到选择框
-            urls.forEach(urlObj => {
+          if (urls.length > 1) {
+            // 如果有多个 URL，显示选择框
+            const selector = document.getElementById('url-selector');
+            selector.innerHTML = ''; // 清空之前的选项
+            urls.forEach(url => {
               const option = document.createElement('option');
-              option.value = urlObj.url;
-              option.textContent = urlObj.service; // 使用服务名称作为显示内容
+              option.value = url.url; // 使用 URL 作为选项值
+              option.textContent = url.service; // 使用服务名称作为选项文本
               selector.appendChild(option);
             });
+            // 显示选择框
+            selectorContainer.style.display = 'block';
 
             // 监听选择框变化
             selector.addEventListener('change', event => {
@@ -100,7 +107,26 @@
               }
             });
 
-            // 初始化加载第一个 URL
+            // 监听鼠标移动事件，控制选择框显示和隐藏
+            let isHovering = false;
+            body.addEventListener('mousemove', event => {
+              const mouseY = event.clientY;
+              const selectorRect = selectorContainer.getBoundingClientRect();
+              const threshold = 10; // 阈值，控制在顶部显示的位置
+
+              if (!isHovering && mouseY < threshold) {
+                // 鼠标进入顶部区域，显示选择框
+                isHovering = true;
+                selectorContainer.style.top = '0';
+              } else if (isHovering && mouseY >= selectorRect.bottom) {
+                // 鼠标移出选择框范围，隐藏选择框
+                isHovering = false;
+                selectorContainer.style.top = '-100%';
+              }
+            });
+
+          } else if (urls.length === 1) {
+            // 如果只有一个 URL，直接加载 iframe
             loadIframe(urls[0].url);
           } else {
             console.error('No URLs available.');
@@ -111,6 +137,7 @@
 
     // 加载 iframe 的函数
     function loadIframe(url) {
+      const iframe = document.getElementById('dynamic-iframe');
       iframe.src = url;
       iframe.style.display = 'block';
 
