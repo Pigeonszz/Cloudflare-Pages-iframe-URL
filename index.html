@@ -20,10 +20,9 @@
       overflow: hidden; /* 防止 iframe 溢出 */
       position: relative; /* 设置相对定位 */
     }
-    #siteSelection {
-      display: none; /* 默认隐藏选择框 */
+    .select-container {
       position: fixed; /* 设置固定定位 */
-      top: 0; /* 距离顶部 0 */
+      top: -40px; /* 初始隐藏在页面上方 */
       left: 50%; /* 居中 */
       transform: translateX(-50%); /* 水平居中 */
       padding: 10px;
@@ -33,21 +32,39 @@
       border: 1px solid #ccc; /* 设置边框 */
       border-radius: 5px; /* 设置圆角 */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 设置阴影 */
+      transition: top 0.3s ease; /* 添加过渡效果 */
+    }
+    .select-container.active {
+      top: 10px; /* 显示在页面顶部 */
     }
     iframe {
       width: 100%; /* 占据整个视口宽度 */
-      height: 100vh; /* 占据整个视口高度 */
+      height: calc(100vh - 40px); /* 占据整个视口高度，留出选择框高度 */
       border: none;
     }
   </style>
 </head>
 <body>
-  <select id="siteSelection">
-    <option value="">Select a site...</option>
-  </select>
+  <div class="select-container" id="selectContainer">
+    <select id="siteSelection">
+      <option value="">Select a site...</option>
+    </select>
+  </div>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    const selectContainer = document.getElementById('selectContainer');
+
+    // 监听鼠标移动到选择框位置时，显示选择框
+    selectContainer.addEventListener('mouseenter', function() {
+      selectContainer.classList.add('active');
+    });
+
+    // 监听鼠标离开选择框位置时，收起选择框
+    selectContainer.addEventListener('mouseleave', function() {
+      selectContainer.classList.remove('active');
+    });
+
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -112,18 +129,6 @@
           console.error('Error fetching iframe URL:', error);
           // 处理错误：例如显示错误信息或者保持页面加载中状态
         });
-
-      // 监听鼠标移动到选择框位置，显示选择框
-      const body = document.querySelector('body');
-      const siteSelection = document.getElementById('siteSelection');
-      body.addEventListener('mousemove', function(event) {
-        const y = event.clientY;
-        if (y <= 50) { // 当鼠标位置在顶部 50px 以内时显示选择框
-          siteSelection.style.display = 'block';
-        } else {
-          siteSelection.style.display = 'none';
-        }
-      });
     }
 
     // 设置页面标题的函数
