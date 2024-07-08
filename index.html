@@ -70,7 +70,7 @@
           const select = document.getElementById('siteSelection');
           const iframe = document.getElementById('dynamic-iframe');
 
-          // 遍历 URL 对象数组，为选择框添加选项并设置 iframe 的 src
+          // 遍历 URL 对象数组，为选择框添加选项
           urls.forEach(urlObj => {
             const option = document.createElement('option');
             option.value = urlObj.url;
@@ -83,12 +83,15 @@
             const selectedUrl = select.value;
             if (selectedUrl) {
               iframe.src = selectedUrl;
+              sessionStorage.setItem('selectedSite', selectedUrl); // 将选择存入 sessionStorage
             }
           });
 
-          // 默认加载第一个选项的 URL
-          if (urls.length > 0) {
-            iframe.src = urls[0].url;
+          // 获取 sessionStorage 中存储的上次选择，并设置 iframe 的 src
+          const lastSelectedSite = sessionStorage.getItem('selectedSite');
+          if (lastSelectedSite) {
+            iframe.src = lastSelectedSite;
+            select.value = lastSelectedSite; // 设置选择框默认选项
           }
 
           // 更新页面标题
