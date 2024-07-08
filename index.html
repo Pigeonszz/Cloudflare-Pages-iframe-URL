@@ -27,21 +27,14 @@
     }
     #url-selector-container {
       position: fixed;
-      top: 50%;
+      top: 0;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: top 0.3s, left 0.3s, transform 0.3s; /* 添加动画效果 */
+      transition: top 0.3s, transform 0.3s; /* 添加动画效果 */
       display: none; /* 初始隐藏选择框 */
       z-index: 1000; /* 确保选择框在顶层 */
-    }
-    #url-selector-container.top {
-      top: 0; /* 移动到顶部 */
-      left: 50%; /* 水平居中 */
-      transform: translateX(-50%);
-      opacity: 0; /* 完全隐藏 */
-      pointer-events: none; /* 禁用鼠标事件 */
     }
     #url-selector {
       width: 300px;
@@ -50,18 +43,21 @@
       font-size: 16px;
       background: transparent;
     }
-    /* 鼠标移到页面中间最顶端时显示选择框 */
+    /* 当鼠标悬停在页面顶部时显示选择框 */
     body:hover #url-selector-container {
+      top: 50%; /* 移动到页面中间 */
+      transform: translate(-50%, -50%);
+      display: block; /* 显示选择框 */
+    }
+    #url-selector-container.hidden {
       top: 0; /* 移动到顶部 */
-      left: 50%; /* 水平居中 */
-      transform: translateX(-50%);
-      opacity: 1; /* 显示选择框 */
-      pointer-events: auto; /* 启用鼠标事件 */
+      opacity: 0; /* 完全隐藏 */
+      pointer-events: none; /* 禁用鼠标事件 */
     }
   </style>
 </head>
 <body>
-  <div id="url-selector-container">
+  <div id="url-selector-container" class="hidden">
     <select id="url-selector">
       <option value="" selected disabled>请选择一个URL</option>
     </select>
@@ -102,7 +98,7 @@
             // 如果有多个 URL，显示下拉选择框
             const selector = document.getElementById('url-selector');
             const selectorContainer = document.getElementById('url-selector-container');
-            selectorContainer.style.display = 'block';
+            selectorContainer.classList.remove('hidden');
             urls.forEach(url => {
               const option = document.createElement('option');
               option.value = url;
@@ -113,8 +109,8 @@
             selector.addEventListener('change', event => {
               if (event.target.value) {
                 loadIframe(event.target.value);
-                // 移动选择框到顶部并隐藏
-                selectorContainer.classList.add('top');
+                // 收起选择框
+                selectorContainer.classList.add('hidden');
               }
             });
           } else if (urls.length === 1) {
