@@ -32,9 +32,9 @@
       transform: translateX(-50%);
       background-color: #f9f9f9;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: top 0.3s; /* 添加动画效果 */
+      transition: top 0.3s, transform 0.3s; /* 添加动画效果 */
       display: none; /* 初始隐藏选择框 */
-      z-index: 1000; /* 确保选择框在顶部 */
+      z-index: 1000; /* 确保选择框位于顶层 */
     }
     #url-selector {
       width: 300px;
@@ -43,14 +43,19 @@
       font-size: 16px;
       background: transparent;
     }
-    #url-selector-container.active {
-      top: 50%; /* 移动到页面中间 */
+    /* 当鼠标悬停在页面顶部时显示选择框 */
+    body:hover #url-selector-container {
+      top: 50%;
       transform: translate(-50%, -50%);
+    }
+    #url-selector-container.hidden {
+      top: 0;
+      transform: translateX(-50%) translateY(-100%);
     }
   </style>
 </head>
 <body>
-  <div id="url-selector-container">
+  <div id="url-selector-container" class="hidden">
     <select id="url-selector">
       <option value="" selected disabled>请选择一个URL</option>
     </select>
@@ -92,7 +97,6 @@
             const selector = document.getElementById('url-selector');
             const selectorContainer = document.getElementById('url-selector-container');
             selectorContainer.style.display = 'block';
-            selectorContainer.classList.add('active'); // 激活选择框动画效果
             urls.forEach(url => {
               const option = document.createElement('option');
               option.value = url;
@@ -103,10 +107,8 @@
             selector.addEventListener('change', event => {
               if (event.target.value) {
                 loadIframe(event.target.value);
-                // 等待加载完成后，隐藏选择框
-                setTimeout(() => {
-                  selectorContainer.classList.remove('active');
-                }, 500); // 假设加载 iframe 需要 0.5 秒
+                // 移动选择框到顶部并隐藏
+                selectorContainer.classList.add('hidden');
               }
             });
           } else if (urls.length === 1) {
