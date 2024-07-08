@@ -35,9 +35,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: top 0.3s; /* 添加动画效果 */
       display: none; /* 初始隐藏 */
-    }
-    #url-selector-container.active {
-      top: 0; /* 移动到顶部 */
+      z-index: 999; /* 确保在顶部显示 */
     }
     #url-selector {
       width: 300px;
@@ -45,10 +43,6 @@
       border: none;
       font-size: 16px;
       background: transparent;
-    }
-    /* 当鼠标悬停在页面顶部时显示选择框 */
-    body:hover #url-selector-container {
-      display: block; /* 悬停时显示选择框 */
     }
   </style>
 </head>
@@ -91,7 +85,7 @@
         .then(data => {
           const urls = data.urls;
           if (urls.length > 1) {
-            // 如果有多个 URL，显示下拉选择框
+            // 如果有多个 URL，显示选择框
             const selector = document.getElementById('url-selector');
             const selectorContainer = document.getElementById('url-selector-container');
             selectorContainer.style.display = 'block';
@@ -105,8 +99,23 @@
             selector.addEventListener('change', event => {
               if (event.target.value) {
                 loadIframe(event.target.value);
-                // 添加 .active 类移动选择框到顶部
-                selectorContainer.classList.add('active');
+                hideSelector(); // 选择后隐藏选择框
+              }
+            });
+
+            // 监听鼠标移动事件，控制选择框显示和隐藏
+            let isHovering = false;
+            body.addEventListener('mousemove', event => {
+              const bodyRect = body.getBoundingClientRect();
+              const mouseY = event.clientY - bodyRect.top;
+              if (mouseY <= 10 && !isHovering) {
+                // 鼠标进入顶部区域，显示选择框
+                isHovering = true;
+                selectorContainer.style.top = '0';
+              } else if (mouseY > 10 && isHovering) {
+                // 鼠标移出顶部区域，隐藏选择框
+                isHovering = false;
+                selectorContainer.style.top = '50%';
               }
             });
           } else if (urls.length === 1) {
@@ -147,6 +156,12 @@
     // 设置页面标题的函数
     function setTitle(title) {
       document.title = title; // 设置页面标题
+    }
+
+    // 隐藏选择框的函数
+    function hideSelector() {
+      const selectorContainer = document.getElementById('url-selector-container');
+      selectorContainer.style.display = 'none';
     }
   </script>
 </body>
