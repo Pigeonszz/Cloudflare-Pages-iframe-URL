@@ -35,6 +35,7 @@
       border-radius: 5px; /* 设置圆角 */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* 设置阴影 */
       transition: transform 0.3s ease, top 0.3s ease; /* 添加过渡效果 */
+      display: none; /* 初始隐藏 */
     }
     select.top {
       top: -30px; /* 移动到顶部并半隐藏 */
@@ -42,6 +43,7 @@
     }
     select.expanded {
       top: 10px; /* 悬停时完全显示 */
+      display: block; /* 显示选择框 */
     }
     iframe {
       width: 100%; /* 占据整个视口宽度 */
@@ -70,28 +72,8 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    // 获取 Turnstile 验证状态
-    fetch('/Turnstile')
-      .then(response => response.json())
-      .then(env => {
-        if (env.TURNSTILE_ENABLED === 'true') {
-          // 检查 localStorage 中是否有验证状态
-          const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
-          const currentTime = new Date().getTime();
-
-          if (turnstileValidUntil && currentTime < turnstileValidUntil) {
-            // 如果验证状态仍有效，则直接显示 iframe
-            showIframe();
-          } else {
-            // 否则，跳转到 Turnstile 验证页面
-            window.location.href = 'turnstile.html';
-          }
-        } else {
-          // TURNSTILE_ENABLED 为 false，直接显示 iframe
-          showIframe();
-        }
-      })
-      .catch(error => console.error('Error fetching Turnstile status:', error));
+    // 判断是否为移动设备
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
     // 显示 iframe
     function showIframe() {
@@ -147,45 +129,47 @@
       const select = document.getElementById('siteSelection');
       select.classList.add('top');
 
-      // 监听鼠标移动事件，控制选择框弹出和收起
-      select.addEventListener('mouseenter', function() {
-        select.classList.add('expanded'); // 鼠标移入时弹出
-      });
-      select.addEventListener('mouseleave', function() {
-        select.classList.remove('expanded'); // 鼠标移出时收起
-      });
-    }
-
-    // 处理移动端下拉动作的函数
-    function handleTouchStart(event) {
-      this.touchStartY = event.touches[0].clientY;
-    }
-
-    function handleTouchMove(event) {
-      const touchEndY = event.touches[0].clientY;
-      const touchDiffY = touchEndY - this.touchStartY;
-
-      if (touchDiffY > 50 && window.innerWidth < 768) {
-        // 当向下滑动超过 50px 且屏幕宽度小于 768px（移动端）时弹出选择框
-        showSelectForMobile();
+      if (isMobile) {
+        // 移动端处理
+        select.addEventListener('touchstart', function() {
+          select.classList.add('expanded'); // 触摸开始时弹出
+          setTimeout(() => {
+            select.classList.remove('expanded'); // 5秒后收起选择框
+          }, 5000);
+        });
+      } else {
+        // 桌面端处理
+        select.addEventListener('mouseenter', function() {
+          select.classList.add('expanded'); // 鼠标移入时弹出
+        });
+        select.addEventListener('mouseleave', function() {
+          select.classList.remove('expanded'); // 鼠标移出时收起
+        });
       }
     }
 
-    function showSelectForMobile() {
-      const select = document.getElementById('siteSelection');
-      select.classList.add('expanded'); // 显示选择框
+    // 获取 Turnstile 验证状态
+    fetch('/Turnstile')
+      .then(response => response.json())
+      .then(env => {
+        if (env.TURNSTILE_ENABLED === 'true') {
+          // 检查 localStorage 中是否有验证状态
+          const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
+          const currentTime = new Date().getTime();
 
-      // 5秒后自动收起选择框
-      setTimeout(() => {
-        select.classList.remove('expanded');
-      }, 5000);
-    }
-
-    // 为移动端设备添加触摸事件监听
-    if (window.innerWidth < 768) {
-      document.addEventListener('touchstart', handleTouchStart, false);
-      document.addEventListener('touchmove', handleTouchMove, false);
-    }
+          if (turnstileValidUntil && currentTime < turnstileValidUntil) {
+            // 如果验证状态仍有效，则直接显示 iframe
+            showIframe();
+          } else {
+            // 否则，跳转到 Turnstile 验证页面
+            window.location.href = 'turnstile.html';
+          }
+        } else {
+          // TURNSTILE_ENABLED 为 false，直接显示 iframe
+          showIframe();
+        }
+      })
+      .catch(error => console.error('Error fetching Turnstile status:', error));
   </script>
 </body>
 </html>
