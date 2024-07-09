@@ -15,17 +15,19 @@ Fork一份此项目，登录Cloudflare dashboard —— Workers and Pages ——
 
 格式为:   
 
-        URL1;名称1,
-        URL2;Name2,
+        URL1;服务名称1,
+        URL2;Service_Name2,
 
-示例:   
+2, SITE_FAVICON (站点图标，支持URL/路径形式)
 
-        https://example.com;example,
-        https://default.com;default,
+格式为:
 
-2, TURNSTILE_ENABLED (Turnstile 人机验证的开关 , true/false )
+        服务名称1;Favicon_URL1,
+        Service_Name2;Favicon_URL2,
 
-3, TURNSTILE_SITE_KEY (Cloudflare Turnstile 人机验证的站点密钥 )
+3, TURNSTILE_ENABLED (Turnstile 人机验证的开关 , true/false )
+
+4, TURNSTILE_SITE_KEY (Cloudflare Turnstile 人机验证的站点密钥 )
 
 #在Cloudflare dashboard —— Turnstile —— 添加站点 —— 根据需要配置 —— 创建
 

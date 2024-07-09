@@ -10,7 +10,7 @@ curl -X PATCH \
       "env_vars": {
         "IFRAME_URL": {
           "type": "plain_text",
-          "value": "https://iframe_url_1;name1,https://iframe_url_2;name2"
+          "value": "https://iframe_url_1;service_name1,https://iframe_url_2;service_name2"
         }
       }
     }

@@ -7,6 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
+  <link id="dynamic-favicon" rel="icon" href="">
   <style>
     body {
       display: flex;
@@ -49,7 +50,7 @@
     }
     iframe {
       width: 100%;
-      height: 100vh;
+      height: 100vh; /* 占据整个屏幕高度 */
       border: none;
     }
     @media (prefers-color-scheme: dark) {
@@ -82,7 +83,7 @@
           const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
           const currentTime = new Date().getTime();
           if (turnstileValidUntil && currentTime < turnstileValidUntil) {
-            showIframe(turnstileValidUntil);
+            showIframe();
           } else {
             window.location.href = 'turnstile.html';
           }
@@ -92,62 +93,89 @@
       })
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
-    function showIframe(turnstileValidUntil) {
-      const headers = {};
-      if (turnstileValidUntil) {
-        headers['turnstileValidUntil'] = turnstileValidUntil;
-      }
-      fetch('/iframe-url', { headers })
+    function showIframe() {
+      const fetchOptions = {
+        headers: {
+          'turnstileValidUntil': localStorage.getItem('turnstileValidUntil')
+        }
+      };
+
+      fetch('/iframe-url', fetchOptions)
         .then(response => response.json())
         .then(urls => {
-          const select = document.getElementById('siteSelection');
-          const iframe = document.getElementById('dynamic-iframe');
-          urls.forEach(urlObj => {
-            const option = document.createElement('option');
-            option.value = urlObj.url;
-            option.textContent = urlObj.service;
-            select.appendChild(option);
-          });
-          select.addEventListener('change', function() {
-            const selectedUrl = select.value;
-            const selectedOption = select.options[select.selectedIndex].textContent;
-            if (selectedUrl) {
-              iframe.src = selectedUrl;
-              sessionStorage.setItem('selectedSite', selectedUrl);
-              document.title = selectedOption;
-              select.classList.add('selected');
-            } else {
-              iframe.src = '';
-              sessionStorage.removeItem('selectedSite');
-              document.title = '加载中...';
-              select.classList.remove('selected');
-            }
-          });
-          const lastSelectedSite = sessionStorage.getItem('selectedSite');
-          if (lastSelectedSite) {
-            iframe.src = lastSelectedSite;
-            select.value = lastSelectedSite;
-            const lastSelectedOption = select.options[select.selectedIndex].textContent;
-            document.title = lastSelectedOption;
-            select.classList.add('selected');
-          }
+          fetch('/favicon', fetchOptions)
+            .then(favResponse => favResponse.json())
+            .then(favUrls => {
+              const select = document.getElementById('siteSelection');
+              const iframe = document.getElementById('dynamic-iframe');
+              const favicon = document.getElementById('dynamic-favicon');
+              urls.forEach(urlObj => {
+                const option = document.createElement('option');
+                option.value = urlObj.url;
+                option.textContent = urlObj.service;
+                select.appendChild(option);
+              });
+              select.addEventListener('change', function() {
+                const selectedUrl = select.value;
+                const selectedOption = select.options[select.selectedIndex].textContent;
+                if (selectedUrl) {
+                  iframe.src = selectedUrl;
+                  sessionStorage.setItem('selectedSite', selectedUrl);
+                  setTitle(selectedOption);
+                  setFavicon(selectedUrl, favUrls);
+                  select.classList.add('selected'); // 设置选择框为圆形样式
+                }
+              });
+              const lastSelectedSite = sessionStorage.getItem('selectedSite');
+              if (lastSelectedSite) {
+                iframe.src = lastSelectedSite;
+                select.value = lastSelectedSite;
+                const lastSelectedOption = select.options[select.selectedIndex].textContent;
+                setTitle(lastSelectedOption);
+                setFavicon(lastSelectedSite, favUrls);
+              }
+
+              const selectContainer = document.getElementById('selectContainer');
+              selectContainer.addEventListener('touchstart', function(e) {
+                const startY = e.touches[0].clientY;
+                selectContainer.addEventListener('touchmove', function(e) {
+                  const moveY = e.touches[0].clientY;
+                  if (moveY - startY > 50) {
+                    selectContainer.style.top = '50%';
+                    selectContainer.style.left = '50%';
+                    selectContainer.style.transform = 'translate(-50%, -50%)';
+                    setTimeout(() => {
+                      selectContainer.style.top = '20px';
+                      selectContainer.style.left = '20px';
+                      selectContainer.style.transform = 'translate(0)';
+                    }, 5000);
+                  }
+                });
+              });
+
+              select.addEventListener('click', function() {
+                select.classList.remove('selected'); // 点击选择框时移除圆形样式
+                setTimeout(() => {
+                  select.classList.add('selected'); // 5秒后恢复圆形样式
+                }, 5000);
+              });
+            })
+            .catch(error => console.error('Error fetching favicon URL:', error));
         })
-        .catch(error => {
-          console.error('Error fetching iframe URL:', error);
-        });
+        .catch(error => console.error('Error fetching iframe URL:', error));
     }
 
-    document.body.addEventListener('touchmove', function(event) {
-      if (event.touches[0].clientY < window.innerHeight / 2) {
-        const select = document.getElementById('siteSelection');
-        select.classList.toggle('selected');
-        if (select.classList.contains('selected')) {
-          setTimeout(() => {
-            select.classList.remove('selected');
-          }, 5000);
-        }
+    function setTitle(title) {
+      document.title = title || '主内容';
+    }
+
+    function setFavicon(selectedUrl, favUrls) {
+      const favicon = document.getElementById('dynamic-favicon');
+      const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
+      if (faviconObj) {
+        favicon.href = faviconObj.favicon;
       }
-    });
+    }
   </script>
 </body>
 </html>
