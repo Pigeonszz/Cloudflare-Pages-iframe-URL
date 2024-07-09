@@ -54,7 +54,7 @@
     }
     iframe {
       width: 100%;
-      height: 100vh; /* 占据整个屏幕 */
+      height: calc(100vh - 50px); /* 占据整个屏幕高度 */
       border: none;
     }
     @media (prefers-color-scheme: dark) {
@@ -118,6 +118,9 @@
               setTitle(selectedOption);
               select.classList.add('selected');
             } else {
+              iframe.src = '';
+              sessionStorage.removeItem('selectedSite');
+              setTitle('加载中...');
               select.classList.remove('selected');
             }
           });
