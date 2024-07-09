@@ -30,22 +30,20 @@
       z-index: 100;
     }
     select {
-      width: 200px;
+      width: 50px;
+      height: 50px;
       padding: 10px;
       font-size: 16px;
       background-color: white;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 50%;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       transition: transform 0.3s ease, opacity 0.3s ease;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 100;
+      cursor: move;
+      position: fixed;
     }
     select.moved {
-      transform: translate(calc(100vw - 240px), 20px);
+      transform: translate(calc(100vw - 80px), 20px);
       opacity: 0.8;
     }
     iframe {
@@ -160,7 +158,7 @@
         isDragging = false;
         selectContainer.style.transition = 'transform 0.3s ease';
         const screenWidth = window.innerWidth;
-        const nearestX = Math.abs(parseInt(selectContainer.style.transform.split('(')[1].split('px')[0]) - screenWidth + 30) < Math.abs(parseInt(selectContainer.style.transform.split('(')[1].split('px')[0]) - 30) ? screenWidth - 200 : 0;
+        const nearestX = Math.abs(parseInt(selectContainer.style.transform.split('(')[1].split('px')[0]) - screenWidth + 30) < Math.abs(parseInt(selectContainer.style.transform.split('(')[1].split('px')[0]) - 30) ? screenWidth - 50 : 0;
         selectContainer.style.transform = `translate(${nearestX}px, 20px)`;
         selectContainer.style.opacity = '0.8';
       }
