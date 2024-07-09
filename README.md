@@ -9,7 +9,7 @@ Cloudflare Pages iframe URL
 
 Fork一份此项目，登录Cloudflare dashboard —— Workers and Pages —— 创建 —— pages —— 连接到Git，选择刚刚Fork的仓库
 
-设置三个环境变量
+设置四个环境变量
 
 1, IFRAME_URL (iframe所要加载的URL，支持多URL，;后面用作站点标题)
 
