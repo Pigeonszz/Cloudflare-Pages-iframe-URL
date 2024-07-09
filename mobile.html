@@ -23,34 +23,30 @@
       background-color: white;
       color: black;
     }
-    .select-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 100;
-    }
     select {
-      width: 200px;
-      height: 40px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       padding: 10px;
       font-size: 16px;
+      z-index: 100;
       background-color: white;
       border: 1px solid #ccc;
       border-radius: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s ease;
-      cursor: pointer;
+      transition: transform 0.3s ease, top 0.3s ease;
     }
-    select.selected {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      opacity: 0.8;
-      transform: translate(0);
+    select.top {
+      top: -30px;
+      transform: translate(-50%, 0);
+    }
+    select.expanded {
+      top: 10px;
     }
     iframe {
       width: 100%;
-      height: 100vh; /* 占据整个屏幕高度 */
+      height: 100vh;
       border: none;
     }
     @media (prefers-color-scheme: dark) {
@@ -67,11 +63,9 @@
   </style>
 </head>
 <body>
-  <div class="select-container" id="selectContainer">
-    <select id="siteSelection">
-      <option value="">选择一个站点...</option>
-    </select>
-  </div>
+  <select id="siteSelection">
+    <option value="">选择一个站点...</option>
+  </select>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
@@ -97,38 +91,33 @@
       fetch('/iframe-url')
         .then(response => response.json())
         .then(urls => {
-          fetch('/favicon')
-            .then(favResponse => favResponse.json())
-            .then(favUrls => {
-              const select = document.getElementById('siteSelection');
-              const iframe = document.getElementById('dynamic-iframe');
-              const favicon = document.getElementById('dynamic-favicon');
-              urls.forEach(urlObj => {
-                const option = document.createElement('option');
-                option.value = urlObj.url;
-                option.textContent = urlObj.service;
-                select.appendChild(option);
-              });
-              select.addEventListener('change', function() {
-                const selectedUrl = select.value;
-                const selectedOption = select.options[select.selectedIndex].textContent;
-                if (selectedUrl) {
-                  iframe.src = selectedUrl;
-                  sessionStorage.setItem('selectedSite', selectedUrl);
-                  setTitle(selectedOption);
-                  setFavicon(selectedUrl, favUrls, favicon);
-                }
-              });
-              const lastSelectedSite = sessionStorage.getItem('selectedSite');
-              if (lastSelectedSite) {
-                iframe.src = lastSelectedSite;
-                select.value = lastSelectedSite;
-                const lastSelectedOption = select.options[select.selectedIndex].textContent;
-                setTitle(lastSelectedOption);
-                setFavicon(lastSelectedSite, favUrls, favicon);
-              }
-            })
-            .catch(error => console.error('Error fetching favicon URL:', error));
+          const select = document.getElementById('siteSelection');
+          const iframe = document.getElementById('dynamic-iframe');
+          const favicon = document.getElementById('dynamic-favicon');
+          urls.forEach(urlObj => {
+            const option = document.createElement('option');
+            option.value = urlObj.url;
+            option.textContent = urlObj.service;
+            select.appendChild(option);
+          });
+          select.addEventListener('change', function() {
+            const selectedUrl = select.value;
+            const selectedOption = select.options[select.selectedIndex].textContent;
+            if (selectedUrl) {
+              iframe.src = selectedUrl;
+              sessionStorage.setItem('selectedSite', selectedUrl);
+              setTitle(selectedOption);
+              setFavicon(urlObj.favicon);
+            }
+          });
+          const lastSelectedSite = sessionStorage.getItem('selectedSite');
+          if (lastSelectedSite) {
+            iframe.src = lastSelectedSite;
+            select.value = lastSelectedSite;
+            const lastSelectedOption = select.options[select.selectedIndex].textContent;
+            setTitle(lastSelectedOption);
+            setFavicon(urlObj.favicon);
+          }
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
     }
@@ -137,14 +126,9 @@
       document.title = title || '主内容';
     }
 
-    function setFavicon(selectedUrl, favUrls, faviconElement) {
-      const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
-      if (faviconObj && faviconObj.favicon) {
-        faviconElement.href = faviconObj.favicon;
-      } else {
-        // 使用默认的 favicon 地址
-        faviconElement.href = '/favicon.svg';
-      }
+    function setFavicon(faviconUrl) {
+      const favicon = document.getElementById('dynamic-favicon');
+      favicon.href = faviconUrl || '/favicon.svg';
     }
   </script>
 </body>
