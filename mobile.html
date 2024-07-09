@@ -38,6 +38,11 @@
       border-radius: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       transition: transform 0.3s ease, opacity 0.3s ease;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 100;
     }
     select.moved {
       transform: translate(calc(100vw - 240px), 20px);
