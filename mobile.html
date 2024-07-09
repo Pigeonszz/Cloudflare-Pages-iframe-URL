@@ -154,33 +154,10 @@
       if (isDragging) {
         isDragging = false;
         selectContainer.style.transition = 'transform 0.3s ease';
-        // 将选择框移动到最近的边缘
         const screenWidth = window.innerWidth;
         const nearestX = Math.abs(parseInt(selectContainer.style.transform.split('(')[1].split('px')[0]) - screenWidth + 30) < Math.abs(parseInt(selectContainer.style.transform.split('(')[1].split('px')[0]) - 30) ? screenWidth - 200 : 0;
         selectContainer.style.transform = `translate(${nearestX}px, 20px)`;
         selectContainer.style.opacity = '0.8';
-      }
-    });
-
-    // 监听屏幕下拉手势
-    let isPulling = false;
-
-    window.addEventListener('touchstart', function(event) {
-      const startY = event.touches[0].clientY;
-      isPulling = (startY < window.innerHeight / 2); // 判断是否从上半部分下拉
-    });
-
-    window.addEventListener('touchmove', function(event) {
-      if (isPulling && event.touches.length === 1) {
-        const currentY = event.touches[0].clientY;
-        if (currentY > startY + 50) { // 检查是否拉动超过50px
-          const select = document.getElementById('siteSelection');
-          select.classList.add('moved');
-          setTimeout(() => {
-            select.classList.remove('moved');
-          }, 5000); // 5秒后收起
-          isPulling = false; // 重置下拉状态
-        }
       }
     });
   </script>
