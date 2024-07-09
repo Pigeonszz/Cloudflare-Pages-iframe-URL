@@ -8,7 +8,6 @@
   <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
   <style>
-    /* 样式保持不变 */
     body {
       display: flex;
       flex-direction: column;
@@ -23,30 +22,34 @@
       background-color: white;
       color: black;
     }
-    select {
+    .select-container {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+    }
+    select {
+      width: 200px;
+      height: 40px;
       padding: 10px;
       font-size: 16px;
-      z-index: 100;
       background-color: white;
       border: 1px solid #ccc;
       border-radius: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease, top 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s ease;
+      cursor: pointer;
     }
-    select.top {
-      top: -30px;
-      transform: translate(-50%, 0);
-    }
-    select.expanded {
-      top: 10px;
+    select.selected {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      opacity: 0.8;
+      transform: translate(0);
     }
     iframe {
       width: 100%;
-      height: 100vh;
+      height: 100vh; /* 占据整个屏幕高度 */
       border: none;
     }
     @media (prefers-color-scheme: dark) {
@@ -63,17 +66,14 @@
   </style>
 </head>
 <body>
-  <select id="siteSelection">
-    <option value="">选择一个站点...</option>
-  </select>
+  <div class="select-container" id="selectContainer">
+    <select id="siteSelection">
+      <option value="">选择一个站点...</option>
+    </select>
+  </div>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    // 检测是否为移动设备并跳转到 mobile.html
-    if (/Mobi|Android/i.test(navigator.userAgent)) {
-      window.location.href = 'mobile.html';
-    }
-
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -111,7 +111,12 @@
               iframe.src = selectedUrl;
               sessionStorage.setItem('selectedSite', selectedUrl);
               setTitle(selectedOption);
-              moveSelectToTop();
+              select.classList.add('selected');
+            } else {
+              iframe.src = '';
+              sessionStorage.removeItem('selectedSite');
+              setTitle('加载中...');
+              select.classList.remove('selected');
             }
           });
           const lastSelectedSite = sessionStorage.getItem('selectedSite');
@@ -120,7 +125,7 @@
             select.value = lastSelectedSite;
             const lastSelectedOption = select.options[select.selectedIndex].textContent;
             setTitle(lastSelectedOption);
-            moveSelectToTop();
+            select.classList.add('selected');
           }
         })
         .catch(error => {
@@ -130,17 +135,6 @@
 
     function setTitle(title) {
       document.title = title || '主内容';
-    }
-
-    function moveSelectToTop() {
-      const select = document.getElementById('siteSelection');
-      select.classList.add('top');
-      select.addEventListener('mouseenter', function() {
-        select.classList.add('expanded');
-      });
-      select.addEventListener('mouseleave', function() {
-        select.classList.remove('expanded');
-      });
     }
   </script>
 </body>
