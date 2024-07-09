@@ -151,6 +151,13 @@
         isPulling = false; // 重置下拉状态
       }
     });
+
+    // 防止下拉刷新
+    window.addEventListener('touchmove', function(event) {
+      if (isPulling) {
+        event.preventDefault();
+      }
+    }, { passive: false });
   </script>
 </body>
 </html>
