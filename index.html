@@ -70,6 +70,8 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    let firstSelection = true; // 标志位，初始为 true
+
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -117,7 +119,10 @@
               iframe.src = selectedUrl;
               sessionStorage.setItem('selectedSite', selectedUrl); // 将选择存入 sessionStorage
               setTitle(selectedOption); // 更新页面标题
-              moveSelectToTop(); // 选择后移动选择框到顶部并半隐藏
+              if (firstSelection) {
+                moveSelectToTop(); // 选择后移动选择框到顶部并半隐藏
+                firstSelection = false; // 标志位设为 false，防止后续选择触发
+              }
             }
           });
 
@@ -129,6 +134,7 @@
             const lastSelectedOption = select.options[select.selectedIndex].textContent;
             setTitle(lastSelectedOption); // 更新页面标题
             moveSelectToTop(); // 恢复上次选择后将选择框移动到顶部并半隐藏
+            firstSelection = false; // 标志位设为 false，防止后续选择触发
           }
         })
         .catch(error => {
