@@ -7,6 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
+  <link id="dynamic-favicon" rel="icon" href="">
   <style>
     body {
       display: flex;
@@ -81,7 +82,7 @@
           const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
           const currentTime = new Date().getTime();
           if (turnstileValidUntil && currentTime < turnstileValidUntil) {
-            showIframe(turnstileValidUntil);
+            showIframe();
           } else {
             window.location.href = 'turnstile.html';
           }
@@ -91,44 +92,52 @@
       })
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
-    function showIframe(turnstileValidUntil) {
-      const headers = {};
-      if (turnstileValidUntil) {
-        headers['turnstileValidUntil'] = turnstileValidUntil;
-      }
-      fetch('/iframe-url', { headers })
+    function showIframe() {
+      fetch('/iframe-url')
         .then(response => response.json())
         .then(urls => {
-          const select = document.getElementById('siteSelection');
-          const iframe = document.getElementById('dynamic-iframe');
-          urls.forEach(urlObj => {
-            const option = document.createElement('option');
-            option.value = urlObj.url;
-            option.textContent = urlObj.service;
-            select.appendChild(option);
-          });
-          select.addEventListener('change', function() {
-            const selectedUrl = select.value;
-            const selectedOption = select.options[select.selectedIndex].textContent;
-            if (selectedUrl) {
-              iframe.src = selectedUrl;
-              sessionStorage.setItem('selectedSite', selectedUrl);
-              setTitle(selectedOption);
-              moveSelectToTop();
-            }
-          });
-          const lastSelectedSite = sessionStorage.getItem('selectedSite');
-          if (lastSelectedSite) {
-            iframe.src = lastSelectedSite;
-            select.value = lastSelectedSite;
-            const lastSelectedOption = select.options[select.selectedIndex].textContent;
-            setTitle(lastSelectedOption);
-            moveSelectToTop();
-          }
+          fetch('/favicon')
+            .then(favResponse => favResponse.json())
+            .then(favUrls => {
+              const select = document.getElementById('siteSelection');
+              const iframe = document.getElementById('dynamic-iframe');
+              const favicon = document.getElementById('dynamic-favicon');
+              urls.forEach(urlObj => {
+                const option = document.createElement('option');
+                option.value = urlObj.url;
+                option.textContent = urlObj.service;
+                select.appendChild(option);
+              });
+              select.addEventListener('change', function() {
+                const selectedUrl = select.value;
+                const selectedOption = select.options[select.selectedIndex].textContent;
+                if (selectedUrl) {
+                  iframe.src = selectedUrl;
+                  sessionStorage.setItem('selectedSite', selectedUrl);
+                  setTitle(selectedOption);
+                  moveSelectToTop();
+                  const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
+                  if (faviconObj) {
+                    favicon.href = faviconObj.favicon;
+                  }
+                }
+              });
+              const lastSelectedSite = sessionStorage.getItem('selectedSite');
+              if (lastSelectedSite) {
+                iframe.src = lastSelectedSite;
+                select.value = lastSelectedSite;
+                const lastSelectedOption = select.options[select.selectedIndex].textContent;
+                setTitle(lastSelectedOption);
+                moveSelectToTop();
+                const faviconObj = favUrls.find(fav => fav.url === lastSelectedSite);
+                if (faviconObj) {
+                  favicon.href = faviconObj.favicon;
+                }
+              }
+            })
+            .catch(error => console.error('Error fetching favicon URL:', error));
         })
-        .catch(error => {
-          console.error('Error fetching iframe URL:', error);
-        });
+        .catch(error => console.error('Error fetching iframe URL:', error));
     }
 
     function setTitle(title) {
