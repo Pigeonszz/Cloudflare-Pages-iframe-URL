@@ -110,7 +110,7 @@
                   iframe.src = selectedUrl;
                   sessionStorage.setItem('selectedSite', selectedUrl);
                   setTitle(selectedOption);
-                  setFavicon(selectedUrl, favUrls);
+                  setFavicon(selectedUrl, favUrls, favicon);
                 }
               });
               const lastSelectedSite = sessionStorage.getItem('selectedSite');
@@ -119,7 +119,7 @@
                 select.value = lastSelectedSite;
                 const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
-                setFavicon(lastSelectedSite, favUrls);
+                setFavicon(lastSelectedSite, favUrls, favicon);
               }
             })
             .catch(error => console.error('Error fetching favicon URL:', error));
@@ -131,14 +131,13 @@
       document.title = title || '主内容';
     }
 
-    function setFavicon(selectedUrl, favUrls) {
-      const favicon = document.getElementById('dynamic-favicon');
+    function setFavicon(selectedUrl, favUrls, faviconElement) {
       const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
       if (faviconObj && faviconObj.favicon) {
-        favicon.href = faviconObj.favicon;
+        faviconElement.href = faviconObj.favicon;
       } else {
-        // 如果没有指定站点 favicon，则使用默认 favicon
-        favicon.href = '/favicon.svg';
+        // 使用默认的 favicon 地址
+        faviconElement.href = '/favicon.svg';
       }
     }
   </script>
