@@ -40,7 +40,7 @@
       top: -30px; /* 移动到顶部并半隐藏 */
       transform: translate(-50%, 0); /* 重置水平居中 */
     }
-    select:hover {
+    select.expanded {
       top: 10px; /* 悬停时完全显示 */
     }
     iframe {
@@ -70,8 +70,6 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    let firstSelection = true; // 标志位，初始为 true
-
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -119,10 +117,7 @@
               iframe.src = selectedUrl;
               sessionStorage.setItem('selectedSite', selectedUrl); // 将选择存入 sessionStorage
               setTitle(selectedOption); // 更新页面标题
-              if (firstSelection) {
-                moveSelectToTop(); // 选择后移动选择框到顶部并半隐藏
-                firstSelection = false; // 标志位设为 false，防止后续选择触发
-              }
+              moveSelectToTop(); // 选择后移动选择框到顶部并半隐藏
             }
           });
 
@@ -134,7 +129,6 @@
             const lastSelectedOption = select.options[select.selectedIndex].textContent;
             setTitle(lastSelectedOption); // 更新页面标题
             moveSelectToTop(); // 恢复上次选择后将选择框移动到顶部并半隐藏
-            firstSelection = false; // 标志位设为 false，防止后续选择触发
           }
         })
         .catch(error => {
@@ -155,10 +149,10 @@
 
       // 监听鼠标移动事件，控制选择框弹出和收起
       select.addEventListener('mouseenter', function() {
-        select.style.top = '10px'; // 鼠标移入时弹出
+        select.classList.add('expanded'); // 鼠标移入时弹出
       });
       select.addEventListener('mouseleave', function() {
-        select.style.top = '-30px'; // 鼠标移出时收起
+        select.classList.remove('expanded'); // 鼠标移出时收起
       });
     }
   </script>
