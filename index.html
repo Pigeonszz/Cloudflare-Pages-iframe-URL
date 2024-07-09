@@ -40,7 +40,7 @@
       top: -30px; /* 移动到顶部并半隐藏 */
       transform: translate(-50%, 0); /* 重置水平居中 */
     }
-    select:hover {
+    select.expanded {
       top: 10px; /* 悬停时完全显示 */
     }
     iframe {
@@ -149,10 +149,10 @@
 
       // 监听鼠标移动事件，控制选择框弹出和收起
       select.addEventListener('mouseenter', function() {
-        select.style.top = '10px'; // 鼠标移入时弹出
+        select.classList.add('expanded'); // 鼠标移入时弹出
       });
       select.addEventListener('mouseleave', function() {
-        select.style.top = '-30px'; // 鼠标移出时收起
+        select.classList.remove('expanded'); // 鼠标移出时收起
       });
     }
   </script>
