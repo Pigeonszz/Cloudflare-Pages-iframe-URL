@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>加载中...</title>
+  <title>加载中...</title> <!-- 修改为中文 -->
   <style>
     body {
       display: flex;
@@ -35,10 +35,13 @@
       border-radius: 5px; /* 设置圆角 */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* 设置阴影 */
       transition: transform 0.3s ease, top 0.3s ease; /* 添加过渡效果 */
-      display: none; /* 初始隐藏 */
     }
-    select.active {
-      display: block; /* 激活状态显示 */
+    select.top {
+      top: -30px; /* 移动到顶部并半隐藏 */
+      transform: translate(-50%, 0); /* 重置水平居中 */
+    }
+    select.expanded {
+      top: 10px; /* 悬停时完全显示 */
     }
     iframe {
       width: 100%; /* 占据整个视口宽度 */
@@ -62,8 +65,7 @@
 </head>
 <body>
   <select id="siteSelection">
-    <option value="">选择一个站点...</option>
-    <!-- 此处可以添加更多选项 -->
+    <option value="">选择一个站点...</option> <!-- 修改为中文 -->
   </select>
   <iframe id="dynamic-iframe"></iframe>
 
@@ -128,30 +130,6 @@
             setTitle(lastSelectedOption); // 更新页面标题
             moveSelectToTop(); // 恢复上次选择后将选择框移动到顶部并半隐藏
           }
-
-          // 仅在移动端添加触摸事件监听器
-          if (isMobileDevice()) {
-            const body = document.body;
-            let touchStartY = 0;
-
-            body.addEventListener('touchstart', function(e) {
-              touchStartY = e.touches[0].clientY;
-            });
-
-            body.addEventListener('touchmove', function(e) {
-              const touchMoveY = e.touches[0].clientY;
-              const deltaY = touchMoveY - touchStartY;
-
-              // 如果向下滑动且在屏幕上半部分，则显示选择框
-              if (deltaY > 0 && touchMoveY < window.innerHeight / 2) {
-                select.classList.add('active');
-                // 5秒后收起选择框
-                setTimeout(function() {
-                  select.classList.remove('active');
-                }, 5000);
-              }
-            });
-          }
         })
         .catch(error => {
           console.error('Error fetching iframe URL:', error);
@@ -176,11 +154,6 @@
       select.addEventListener('mouseleave', function() {
         select.classList.remove('expanded'); // 鼠标移出时收起
       });
-    }
-
-    // 检测是否是移动设备的函数
-    function isMobileDevice() {
-      return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
     }
   </script>
 </body>
