@@ -1,4 +1,4 @@
-// 修改 /functions/favicon.js 文件
+// /functions/favicon.js 文件
 
 // onRequest 函数处理来自客户端的请求
 export async function onRequest(context) {
@@ -22,18 +22,24 @@ export async function onRequest(context) {
 
   // 如果环境变量存在
   if (IFRAME_URL) {
-    // 将环境变量按照逗号分割成数组
+    // 将环境变量按照指定格式分割成数组
     const urls = IFRAME_URL.split(',').map(item => {
       const [url, service] = item.split(';'); // 按分号分割成 URL 和服务名称
       return { url, service }; // 返回对象包含 URL 和服务名称
     });
 
+    // 获取 SITE_FAVICON 环境变量并解析
+    const siteFavicons = context.env.SITE_FAVICON ? context.env.SITE_FAVICON.split(',').map(item => {
+      const [service, faviconUrl] = item.split(';'); // 按分号分割成服务名称和 favicon URL
+      return { service, faviconUrl }; // 返回对象包含服务名称和 favicon URL
+    }) : [];
+
     // 构建返回的 favicon 数组
     const faviconUrls = urls.map(urlObj => {
-      const favicon = context.env[`SITE_FAVICON_${urlObj.url}`]; // 获取对应站点的 favicon URL
+      const faviconObj = siteFavicons.find(fav => fav.service === urlObj.service); // 查找匹配的 favicon 对象
       return {
         url: urlObj.url,
-        favicon: favicon || '/favicon.svg' // 如果没有指定 SITE_FAVICON，则使用默认的 /favicon.svg
+        favicon: faviconObj ? faviconObj.faviconUrl : '/favicon.svg' // 如果没有匹配的 favicon 对象，则使用默认的 /favicon.svg
       };
     });
 
