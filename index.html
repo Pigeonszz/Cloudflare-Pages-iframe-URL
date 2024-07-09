@@ -108,9 +108,11 @@
           // 设置选择框变化时加载对应 URL 的事件
           select.addEventListener('change', function() {
             const selectedUrl = select.value;
+            const selectedOption = select.options[select.selectedIndex].textContent;
             if (selectedUrl) {
               iframe.src = selectedUrl;
               sessionStorage.setItem('selectedSite', selectedUrl); // 将选择存入 sessionStorage
+              setTitle(selectedOption); // 更新页面标题
             }
           });
 
@@ -119,12 +121,9 @@
           if (lastSelectedSite) {
             iframe.src = lastSelectedSite;
             select.value = lastSelectedSite; // 设置选择框默认选项
+            const lastSelectedOption = select.options[select.selectedIndex].textContent;
+            setTitle(lastSelectedOption); // 更新页面标题
           }
-
-          // 更新页面标题
-          const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-          const iframeTitle = iframeDocument.querySelector('title').textContent;
-          setTitle(iframeTitle); // 设置页面标题
         })
         .catch(error => {
           console.error('Error fetching iframe URL:', error);
