@@ -1,11 +1,10 @@
 // onRequest 函数处理来自客户端的请求
 export async function onRequest(context) {
-  // 获取环境变量 IFRAME_URL 和 SITE_FAVICON
-  const IFRAME_URL = context.env.IFRAME_URL;
-  const SITE_FAVICON = context.env.SITE_FAVICON || '/favicon.svg'; // 默认 favicon
+  // 获取环境变量 SITE_FAVICON
+  const SITE_FAVICON = context.env.SITE_FAVICON;
 
   // 获取人机验证开关状态
-  const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
+  const turnstileEnabled = context.env.TURNSTILE_ENABLED === 'true';
 
   // 检查请求头中是否有验证状态
   const turnstileValidUntil = context.request.headers.get('turnstileValidUntil');
@@ -20,11 +19,11 @@ export async function onRequest(context) {
   }
 
   // 如果环境变量存在
-  if (IFRAME_URL) {
+  if (SITE_FAVICON) {
     // 将环境变量按照指定格式分割成数组
-    const urls = IFRAME_URL.split(',').map(item => {
-      const [url, service] = item.split(';'); // 按分号分割成 URL 和服务名称
-      return { url, service, favicon: `${url};${SITE_FAVICON}` }; // 返回对象包含 URL、服务名称和 favicon
+    const urls = SITE_FAVICON.split(',').map(item => {
+      const [url, favicon] = item.split(';'); // 按分号分割成 URL 和 Favicon URL
+      return { url, favicon }; // 返回对象包含 URL 和 Favicon URL
     });
 
     // 返回 JSON 格式的响应
@@ -33,7 +32,7 @@ export async function onRequest(context) {
     });
   } else {
     // 如果环境变量不存在，则返回空响应或错误信息，视情况而定
-    return new Response(JSON.stringify({ error: 'IFRAME_URL environment variable not found.' }), {
+    return new Response(JSON.stringify({ error: 'SITE_FAVICON environment variable not found.' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
