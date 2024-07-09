@@ -109,12 +109,7 @@
               iframe.src = selectedUrl;
               sessionStorage.setItem('selectedSite', selectedUrl);
               setTitle(selectedOption);
-              select.classList.add('moved');
-            } else {
-              iframe.src = '';
-              sessionStorage.removeItem('selectedSite');
-              setTitle('加载中...');
-              select.classList.remove('moved');
+              moveSelectToTop();
             }
           });
           const lastSelectedSite = sessionStorage.getItem('selectedSite');
@@ -123,7 +118,7 @@
             select.value = lastSelectedSite;
             const lastSelectedOption = select.options[select.selectedIndex].textContent;
             setTitle(lastSelectedOption);
-            select.classList.add('moved');
+            moveSelectToTop();
           }
         })
         .catch(error => {
@@ -133,6 +128,12 @@
 
     function setTitle(title) {
       document.title = title || '主内容';
+    }
+
+    function moveSelectToTop() {
+      const selectContainer = document.getElementById('selectContainer');
+      selectContainer.style.transform = 'translate(calc(100vw - 80px), 20px)';
+      selectContainer.style.opacity = '0.8';
     }
   </script>
 </body>
