@@ -4,7 +4,7 @@ export async function onRequest(context) {
   const IFRAME_URL = context.env.IFRAME_URL;
 
   // 获取人机验证开关状态
-  const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
+  const turnstileEnabled = context.env.TURNSTILE_ENABLED === 'true'; // 从环境变量获取开关状态
 
   // 检查请求头中是否有验证状态
   const turnstileValidUntil = context.request.headers.get('turnstileValidUntil');
