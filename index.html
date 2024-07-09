@@ -155,6 +155,27 @@
         select.classList.remove('expanded'); // 鼠标移出时收起
       });
     }
+
+    // 监听触摸事件
+    let startY = 0;
+    let endY = 0;
+    const threshold = window.innerHeight / 3; // 设置阈值为屏幕高度的1/3
+
+    window.addEventListener('touchstart', function(e) {
+      startY = e.touches[0].clientY;
+    });
+
+    window.addEventListener('touchmove', function(e) {
+      endY = e.touches[0].clientY;
+    });
+
+    window.addEventListener('touchend', function() {
+      if (startY < threshold && endY - startY > 50) {
+        // 在屏幕上1/3处下拉并超过50px时显示选择框
+        const select = document.getElementById('siteSelection');
+        select.classList.add('expanded');
+      }
+    });
   </script>
 </body>
 </html>
