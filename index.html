@@ -6,8 +6,9 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>加载中...</title> <!-- 修改为中文 -->
+  <title>加载中...</title>
   <style>
+    /* 样式保持不变 */
     body {
       display: flex;
       flex-direction: column;
@@ -17,60 +18,58 @@
       margin: 0;
       font-family: Arial, sans-serif;
       text-align: center;
-      overflow: hidden; /* 防止 iframe 溢出 */
-      position: relative; /* 设置相对定位 */
-      background-color: white; /* 默认背景颜色 */
-      color: black; /* 默认文本颜色 */
+      overflow: hidden;
+      position: relative;
+      background-color: white;
+      color: black;
     }
     select {
-      position: fixed; /* 设置固定定位 */
-      top: -9999px; /* 初始隐藏选择框 */
-      left: 50%; /* 居中 */
-      transform: translateX(-50%); /* 水平居中 */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       padding: 10px;
       font-size: 16px;
-      z-index: 100; /* 确保选择框位于最上层 */
-      background-color: white; /* 设置背景颜色 */
-      border: 1px solid #ccc; /* 设置边框 */
-      border-radius: 5px; /* 设置圆角 */
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* 设置阴影 */
-      transition: transform 0.3s ease, top 0.3s ease; /* 添加过渡效果 */
-      visibility: hidden; /* 初始隐藏选择框 */
+      z-index: 100;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease, top 0.3s ease;
     }
     select.top {
-      top: 10px; /* 移动到顶部并完全显示 */
-      visibility: visible; /* 显示选择框 */
+      top: -30px;
+      transform: translate(-50%, 0);
     }
     select.expanded {
-      top: 10px; /* 悬停时完全显示 */
+      top: 10px;
     }
     iframe {
-      width: 100%; /* 占据整个视口宽度 */
-      height: 100vh; /* 占据整个视口高度 */
+      width: 100%;
+      height: 100vh;
       border: none;
     }
-
-    /* 根据设备浅色/深色模式调整样式 */
     @media (prefers-color-scheme: dark) {
       body {
-        background-color: #1e1e1e; /* 深色背景 */
-        color: white; /* 深色文本 */
+        background-color: #1e1e1e;
+        color: white;
       }
       select {
-        background-color: #1e1e1e; /* 深色背景 */
-        color: white; /* 深色文本 */
-        border-color: #444; /* 深色边框颜色 */
+        background-color: #1e1e1e;
+        color: white;
+        border-color: #444;
       }
     }
   </style>
 </head>
 <body>
   <select id="siteSelection">
-    <option value="">选择一个站点...</option> <!-- 修改为中文 -->
+    <option value="">选择一个站点...</option>
   </select>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    // 检测是否为移动设备并跳转到 mobile.html
     if (/Mobi|Android/i.test(navigator.userAgent)) {
       window.location.href = 'mobile.html';
     }
@@ -80,88 +79,67 @@
       .then(response => response.json())
       .then(env => {
         if (env.TURNSTILE_ENABLED === 'true') {
-          // 检查 localStorage 中是否有验证状态
           const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
           const currentTime = new Date().getTime();
-
           if (turnstileValidUntil && currentTime < turnstileValidUntil) {
-            // 如果验证状态仍有效，则直接显示 iframe
             showIframe();
           } else {
-            // 否则，跳转到 Turnstile 验证页面
             window.location.href = 'turnstile.html';
           }
         } else {
-          // TURNSTILE_ENABLED 为 false，直接显示 iframe
           showIframe();
         }
       })
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
-    // 显示 iframe
     function showIframe() {
       fetch('/iframe-url')
         .then(response => response.json())
         .then(urls => {
           const select = document.getElementById('siteSelection');
           const iframe = document.getElementById('dynamic-iframe');
-
-          // 遍历 URL 对象数组，为选择框添加选项
           urls.forEach(urlObj => {
             const option = document.createElement('option');
             option.value = urlObj.url;
-            option.textContent = urlObj.service; // 设置选择框中的标题为服务名称
+            option.textContent = urlObj.service;
             select.appendChild(option);
           });
-
-          // 设置选择框变化时加载对应 URL 的事件
           select.addEventListener('change', function() {
             const selectedUrl = select.value;
             const selectedOption = select.options[select.selectedIndex].textContent;
             if (selectedUrl) {
               iframe.src = selectedUrl;
-              sessionStorage.setItem('selectedSite', selectedUrl); // 将选择存入 sessionStorage
-              setTitle(selectedOption); // 更新页面标题
-              moveSelectToTop(); // 选择后移动选择框到顶部并半隐藏
+              sessionStorage.setItem('selectedSite', selectedUrl);
+              setTitle(selectedOption);
+              moveSelectToTop();
             }
           });
-
-          // 获取 sessionStorage 中存储的上次选择，并设置 iframe 的 src
           const lastSelectedSite = sessionStorage.getItem('selectedSite');
           if (lastSelectedSite) {
             iframe.src = lastSelectedSite;
-            select.value = lastSelectedSite; // 设置选择框默认选项
+            select.value = lastSelectedSite;
             const lastSelectedOption = select.options[select.selectedIndex].textContent;
-            setTitle(lastSelectedOption); // 更新页面标题
-            moveSelectToTop(); // 恢复上次选择后将选择框移动到顶部并半隐藏
+            setTitle(lastSelectedOption);
+            moveSelectToTop();
           }
-
-          // 显示选择框
-          select.style.top = '50%';
-          select.style.visibility = 'visible';
         })
         .catch(error => {
           console.error('Error fetching iframe URL:', error);
-          // 处理错误：例如显示错误信息或者保持页面加载中状态
         });
     }
 
-    // 设置页面标题的函数
     function setTitle(title) {
       document.title = title || '主内容';
     }
 
-    // 将选择框移动到顶部并半隐藏的函数
     function moveSelectToTop() {
       const select = document.getElementById('siteSelection');
       select.classList.add('top');
-
-      // 监听鼠标移动事件，控制选择框弹出和收起
       select.addEventListener('mouseenter', function() {
-        select.classList.add('expanded'); // 鼠标移入时弹出
+        select.classList.add('expanded');
       });
       select.addEventListener('mouseleave', function() {
-        select.classList.remove('expanded'); // 鼠标移出时收起
+        select.classList.remove('expanded');
       });
     }
   </script>
