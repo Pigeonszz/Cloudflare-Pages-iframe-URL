@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>加载中...</title>
+  <title>加载中...</title> <!-- 修改为中文 -->
   <style>
     body {
       display: flex;
@@ -61,21 +61,11 @@
         border-color: #444; /* 深色边框颜色 */
       }
     }
-
-    /* 移动端样式 */
-    @media (max-width: 768px) {
-      select.top {
-        top: -50px; /* 移动到顶部并隐藏 */
-      }
-      select.expanded {
-        top: 10px; /* 显示选择框 */
-      }
-    }
   </style>
 </head>
 <body>
   <select id="siteSelection">
-    <option value="">选择一个站点...</option>
+    <option value="">选择一个站点...</option> <!-- 修改为中文 -->
   </select>
   <iframe id="dynamic-iframe"></iframe>
 
@@ -157,25 +147,44 @@
       const select = document.getElementById('siteSelection');
       select.classList.add('top');
 
-      // 桌面端
-      if (window.innerWidth > 768) {
-        select.addEventListener('mouseenter', function() {
-          select.classList.add('expanded'); // 鼠标移入时弹出
-        });
-        select.addEventListener('mouseleave', function() {
-          select.classList.remove('expanded'); // 鼠标移出时收起
-        });
-      } else {
-        // 移动端
-        document.body.addEventListener('touchmove', function(event) {
-          if (event.touches[0].clientY > 50) { // 检测下拉
-            select.classList.add('expanded');
-            setTimeout(() => {
-              select.classList.remove('expanded'); // 5秒后收起
-            }, 5000);
-          }
-        });
+      // 监听鼠标移动事件，控制选择框弹出和收起
+      select.addEventListener('mouseenter', function() {
+        select.classList.add('expanded'); // 鼠标移入时弹出
+      });
+      select.addEventListener('mouseleave', function() {
+        select.classList.remove('expanded'); // 鼠标移出时收起
+      });
+    }
+
+    // 处理移动端下拉动作的函数
+    function handleTouchStart(event) {
+      this.touchStartY = event.touches[0].clientY;
+    }
+
+    function handleTouchMove(event) {
+      const touchEndY = event.touches[0].clientY;
+      const touchDiffY = touchEndY - this.touchStartY;
+
+      if (touchDiffY > 50 && window.innerWidth < 768) {
+        // 当向下滑动超过 50px 且屏幕宽度小于 768px（移动端）时弹出选择框
+        showSelectForMobile();
       }
+    }
+
+    function showSelectForMobile() {
+      const select = document.getElementById('siteSelection');
+      select.classList.add('expanded'); // 显示选择框
+
+      // 5秒后自动收起选择框
+      setTimeout(() => {
+        select.classList.remove('expanded');
+      }, 5000);
+    }
+
+    // 为移动端设备添加触摸事件监听
+    if (window.innerWidth < 768) {
+      document.addEventListener('touchstart', handleTouchStart, false);
+      document.addEventListener('touchmove', handleTouchMove, false);
     }
   </script>
 </body>
