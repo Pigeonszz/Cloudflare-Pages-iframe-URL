@@ -96,7 +96,11 @@
       fetch('/iframe-url')
         .then(response => response.json())
         .then(urls => {
-          fetch('/favicon')
+          fetch('/favicon', {
+            headers: {
+              'turnstileValidUntil': localStorage.getItem('turnstileValidUntil')
+            }
+          })
             .then(favResponse => favResponse.json())
             .then(favUrls => {
               const select = document.getElementById('siteSelection');
