@@ -24,9 +24,9 @@
     }
     select {
       position: fixed; /* 设置固定定位 */
-      top: 10px; /* 初始位置 */
+      top: -9999px; /* 初始隐藏选择框 */
       left: 50%; /* 居中 */
-      transform: translate(-50%, 0); /* 水平居中 */
+      transform: translateX(-50%); /* 水平居中 */
       padding: 10px;
       font-size: 16px;
       z-index: 100; /* 确保选择框位于最上层 */
@@ -35,16 +35,11 @@
       border-radius: 5px; /* 设置圆角 */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* 设置阴影 */
       transition: transform 0.3s ease, top 0.3s ease; /* 添加过渡效果 */
-      opacity: 0; /* 初始状态隐藏 */
-      pointer-events: none; /* 初始状态禁用 */
-    }
-    select.visible {
-      opacity: 1; /* 显示选择框 */
-      pointer-events: auto; /* 启用选择框 */
+      visibility: hidden; /* 初始隐藏选择框 */
     }
     select.top {
-      top: 10px; /* 移动到顶部 */
-      transform: translate(-50%, 0); /* 水平居中 */
+      top: 10px; /* 移动到顶部并完全显示 */
+      visibility: visible; /* 显示选择框 */
     }
     select.expanded {
       top: 10px; /* 悬停时完全显示 */
@@ -127,7 +122,7 @@
               iframe.src = selectedUrl;
               sessionStorage.setItem('selectedSite', selectedUrl); // 将选择存入 sessionStorage
               setTitle(selectedOption); // 更新页面标题
-              moveSelectToTop(); // 选择后移动选择框到顶部
+              moveSelectToTop(); // 选择后移动选择框到顶部并半隐藏
             }
           });
 
@@ -138,11 +133,12 @@
             select.value = lastSelectedSite; // 设置选择框默认选项
             const lastSelectedOption = select.options[select.selectedIndex].textContent;
             setTitle(lastSelectedOption); // 更新页面标题
-            moveSelectToTop(); // 恢复上次选择后将选择框移动到顶部
+            moveSelectToTop(); // 恢复上次选择后将选择框移动到顶部并半隐藏
           }
 
           // 显示选择框
-          select.classList.add('visible');
+          select.style.top = '50%';
+          select.style.visibility = 'visible';
         })
         .catch(error => {
           console.error('Error fetching iframe URL:', error);
@@ -155,7 +151,7 @@
       document.title = title || '主内容';
     }
 
-    // 将选择框移动到顶部的函数
+    // 将选择框移动到顶部并半隐藏的函数
     function moveSelectToTop() {
       const select = document.getElementById('siteSelection');
       select.classList.add('top');
