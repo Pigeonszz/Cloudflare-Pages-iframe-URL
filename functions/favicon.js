@@ -22,20 +22,20 @@ export async function onRequest(context) {
 
   // 如果环境变量存在
   if (IFRAME_URL) {
-    // 将环境变量按照指定格式分割成数组
+    // 将环境变量按逗号分割成数组
     const urls = IFRAME_URL.split(',').map(item => {
       const [url, service] = item.split(';'); // 按分号分割成 URL 和服务名称
       return { url, service }; // 返回对象包含 URL 和服务名称
     });
 
     // 构建返回的 favicon 数组
-    const faviconUrls = urls.map(urlObj => {
+    const faviconUrls = await Promise.all(urls.map(async urlObj => {
       const favicon = context.env[`SITE_FAVICON_${urlObj.url}`]; // 获取对应站点的 favicon URL
       return {
         url: urlObj.url,
         favicon: favicon || '/favicon.svg' // 如果没有指定 SITE_FAVICON，则使用默认的 /favicon.svg
       };
-    });
+    }));
 
     // 返回 JSON 格式的响应
     return new Response(JSON.stringify(faviconUrls), {
