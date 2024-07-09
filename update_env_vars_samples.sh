@@ -28,7 +28,7 @@ curl -X PATCH \
         "env_vars": {
           "IFRAME_URL": {
             "type": "plain_text",
-            "value": "在此填写iframe所要展示的URL" 
+            "value": "https://iframe_url_1;service_name1,https://iframe_url_2;service_name2" 
           }
         }
       }
