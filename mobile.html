@@ -116,6 +116,24 @@
             setTitle(lastSelectedOption);
             moveSelectToTop();
           }
+
+          // 监听文档的触摸事件来处理上下滑动手势
+          let startY;
+          document.addEventListener('touchstart', function(event) {
+            startY = event.touches[0].clientY;
+          });
+
+          document.addEventListener('touchmove', function(event) {
+            const currentY = event.touches[0].clientY;
+            const deltaY = currentY - startY;
+
+            if (deltaY > 50) { // 检查是否向下滑动超过50px
+              select.classList.add('expanded');
+              setTimeout(() => {
+                select.classList.remove('expanded');
+              }, 5000); // 5秒后收起
+            }
+          });
         })
         .catch(error => {
           console.error('Error fetching iframe URL:', error);
@@ -130,27 +148,6 @@
       const select = document.getElementById('siteSelection');
       select.classList.add('top');
     }
-
-    // 监听屏幕下拉手势
-    let startY;
-    let isPulling = false;
-
-    document.body.addEventListener('touchstart', function(event) {
-      startY = event.touches[0].clientY;
-      isPulling = (startY < window.innerHeight / 2); // 判断是否从上半部分下拉
-    });
-
-    document.body.addEventListener('touchmove', function(event) {
-      const currentY = event.touches[0].clientY;
-      if (isPulling && currentY > startY + 50) { // 检查是否拉动超过50px
-        const select = document.getElementById('siteSelection');
-        select.classList.add('expanded');
-        setTimeout(() => {
-          select.classList.remove('expanded');
-        }, 5000); // 5秒后收起
-        isPulling = false; // 重置下拉状态
-      }
-    });
   </script>
 </body>
 </html>
