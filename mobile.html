@@ -123,7 +123,7 @@
                   sessionStorage.setItem('selectedSite', selectedUrl);
                   setTitle(selectedOption);
                   setFavicon(selectedUrl, favUrls);
-                  select.classList.remove('selected');
+                  select.classList.add('selected'); // 设置选择框为圆形样式
                 }
               });
               const lastSelectedSite = sessionStorage.getItem('selectedSite');
@@ -154,9 +154,9 @@
               });
 
               select.addEventListener('click', function() {
-                select.classList.add('selected');
+                select.classList.remove('selected'); // 点击选择框时移除圆形样式
                 setTimeout(() => {
-                  select.classList.remove('selected');
+                  select.classList.add('selected'); // 5秒后恢复圆形样式
                 }, 5000);
               });
             })
