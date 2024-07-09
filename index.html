@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>加载中...</title>
+  <title>加载中...</title> <!-- 修改为中文 -->
   <style>
     body {
       display: flex;
@@ -40,7 +40,7 @@
       top: -30px; /* 移动到顶部并半隐藏 */
       transform: translate(-50%, 0); /* 重置水平居中 */
     }
-    select:hover {
+    select.expanded {
       top: 10px; /* 悬停时完全显示 */
     }
     iframe {
@@ -61,24 +61,19 @@
         border-color: #444; /* 深色边框颜色 */
       }
     }
-    @media (max-width: 768px) {
-      /* 移动设备重定向 */
-      body {
-        display: none;
-      }
-      script {
-        window.location.href = "mobile.html";
-      }
-    }
   </style>
 </head>
 <body>
   <select id="siteSelection">
-    <option value="">选择一个站点...</option>
+    <option value="">选择一个站点...</option> <!-- 修改为中文 -->
   </select>
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+      window.location.href = 'mobile.html';
+    }
+
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -148,7 +143,7 @@
 
     // 设置页面标题的函数
     function setTitle(title) {
-      document.title = title || '主要内容';
+      document.title = title || '主内容';
     }
 
     // 将选择框移动到顶部并半隐藏的函数
@@ -158,10 +153,10 @@
 
       // 监听鼠标移动事件，控制选择框弹出和收起
       select.addEventListener('mouseenter', function() {
-        select.style.top = '10px'; // 鼠标移入时弹出
+        select.classList.add('expanded'); // 鼠标移入时弹出
       });
       select.addEventListener('mouseleave', function() {
-        select.style.top = '-30px'; // 鼠标移出时收起
+        select.classList.remove('expanded'); // 鼠标移出时收起
       });
     }
   </script>
