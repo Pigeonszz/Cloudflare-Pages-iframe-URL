@@ -69,11 +69,6 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    // 检测是否为移动设备并跳转到 mobile.html
-    if (/Mobi|Android/i.test(navigator.userAgent)) {
-      window.location.href = 'mobile.html';
-    }
-
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -115,11 +110,7 @@
                   iframe.src = selectedUrl;
                   sessionStorage.setItem('selectedSite', selectedUrl);
                   setTitle(selectedOption);
-                  moveSelectToTop();
-                  const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
-                  if (faviconObj) {
-                    favicon.href = faviconObj.favicon;
-                  }
+                  setFavicon(selectedUrl, favUrls);
                 }
               });
               const lastSelectedSite = sessionStorage.getItem('selectedSite');
@@ -128,11 +119,7 @@
                 select.value = lastSelectedSite;
                 const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
-                moveSelectToTop();
-                const faviconObj = favUrls.find(fav => fav.url === lastSelectedSite);
-                if (faviconObj) {
-                  favicon.href = faviconObj.favicon;
-                }
+                setFavicon(lastSelectedSite, favUrls);
               }
             })
             .catch(error => console.error('Error fetching favicon URL:', error));
@@ -144,15 +131,15 @@
       document.title = title || '主内容';
     }
 
-    function moveSelectToTop() {
-      const select = document.getElementById('siteSelection');
-      select.classList.add('top');
-      select.addEventListener('mouseenter', function() {
-        select.classList.add('expanded');
-      });
-      select.addEventListener('mouseleave', function() {
-        select.classList.remove('expanded');
-      });
+    function setFavicon(selectedUrl, favUrls) {
+      const favicon = document.getElementById('dynamic-favicon');
+      const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
+      if (faviconObj && faviconObj.favicon) {
+        favicon.href = faviconObj.favicon;
+      } else {
+        // 如果没有指定站点 favicon，则使用默认 favicon
+        favicon.href = '/default-favicon.ico';
+      }
     }
   </script>
 </body>
