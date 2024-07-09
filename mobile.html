@@ -49,7 +49,7 @@
     }
     iframe {
       width: 100%;
-      height: 100vh; /* 占据整个屏幕高度 */
+      height: 100vh;
       border: none;
     }
     @media (prefers-color-scheme: dark) {
@@ -82,7 +82,7 @@
           const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
           const currentTime = new Date().getTime();
           if (turnstileValidUntil && currentTime < turnstileValidUntil) {
-            showIframe();
+            showIframe(turnstileValidUntil);
           } else {
             window.location.href = 'turnstile.html';
           }
@@ -92,8 +92,9 @@
       })
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
-    function showIframe() {
-      fetch('/iframe-url')
+    function showIframe(turnstileValidUntil) {
+      const headers = turnstileValidUntil ? { 'turnstileValidUntil': turnstileValidUntil } : {};
+      fetch('/iframe-url', { headers })
         .then(response => response.json())
         .then(urls => {
           const select = document.getElementById('siteSelection');
@@ -115,7 +116,7 @@
             } else {
               iframe.src = '';
               sessionStorage.removeItem('selectedSite');
-              setTitle('加载中...');
+              document.title = '加载中...';
               select.classList.remove('selected');
             }
           });
@@ -136,6 +137,18 @@
     function setTitle(title) {
       document.title = title || '主内容';
     }
+
+    document.body.addEventListener('touchmove', function(event) {
+      if (event.touches[0].clientY < window.innerHeight / 2) {
+        const select = document.getElementById('siteSelection');
+        select.classList.toggle('selected');
+        if (select.classList.contains('selected')) {
+          setTimeout(() => {
+            select.classList.remove('selected');
+          }, 5000);
+        }
+      }
+    });
   </script>
 </body>
 </html>
