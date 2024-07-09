@@ -38,7 +38,7 @@
       border: 1px solid #ccc;
       border-radius: 5px; /* 长方形边角 */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease, opacity 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
       cursor: pointer;
     }
     select.selected {
@@ -48,13 +48,13 @@
       position: fixed;
       top: 20px;
       right: 20px;
-      opacity: 0.8;
+      opacity: 0.5; /* 降低透明度 */
       transform: translate(0);
-      z-index: 100;
+      z-index: 100; /* 置顶 */
     }
     iframe {
       width: 100%;
-      height: calc(100vh - 50px); /* 占据整个屏幕高度 */
+      height: 100vh; /* 占据整个屏幕高度 */
       border: none;
     }
     @media (prefers-color-scheme: dark) {
