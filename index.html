@@ -40,7 +40,7 @@
       top: -30px; /* 移动到顶部并半隐藏 */
       transform: translate(-50%, 0); /* 重置水平居中 */
     }
-    select:hover {
+    select.expanded {
       top: 10px; /* 悬停时完全显示 */
     }
     iframe {
@@ -59,6 +59,25 @@
         background-color: #1e1e1e; /* 深色背景 */
         color: white; /* 深色文本 */
         border-color: #444; /* 深色边框颜色 */
+      }
+    }
+
+    /* 移动端特定样式 */
+    @media (max-width: 768px) {
+      select {
+        position: absolute; /* 移动端使用绝对定位 */
+        top: -60px; /* 初始位置在页面顶部之外 */
+        left: 50%; /* 居中 */
+        transform: translateX(-50%); /* 水平居中 */
+        transition: top 0.5s ease; /* 过渡效果更慢一些 */
+        opacity: 0; /* 初始透明度为0，即隐藏 */
+        pointer-events: none; /* 初始不响应鼠标事件 */
+      }
+      select.visible {
+        top: 0; /* 下拉时显示在页面顶部 */
+        opacity: 1; /* 显示时完全可见 */
+        pointer-events: auto; /* 响应鼠标事件 */
+        transition: top 0.5s ease, opacity 0.5s ease; /* 添加过渡效果 */
       }
     }
   </style>
@@ -91,7 +110,7 @@
           showIframe();
         }
       })
-      .catch(error => console.error('获取 Turnstile 状态时出错:', error));
+      .catch(error => console.error('Error fetching Turnstile status:', error));
 
     // 显示 iframe
     function showIframe() {
@@ -130,9 +149,23 @@
             setTitle(lastSelectedOption); // 更新页面标题
             moveSelectToTop(); // 恢复上次选择后将选择框移动到顶部并半隐藏
           }
+
+          // 监听移动端上半部分向下滚动事件
+          window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY || window.pageYOffset;
+            const screenHeight = window.innerHeight || document.documentElement.clientHeight;
+            const mobileThreshold = screenHeight / 2;
+
+            if (scrollPosition < mobileThreshold) {
+              select.classList.add('visible'); // 显示选择框
+              setTimeout(() => {
+                select.classList.remove('visible'); // 5秒后隐藏选择框
+              }, 5000);
+            }
+          });
         })
         .catch(error => {
-          console.error('获取 iframe URL 时出错:', error);
+          console.error('Error fetching iframe URL:', error);
           // 处理错误：例如显示错误信息或者保持页面加载中状态
         });
     }
@@ -147,35 +180,14 @@
       const select = document.getElementById('siteSelection');
       select.classList.add('top');
 
-      // 监听鼠标移动事件，控制选择框弹出和收起
+      // 桌面端鼠标移动事件，控制选择框弹出和收起
       select.addEventListener('mouseenter', function() {
-        select.style.top = '10px'; // 鼠标移入时弹出
+        select.classList.add('expanded'); // 鼠标移入时弹出
       });
       select.addEventListener('mouseleave', function() {
-        select.style.top = '-30px'; // 鼠标移出时收起
+        select.classList.remove('expanded'); // 鼠标移出时收起
       });
     }
-
-    // 移动端功能：向下拉动屏幕上半部分时弹出选择框
-    let mobileTimer;
-    window.addEventListener('scroll', function() {
-      const select = document.getElementById('siteSelection');
-      const scrollPosition = window.scrollY;
-      const screenHeight = window.innerHeight;
-
-      if (scrollPosition < screenHeight / 2) {
-        select.style.top = '10px'; // 拉动时显示选择框
-
-        // 设置定时器，在5秒后收起选择框
-        clearTimeout(mobileTimer);
-        mobileTimer = setTimeout(function() {
-          select.style.top = '-30px'; // 5秒后收起选择框
-        }, 5000);
-      }
-    });
-
-    // 初始加载页面时调用 showIframe 函数
-    showIframe();
   </script>
 </body>
 </html>
