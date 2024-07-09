@@ -37,13 +37,9 @@
       transition: transform 0.3s ease, top 0.3s ease; /* 添加过渡效果 */
     }
     select.top-right {
-      top: 10px; /* 移动到右上角 */
-      left: auto;
-      right: 10px;
-      transform: translate(0, 0); /* 重置水平居中 */
-    }
-    select:hover {
-      top: 10px; /* 悬停时完全显示 */
+      top: 10px; /* 移动到顶部 */
+      right: 10px; /* 移动到右边 */
+      transform: none; /* 清除 transform 属性 */
     }
     iframe {
       width: 100%; /* 占据整个视口宽度 */
@@ -141,23 +137,52 @@
 
     // 设置页面标题的函数
     function setTitle(title) {
-      document.title = title || 'Main Content';
+      document.title = title || '主内容';
     }
 
     // 将选择框移动到右上角的函数
     function moveSelectToTopRight() {
       const select = document.getElementById('siteSelection');
       select.classList.add('top-right');
-    }
 
-    // 监听鼠标移动事件，控制选择框弹出和收起
-    const select = document.getElementById('siteSelection');
-    select.addEventListener('mouseenter', function() {
-      select.style.top = '10px'; // 鼠标移入时弹出
-    });
-    select.addEventListener('mouseleave', function() {
-      select.style.top = '-30px'; // 鼠标移出时收起
-    });
+      // 监听鼠标移动事件，控制选择框弹出和收起
+      select.addEventListener('mouseenter', function() {
+        select.style.top = '10px'; // 鼠标移入时完全显示
+      });
+      select.addEventListener('mouseleave', function() {
+        select.style.top = '-30px'; // 鼠标移出时收起
+      });
+
+      // 添加拖动功能
+      let isDragging = false;
+      let offsetX, offsetY;
+
+      select.addEventListener('mousedown', function(event) {
+        isDragging = true;
+        offsetX = event.clientX - select.offsetLeft;
+        offsetY = event.clientY - select.offsetTop;
+      });
+
+      document.addEventListener('mousemove', function(event) {
+        if (isDragging) {
+          const newX = event.clientX - offsetX;
+          const newY = event.clientY - offsetY;
+
+          // 确保选择框不超出屏幕边缘
+          const maxX = window.innerWidth - select.offsetWidth;
+          const maxY = window.innerHeight - select.offsetHeight;
+          const x = Math.min(maxX, Math.max(0, newX));
+          const y = Math.min(maxY, Math.max(0, newY));
+
+          select.style.left = `${x}px`;
+          select.style.top = `${y}px`;
+        }
+      });
+
+      document.addEventListener('mouseup', function() {
+        isDragging = false;
+      });
+    }
   </script>
 </body>
 </html>
