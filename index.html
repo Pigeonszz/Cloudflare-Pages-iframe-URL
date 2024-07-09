@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Loading...</title>
+  <title>加载中...</title>
   <style>
     body {
       display: flex;
@@ -24,9 +24,9 @@
     }
     select {
       position: fixed; /* 设置固定定位 */
-      top: -30px; /* 初始位置在顶部之外 */
-      left: 50%;
-      transform: translateX(-50%);
+      top: -30px; /* 初始位置在顶部 */
+      left: 50%; /* 居中 */
+      transform: translate(-50%, 0); /* 水平居中 */
       padding: 10px;
       font-size: 16px;
       z-index: 100; /* 确保选择框位于最上层 */
@@ -34,10 +34,10 @@
       border: 1px solid #ccc; /* 设置边框 */
       border-radius: 5px; /* 设置圆角 */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* 设置阴影 */
-      transition: top 0.3s ease; /* 添加过渡效果 */
+      transition: transform 0.3s ease, top 0.3s ease; /* 添加过渡效果 */
     }
     select.expanded {
-      top: 10px; /* 弹出时的位置 */
+      top: 10px; /* 拉出时完全显示 */
     }
     iframe {
       width: 100%; /* 占据整个视口宽度 */
@@ -135,7 +135,7 @@
 
     // 设置页面标题的函数
     function setTitle(title) {
-      document.title = title || 'Main Content';
+      document.title = title || '主要内容';
     }
 
     // 将选择框移动到顶部并半隐藏的函数
@@ -143,32 +143,35 @@
       const select = document.getElementById('siteSelection');
       select.classList.add('expanded');
 
-      // 监听触摸事件，控制选择框弹出和收起
-      let startY;
-
-      document.addEventListener('touchstart', function(event) {
-        startY = event.touches[0].clientY;
-      });
-
-      document.addEventListener('touchmove', function(event) {
-        const currentY = event.touches[0].clientY;
-        const diffY = currentY - startY;
-
-        if (startY < window.innerHeight / 3 && diffY > 30) {
-          select.classList.add('expanded');
-        } else if (diffY < -30) {
-          select.classList.remove('expanded');
-        }
-      });
-
       // 监听鼠标移动事件，控制选择框弹出和收起
       select.addEventListener('mouseenter', function() {
+        clearTimeout(select.hideTimeout);
         select.classList.add('expanded'); // 鼠标移入时弹出
       });
       select.addEventListener('mouseleave', function() {
-        select.classList.remove('expanded'); // 鼠标移出时收起
+        select.hideTimeout = setTimeout(function() {
+          select.classList.remove('expanded'); // 鼠标移出时收起
+        }, 5000); // 停留5秒后收起
       });
     }
+
+    // 监听移动端下拉手势
+    let startY = 0;
+    window.addEventListener('touchstart', function(event) {
+      startY = event.touches[0].clientY;
+    });
+    window.addEventListener('touchmove', function(event) {
+      const currentY = event.touches[0].clientY;
+      if (currentY > startY && startY < window.innerHeight / 2) {
+        // 检查是否在屏幕上半部分下拉
+        const select = document.getElementById('siteSelection');
+        select.classList.add('expanded');
+        clearTimeout(select.hideTimeout);
+        select.hideTimeout = setTimeout(function() {
+          select.classList.remove('expanded');
+        }, 5000); // 停留5秒后收起
+      }
+    });
   </script>
 </body>
 </html>
