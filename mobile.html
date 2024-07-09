@@ -41,13 +41,20 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
       cursor: pointer;
     }
-    select.moved {
-      transform: translate(calc(100vw - 80px), 20px);
+    select.selected {
+      position: fixed;
+      top: 20px;
+      right: 20px;
       opacity: 0.8;
+      transform: translate(0);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      z-index: 100;
     }
     iframe {
       width: 100%;
-      height: calc(100vh - 50px); /* 留出选择框的空间 */
+      height: 100vh; /* 占据整个屏幕 */
       border: none;
     }
     @media (prefers-color-scheme: dark) {
@@ -109,7 +116,9 @@
               iframe.src = selectedUrl;
               sessionStorage.setItem('selectedSite', selectedUrl);
               setTitle(selectedOption);
-              moveSelectToTop();
+              select.classList.add('selected');
+            } else {
+              select.classList.remove('selected');
             }
           });
           const lastSelectedSite = sessionStorage.getItem('selectedSite');
@@ -118,7 +127,7 @@
             select.value = lastSelectedSite;
             const lastSelectedOption = select.options[select.selectedIndex].textContent;
             setTitle(lastSelectedOption);
-            moveSelectToTop();
+            select.classList.add('selected');
           }
         })
         .catch(error => {
@@ -128,12 +137,6 @@
 
     function setTitle(title) {
       document.title = title || '主内容';
-    }
-
-    function moveSelectToTop() {
-      const selectContainer = document.getElementById('selectContainer');
-      selectContainer.style.transform = 'translate(calc(100vw - 80px), 20px)';
-      selectContainer.style.opacity = '0.8';
     }
   </script>
 </body>
