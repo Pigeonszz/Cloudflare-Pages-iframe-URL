@@ -123,8 +123,6 @@
                   sessionStorage.setItem('selectedSite', selectedUrl);
                   setTitle(selectedOption);
                   setFavicon(selectedUrl, favUrls);
-                  select.classList.add('selected');
-                } else {
                   select.classList.remove('selected');
                 }
               });
@@ -135,7 +133,6 @@
                 const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
                 setFavicon(lastSelectedSite, favUrls);
-                select.classList.add('selected');
               }
 
               const selectContainer = document.getElementById('selectContainer');
