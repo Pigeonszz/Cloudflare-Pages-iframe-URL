@@ -108,12 +108,16 @@
               const select = document.getElementById('siteSelection');
               const iframe = document.getElementById('dynamic-iframe');
               const favicon = document.getElementById('dynamic-favicon');
+              
+              // 提取站点标题和图标
               urls.forEach(urlObj => {
+                const faviconObj = favUrls.find(fav => fav.service === urlObj.service);
                 const option = document.createElement('option');
                 option.value = urlObj.url;
-                option.textContent = urlObj.service;
+                option.textContent = urlObj.service; // 使用服务名称作为选项文本
                 select.appendChild(option);
               });
+
               select.addEventListener('change', function() {
                 const selectedUrl = select.value;
                 const selectedOption = select.options[select.selectedIndex].textContent;
@@ -122,12 +126,13 @@
                   sessionStorage.setItem('selectedSite', selectedUrl);
                   setTitle(selectedOption);
                   moveSelectToTop();
-                  const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
+                  const faviconObj = favUrls.find(fav => fav.service === selectedOption);
                   if (faviconObj) {
                     favicon.href = faviconObj.favicon;
                   }
                 }
               });
+
               const lastSelectedSite = sessionStorage.getItem('selectedSite');
               if (lastSelectedSite) {
                 iframe.src = lastSelectedSite;
@@ -135,7 +140,7 @@
                 const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
                 moveSelectToTop();
-                const faviconObj = favUrls.find(fav => fav.url === lastSelectedSite);
+                const faviconObj = favUrls.find(fav => fav.service === lastSelectedOption);
                 if (faviconObj) {
                   favicon.href = faviconObj.favicon;
                 }
