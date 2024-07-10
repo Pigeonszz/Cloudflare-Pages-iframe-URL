@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Pragma" no-cache>
   <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
   <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
@@ -149,6 +149,8 @@
                   const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
                   console.log('Setting favicon URL:', faviconUrl); // 调试信息
                   favicon.href = faviconUrl;
+                  // 检查 favicon 是否正确设置
+                  console.log('Favicon element:', favicon);
                 }
               });
 
@@ -162,6 +164,8 @@
                 const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
                 console.log('Setting favicon URL:', faviconUrl); // 调试信息
                 favicon.href = faviconUrl;
+                // 检查 favicon 是否正确设置
+                console.log('Favicon element:', favicon);
               }
             })
             .catch(error => console.error('Error fetching favicon URL:', error));
