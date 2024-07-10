@@ -105,7 +105,8 @@
         .then(urls => {
           fetch('/favicon', fetchOptions)
             .then(favResponse => favResponse.json())
-            .then(favUrls => {
+            .then(env => {
+              const favIcons = parseFavicons(env.SITE_FAVICON);
               const select = document.getElementById('siteSelection');
               const iframe = document.getElementById('dynamic-iframe');
               const favicon = document.getElementById('dynamic-favicon');
@@ -123,12 +124,8 @@
                   sessionStorage.setItem('selectedSite', selectedUrl);
                   setTitle(selectedOption);
                   collapseSelect();
-                  const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
-                  if (faviconObj) {
-                    favicon.href = faviconObj.favicon;
-                  } else {
-                    favicon.href = '/favicon.svg'; // 使用默认图标
-                  }
+                  const faviconUrl = favIcons[selectedOption] || '/favicon.svg';
+                  favicon.href = faviconUrl;
                 }
               });
               const lastSelectedSite = sessionStorage.getItem('selectedSite');
@@ -138,17 +135,21 @@
                 const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
                 collapseSelect();
-                const faviconObj = favUrls.find(fav => fav.url === lastSelectedSite);
-                if (faviconObj) {
-                  favicon.href = faviconObj.favicon;
-                } else {
-                  favicon.href = '/favicon.svg'; // 使用默认图标
-                }
+                const faviconUrl = favIcons[lastSelectedOption] || '/favicon.svg';
+                favicon.href = faviconUrl;
               }
             })
-            .catch(error => console.error('Error fetching favicon URL:', error));
+            .catch(error => console.error('Error fetching SITE_FAVICON:', error));
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
+    }
+
+    function parseFavicons(faviconsString) {
+      return faviconsString.split(',').reduce((acc, fav) => {
+        const [key, value] = fav.split(';');
+        acc[key] = value;
+        return acc;
+      }, {});
     }
 
     function setTitle(title) {
