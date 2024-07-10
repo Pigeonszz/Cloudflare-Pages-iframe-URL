@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
-  <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
+  <link rel="icon" href="/favicon.svg">
   <style>
     body {
       display: flex;
@@ -109,7 +109,6 @@
 
               const select = document.getElementById('siteSelection');
               const iframe = document.getElementById('dynamic-iframe');
-              const favicon = document.getElementById('dynamic-favicon');
               const faviconMap = {};
 
               // 处理 favUrls
@@ -186,17 +185,12 @@
       });
     }
 
-    function updateFavicon(url) {
-      const favicon = document.getElementById('dynamic-favicon');
-      if (favicon) {
-        favicon.href = url;
-      } else {
-        const newFavicon = document.createElement('link');
-        newFavicon.id = 'dynamic-favicon';
-        newFavicon.rel = 'icon';
-        newFavicon.href = url;
-        document.head.appendChild(newFavicon);
-      }
+    function updateFavicon(faviconUrl) {
+      const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
+      favicon.type = 'image/svg+xml';
+      favicon.rel = 'icon';
+      favicon.href = faviconUrl;
+      document.head.appendChild(favicon);
     }
   </script>
 </body>
