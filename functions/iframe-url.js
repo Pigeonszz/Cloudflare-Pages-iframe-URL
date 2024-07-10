@@ -1,10 +1,9 @@
-// onRequest 函数处理来自客户端的请求
 export async function onRequest(context) {
   // 获取环境变量 IFRAME_URL
   const IFRAME_URL = context.env.IFRAME_URL;
 
   // 获取人机验证开关状态
-  const turnstileEnabled = context.env.TURNSTILE_ENABLED === 'true'; // 从环境变量获取开关状态
+  const turnstileEnabled = context.env.TURNSTILE_ENABLED === 'true';
 
   // 检查请求头中是否有验证状态
   const turnstileValidUntil = context.request.headers.get('turnstileValidUntil');
@@ -31,7 +30,7 @@ export async function onRequest(context) {
       headers: { 'Content-Type': 'application/json' }
     });
   } else {
-    // 如果环境变量不存在，则返回空响应或错误信息，视情况而定
+    // 如果环境变量不存在，则返回空响应或错误信息
     return new Response(JSON.stringify({ error: 'IFRAME_URL environment variable not found.' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }

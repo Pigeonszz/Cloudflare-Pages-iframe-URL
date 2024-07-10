@@ -1,12 +1,10 @@
-// /functions/favicon.js 文件
-
 export async function onRequest(context) {
   // 获取环境变量 IFRAME_URL 和 FAVICON_URL
   const IFRAME_URL = context.env.IFRAME_URL;
   const FAVICON_URL = context.env.FAVICON_URL;
 
   // 获取人机验证开关状态
-  const turnstileEnabled = true; // 在 Cloudflare Pages 环境中已设置为 true
+  const turnstileEnabled = context.env.TURNSTILE_ENABLED === 'true';
 
   // 检查请求头中是否有验证状态
   const turnstileValidUntil = context.request.headers.get('turnstileValidUntil');
@@ -35,13 +33,23 @@ export async function onRequest(context) {
     });
 
     // 构建返回的 favicon 数组
-    const faviconUrls = urls.map(urlObj => {
+    const faviconUrls = await Promise.all(urls.map(async urlObj => {
       const faviconObj = favicons.find(fav => fav.service === urlObj.service); // 查找匹配的 favicon 对象
-      return {
-        service: urlObj.service,
-        favicon: faviconObj ? faviconObj.faviconUrl : '/favicon.svg' // 如果没有匹配的 favicon 对象，则使用默认的 /favicon.svg
-      };
-    });
+      if (faviconObj) {
+        const response = await fetch(faviconObj.faviconUrl);
+        const blob = await response.blob();
+        const base64 = await blobToBase64(blob);
+        return {
+          service: urlObj.service,
+          base64: base64 // 返回 base64 编码的 favicon
+        };
+      } else {
+        return {
+          service: urlObj.service,
+          base64: '' // 如果没有匹配的 favicon 对象，则返回空字符串
+        };
+      }
+    }));
 
     // 返回 JSON 格式的响应
     return new Response(JSON.stringify(faviconUrls), {
@@ -54,4 +62,18 @@ export async function onRequest(context) {
       headers: { 'Content-Type': 'application/json' }
     });
   }
+}
+
+// 辅助函数：将 Blob 转换为 Base64
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      const base64 = dataUrl.split(',')[1];
+      resolve(base64);
+    };
+    reader.readAsDataURL(blob);
+  });
 }
