@@ -129,8 +129,9 @@
         // 处理 urls
         if (Array.isArray(urls)) {
           urls.forEach(urlObj => {
-            if (typeof urlObj === 'string') {
-              const [iframeUrl, service] = urlObj.split(';');
+            if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
+              const iframeUrl = urlObj.url;
+              const service = urlObj.service;
               const faviconUrl = faviconMap[service] || '/favicon.svg';
               const option = document.createElement('option');
               option.value = iframeUrl;
@@ -143,6 +144,7 @@
         } else {
           console.error('Invalid urls format:', urls);
         }
+
 
         select.addEventListener('change', function() {
           const selectedUrl = select.value;
