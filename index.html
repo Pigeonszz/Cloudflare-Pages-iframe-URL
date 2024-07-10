@@ -129,10 +129,10 @@
               // 处理 urls
               if (Array.isArray(urls)) {
                 urls.forEach(urlObj => {
-                  if (typeof urlObj === 'string') {
-                    const [iframeUrl, service] = urlObj.split(';');
+                  if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
+                    const { url, service } = urlObj;
                     const option = document.createElement('option');
-                    option.value = iframeUrl;
+                    option.value = url;
                     option.textContent = service;
                     select.appendChild(option);
                   } else {
