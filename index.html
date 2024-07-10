@@ -112,22 +112,24 @@
               const iframe = document.getElementById('dynamic-iframe');
               const favicon = document.getElementById('dynamic-favicon');
               const faviconMap = {};
-              
+
               favUrls.forEach(favUrl => {
-                if (typeof favUrl === 'string') {
-                  const [service, iconUrl] = favUrl.split(';');
-                  faviconMap[service] = iconUrl;
+                if (favUrl.service && favUrl.favicon) {
+                  faviconMap[favUrl.service] = favUrl.favicon;
                 } else {
                   console.error('Invalid favUrl:', favUrl);
                 }
               });
 
               urls.forEach(urlObj => {
-                const [iframeUrl, service] = urlObj.split(';');
-                const option = document.createElement('option');
-                option.value = iframeUrl;
-                option.textContent = service;
-                select.appendChild(option);
+                if (urlObj.iframeUrl && urlObj.service) {
+                  const option = document.createElement('option');
+                  option.value = urlObj.iframeUrl;
+                  option.textContent = urlObj.service;
+                  select.appendChild(option);
+                } else {
+                  console.error('Invalid urlObj:', urlObj);
+                }
               });
 
               select.addEventListener('change', function() {
