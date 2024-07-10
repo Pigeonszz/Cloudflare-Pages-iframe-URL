@@ -37,8 +37,8 @@ export async function onRequest(context) {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const blob = await response.blob();
-        const base64 = await blobToBase64(blob);
+        const arrayBuffer = await response.arrayBuffer();
+        const base64 = bufferToBase64(arrayBuffer);
         return {
           service: faviconObj.service,
           base64: base64
@@ -70,16 +70,13 @@ export async function onRequest(context) {
   }
 }
 
-// 辅助函数：将 Blob 转换为 Base64
-function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = () => {
-      const dataUrl = reader.result;
-      const base64 = dataUrl.split(',')[1];
-      resolve(base64);
-    };
-    reader.readAsDataURL(blob);
-  });
+// 辅助函数：将 ArrayBuffer 转换为 Base64
+function bufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
