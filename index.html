@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
-  <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
+  <link id="dynamic-favicon" rel="icon" href="">
   <style>
     body {
       display: flex;
@@ -69,14 +69,23 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    // 检测是否为移动设备并跳转到 mobile.html
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+      window.location.href = 'mobile.html';
+    }
+
     // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
       .then(env => {
         if (env.TURNSTILE_ENABLED === 'true') {
-          const turnstileValidUntil = Date.now() + 600000;
-          localStorage.setItem('turnstileValidUntil', turnstileValidUntil);
-          showIframe();
+          const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
+          const currentTime = new Date().getTime();
+          if (turnstileValidUntil && currentTime < turnstileValidUntil) {
+            showIframe();
+          } else {
+            window.location.href = 'turnstile.html';
+          }
         } else {
           showIframe();
         }
@@ -84,77 +93,61 @@
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
     function showIframe() {
-      fetch('/iframe-url')
+      const fetchOptions = {
+        headers: {
+          'turnstileValidUntil': localStorage.getItem('turnstileValidUntil')
+        }
+      };
+
+      fetch('/iframe-url', fetchOptions)
         .then(response => response.json())
         .then(urls => {
-          fetch('/favicon')
-            .then(response => response.json())
+          fetch('/favicon', fetchOptions)
+            .then(favResponse => favResponse.json())
             .then(favUrls => {
-              console.log('Fetched favUrls:', favUrls);
-
               const select = document.getElementById('siteSelection');
               const iframe = document.getElementById('dynamic-iframe');
               const favicon = document.getElementById('dynamic-favicon');
-              const faviconMap = {};
-
-              // 处理 favUrls
-              if (Array.isArray(favUrls)) {
-                favUrls.forEach(favUrl => {
-                  if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('favicon')) {
-                    faviconMap[favUrl.service] = favUrl.favicon;
-                  } else {
-                    console.error('Invalid favUrl:', favUrl);
-                  }
-                });
-              } else {
-                console.error('Invalid favUrls format:', favUrls);
-              }
-
-              // 处理 urls
-              if (Array.isArray(urls)) {
-                urls.forEach(urlObj => {
-                  if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
-                    const { url, service } = urlObj;
-                    const option = document.createElement('option');
-                    option.value = url;
-                    option.textContent = service;
-                    select.appendChild(option);
-                  } else {
-                    console.error('Invalid urlObj:', urlObj);
-                  }
-                });
-              } else {
-                console.error('Invalid urls format:', urls);
-              }
-
+              urls.forEach(urlObj => {
+                const option = document.createElement('option');
+                option.value = urlObj.url;
+                option.textContent = urlObj.service;
+                select.appendChild(option);
+              });
               select.addEventListener('change', function() {
                 const selectedUrl = select.value;
                 const selectedOption = select.options[select.selectedIndex].textContent;
                 if (selectedUrl) {
                   iframe.src = selectedUrl;
-                  document.title = selectedOption || '主内容';
+                  sessionStorage.setItem('selectedSite', selectedUrl);
+                  setTitle(selectedOption);
                   moveSelectToTop();
-                  const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
-                  console.log('Updating favicon to:', faviconUrl);
-                  favicon.href = faviconUrl;
+                  const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
+                  if (faviconObj) {
+                    favicon.href = faviconObj.favicon;
+                  }
                 }
               });
-
               const lastSelectedSite = sessionStorage.getItem('selectedSite');
               if (lastSelectedSite) {
                 iframe.src = lastSelectedSite;
                 select.value = lastSelectedSite;
                 const lastSelectedOption = select.options[select.selectedIndex].textContent;
-                document.title = lastSelectedOption || '主内容';
+                setTitle(lastSelectedOption);
                 moveSelectToTop();
-                const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
-                console.log('Setting initial favicon to:', faviconUrl);
-                favicon.href = faviconUrl;
+                const faviconObj = favUrls.find(fav => fav.url === lastSelectedSite);
+                if (faviconObj) {
+                  favicon.href = faviconObj.favicon;
+                }
               }
             })
             .catch(error => console.error('Error fetching favicon URL:', error));
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
+    }
+
+    function setTitle(title) {
+      document.title = title || '主内容';
     }
 
     function moveSelectToTop() {
