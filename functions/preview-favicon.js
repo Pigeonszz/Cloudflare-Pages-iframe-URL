@@ -27,6 +27,9 @@ export async function onRequest(context) {
       return { service, faviconUrl }; // 返回对象包含服务名称和 favicon URL
     });
 
+    // 调试信息：输出 favicons 数组
+    console.log('Favicons:', favicons);
+
     // 构建返回的 favicon base64 数组
     const faviconBase64Promises = favicons.map(async faviconObj => {
       try {
@@ -50,6 +53,9 @@ export async function onRequest(context) {
     });
 
     const faviconBase64Results = await Promise.all(faviconBase64Promises);
+
+    // 调试信息：输出 faviconBase64Results 数组
+    console.log('Favicon Base64 Results:', faviconBase64Results);
 
     // 返回 JSON 格式的响应
     return new Response(JSON.stringify(faviconBase64Results), {
