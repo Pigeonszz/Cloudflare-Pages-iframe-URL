@@ -106,13 +106,20 @@
           fetch('/favicon', fetchOptions)
             .then(favResponse => favResponse.json())
             .then(favUrls => {
+              console.log('Fetched favUrls:', favUrls); // 调试输出
+
               const select = document.getElementById('siteSelection');
               const iframe = document.getElementById('dynamic-iframe');
               const favicon = document.getElementById('dynamic-favicon');
               const faviconMap = {};
+              
               favUrls.forEach(favUrl => {
-                const [service, iconUrl] = favUrl.split(';');
-                faviconMap[service] = iconUrl;
+                if (typeof favUrl === 'string') {
+                  const [service, iconUrl] = favUrl.split(';');
+                  faviconMap[service] = iconUrl;
+                } else {
+                  console.error('Invalid favUrl:', favUrl);
+                }
               });
 
               urls.forEach(urlObj => {
