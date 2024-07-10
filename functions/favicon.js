@@ -65,15 +65,9 @@ export async function onRequest(context) {
 }
 
 // 辅助函数：将 Blob 转换为 Base64
-function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = () => {
-      const dataUrl = reader.result;
-      const base64 = dataUrl.split(',')[1];
-      resolve(base64);
-    };
-    reader.readAsDataURL(blob);
-  });
+async function blobToBase64(blob) {
+  const response = new Response(blob);
+  const buffer = await response.arrayBuffer();
+  const base64 = btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
+  return base64;
 }
