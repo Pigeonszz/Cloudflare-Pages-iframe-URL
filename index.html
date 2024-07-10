@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
-  <link id="dynamic-favicon" rel="icon" href="">
+  <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
   <style>
     body {
       display: flex;
@@ -125,6 +125,8 @@
                   const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
                   if (faviconObj) {
                     favicon.href = faviconObj.favicon;
+                  } else {
+                    favicon.href = '/favicon.svg'; // 使用默认图标
                   }
                 }
               });
@@ -138,6 +140,8 @@
                 const faviconObj = favUrls.find(fav => fav.url === lastSelectedSite);
                 if (faviconObj) {
                   favicon.href = faviconObj.favicon;
+                } else {
+                  favicon.href = '/favicon.svg'; // 使用默认图标
                 }
               }
             })
