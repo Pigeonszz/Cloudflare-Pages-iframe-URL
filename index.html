@@ -101,7 +101,7 @@
 
       Promise.all([
         fetch('/iframe-url', fetchOptions),
-        fetch('/favicon', fetchOptions)
+        fetch('/preview-favicon', fetchOptions)
       ])
       .then(responses => Promise.all(responses.map(response => response.json())))
       .then(data => {
@@ -116,8 +116,8 @@
         // 处理 favUrls
         if (Array.isArray(favUrls)) {
           favUrls.forEach(favUrl => {
-            if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('favicon')) {
-              faviconMap[favUrl.service] = favUrl.favicon;
+            if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64')) {
+              faviconMap[favUrl.service] = favUrl.base64;
             } else {
               console.error('Invalid favUrl:', favUrl);
             }
@@ -132,7 +132,7 @@
             if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
               const iframeUrl = urlObj.url;
               const service = urlObj.service;
-              const faviconUrl = faviconMap[service] || '/favicon.svg';
+              const faviconBase64 = faviconMap[service] || '/favicon.svg';
               const option = document.createElement('option');
               option.value = iframeUrl;
               option.textContent = service;
@@ -145,7 +145,6 @@
           console.error('Invalid urls format:', urls);
         }
 
-
         select.addEventListener('change', function() {
           const selectedUrl = select.value;
           const selectedOption = select.options[select.selectedIndex].textContent;
@@ -154,8 +153,8 @@
             sessionStorage.setItem('selectedSite', selectedUrl);
             setTitle(selectedOption);
             moveSelectToTop();
-            const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
-            favicon.href = faviconUrl;
+            const faviconBase64 = faviconMap[selectedOption] || '/favicon.svg';
+            favicon.href = `data:image/png;base64,${faviconBase64}`;
           }
         });
 
@@ -166,8 +165,8 @@
           const lastSelectedOption = select.options[select.selectedIndex].textContent;
           setTitle(lastSelectedOption);
           moveSelectToTop();
-          const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
-          favicon.href = faviconUrl;
+          const faviconBase64 = faviconMap[lastSelectedOption] || '/favicon.svg';
+          favicon.href = `data:image/png;base64,${faviconBase64}`;
         }
       })
       .catch(error => console.error('Error fetching iframe or favicon URL:', error));
