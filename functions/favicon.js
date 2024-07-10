@@ -38,7 +38,7 @@ export async function onRequest(context) {
     const faviconUrls = urls.map(urlObj => {
       const faviconObj = siteFavicons.find(fav => fav.service === urlObj.service); // 查找匹配的 favicon 对象
       return {
-        url: urlObj.url,
+        service: urlObj.service,
         favicon: faviconObj ? faviconObj.faviconUrl : '/favicon.svg' // 如果没有匹配的 favicon 对象，则使用默认的 /favicon.svg
       };
     });
