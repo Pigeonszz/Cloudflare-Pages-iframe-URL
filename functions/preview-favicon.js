@@ -31,6 +31,9 @@ export async function onRequest(context) {
     const faviconBase64Promises = favicons.map(async faviconObj => {
       try {
         const response = await fetch(faviconObj.faviconUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const blob = await response.blob();
         const base64 = await blobToBase64(blob);
         return {
