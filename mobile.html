@@ -1,3 +1,4 @@
+<!-- mobile.html -->
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -130,7 +131,7 @@
                   iframe.src = selectedUrl;
                   sessionStorage.setItem('selectedSite', selectedUrl);
                   setTitle(selectedOption);
-                  collapseSelect();
+                  moveSelectToCorner();
                   const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
                   favicon.href = faviconUrl;
                 }
@@ -142,7 +143,7 @@
                 select.value = lastSelectedSite;
                 const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
-                collapseSelect();
+                moveSelectToCorner();
                 const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
                 favicon.href = faviconUrl;
               }
@@ -156,26 +157,28 @@
       document.title = title || '主内容';
     }
 
-    function collapseSelect() {
+    function moveSelectToCorner() {
       const select = document.getElementById('siteSelection');
-      const selectContainer = document.getElementById('selectContainer');
       select.classList.add('selected');
-      selectContainer.style.top = '50%';
-      selectContainer.style.left = '50%';
-      selectContainer.style.transform = 'translate(-50%, -50%)';
-      setTimeout(function() {
-        selectContainer.style.top = '10px';
-        selectContainer.style.left = '10px';
-        selectContainer.style.transform = 'translate(0, 0)';
-      }, 5000);
-      select.addEventListener('mouseenter', function() {
+      const selectContainer = document.getElementById('selectContainer');
+      let timer;
+
+      selectContainer.addEventListener('mouseenter', function() {
         select.classList.remove('selected');
+        clearTimeout(timer);
       });
-      select.addEventListener('mouseleave', function() {
-        setTimeout(function() {
+
+      selectContainer.addEventListener('mouseleave', function() {
+        timer = setTimeout(() => {
           select.classList.add('selected');
         }, 5000);
       });
+
+      // 移动选择框到右上角
+      const selectElement = document.getElementById('siteSelection');
+      selectElement.style.position = 'fixed';
+      selectElement.style.top = '20px';
+      selectElement.style.right = '20px';
     }
   </script>
 </body>
