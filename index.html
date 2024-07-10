@@ -159,8 +159,8 @@
               const lastSelectedSite = sessionStorage.getItem('selectedSite');
               if (lastSelectedSite) {
                 iframe.src = lastSelectedSite;
+                const lastSelectedOption = select.querySelector(`option[value="${lastSelectedSite}"]`).textContent;
                 select.value = lastSelectedSite;
-                const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
                 moveSelectToTop();
                 const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
