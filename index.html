@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
-  <link id="dynamic-favicon" rel="icon" href="">
+  <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
   <style>
     body {
       display: flex;
@@ -99,51 +99,76 @@
         }
       };
 
-      fetch('/iframe-url', fetchOptions)
-        .then(response => response.json())
-        .then(urls => {
-          fetch('/favicon', fetchOptions)
-            .then(favResponse => favResponse.json())
-            .then(favUrls => {
-              const select = document.getElementById('siteSelection');
-              const iframe = document.getElementById('dynamic-iframe');
-              const favicon = document.getElementById('dynamic-favicon');
-              urls.forEach(urlObj => {
-                const option = document.createElement('option');
-                option.value = urlObj.url;
-                option.textContent = urlObj.service;
-                select.appendChild(option);
-              });
-              select.addEventListener('change', function() {
-                const selectedUrl = select.value;
-                const selectedOption = select.options[select.selectedIndex].textContent;
-                if (selectedUrl) {
-                  iframe.src = selectedUrl;
-                  sessionStorage.setItem('selectedSite', selectedUrl);
-                  setTitle(selectedOption);
-                  moveSelectToTop();
-                  const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
-                  if (faviconObj) {
-                    favicon.href = faviconObj.favicon;
-                  }
-                }
-              });
-              const lastSelectedSite = sessionStorage.getItem('selectedSite');
-              if (lastSelectedSite) {
-                iframe.src = lastSelectedSite;
-                select.value = lastSelectedSite;
-                const lastSelectedOption = select.options[select.selectedIndex].textContent;
-                setTitle(lastSelectedOption);
-                moveSelectToTop();
-                const faviconObj = favUrls.find(fav => fav.url === lastSelectedSite);
-                if (faviconObj) {
-                  favicon.href = faviconObj.favicon;
-                }
-              }
-            })
-            .catch(error => console.error('Error fetching favicon URL:', error));
-        })
-        .catch(error => console.error('Error fetching iframe URL:', error));
+      Promise.all([
+        fetch('/iframe-url', fetchOptions),
+        fetch('/favicon', fetchOptions)
+      ])
+      .then(responses => Promise.all(responses.map(response => response.json())))
+      .then(data => {
+        const urls = data[0];
+        const favUrls = data[1];
+
+        const select = document.getElementById('siteSelection');
+        const iframe = document.getElementById('dynamic-iframe');
+        const favicon = document.getElementById('dynamic-favicon');
+        const faviconMap = {};
+
+        // 处理 favUrls
+        if (Array.isArray(favUrls)) {
+          favUrls.forEach(favUrl => {
+            if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('favicon')) {
+              faviconMap[favUrl.service] = favUrl.favicon;
+            } else {
+              console.error('Invalid favUrl:', favUrl);
+            }
+          });
+        } else {
+          console.error('Invalid favUrls format:', favUrls);
+        }
+
+        // 处理 urls
+        if (Array.isArray(urls)) {
+          urls.forEach(urlObj => {
+            if (typeof urlObj === 'string') {
+              const [iframeUrl, service] = urlObj.split(';');
+              const faviconUrl = faviconMap[service] || '/favicon.svg';
+              const option = document.createElement('option');
+              option.value = iframeUrl;
+              option.textContent = service;
+              select.appendChild(option);
+            } else {
+              console.error('Invalid urlObj:', urlObj);
+            }
+          });
+        } else {
+          console.error('Invalid urls format:', urls);
+        }
+
+        select.addEventListener('change', function() {
+          const selectedUrl = select.value;
+          const selectedOption = select.options[select.selectedIndex].textContent;
+          if (selectedUrl) {
+            iframe.src = selectedUrl;
+            sessionStorage.setItem('selectedSite', selectedUrl);
+            setTitle(selectedOption);
+            moveSelectToTop();
+            const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
+            favicon.href = faviconUrl;
+          }
+        });
+
+        const lastSelectedSite = sessionStorage.getItem('selectedSite');
+        if (lastSelectedSite) {
+          iframe.src = lastSelectedSite;
+          select.value = lastSelectedSite;
+          const lastSelectedOption = select.options[select.selectedIndex].textContent;
+          setTitle(lastSelectedOption);
+          moveSelectToTop();
+          const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
+          favicon.href = faviconUrl;
+        }
+      })
+      .catch(error => console.error('Error fetching iframe or favicon URL:', error));
     }
 
     function setTitle(title) {
