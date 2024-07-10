@@ -113,24 +113,35 @@
               const favicon = document.getElementById('dynamic-favicon');
               const faviconMap = {};
 
-              favUrls.forEach(favUrl => {
-                if (favUrl.service && favUrl.favicon) {
-                  faviconMap[favUrl.service] = favUrl.favicon;
-                } else {
-                  console.error('Invalid favUrl:', favUrl);
-                }
-              });
+              // 处理 favUrls
+              if (Array.isArray(favUrls)) {
+                favUrls.forEach(favUrl => {
+                  if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('favicon')) {
+                    faviconMap[favUrl.service] = favUrl.favicon;
+                  } else {
+                    console.error('Invalid favUrl:', favUrl);
+                  }
+                });
+              } else {
+                console.error('Invalid favUrls format:', favUrls);
+              }
 
-              urls.forEach(urlObj => {
-                if (urlObj.iframeUrl && urlObj.service) {
-                  const option = document.createElement('option');
-                  option.value = urlObj.iframeUrl;
-                  option.textContent = urlObj.service;
-                  select.appendChild(option);
-                } else {
-                  console.error('Invalid urlObj:', urlObj);
-                }
-              });
+              // 处理 urls
+              if (Array.isArray(urls)) {
+                urls.forEach(urlObj => {
+                  if (typeof urlObj === 'string') {
+                    const [iframeUrl, service] = urlObj.split(';');
+                    const option = document.createElement('option');
+                    option.value = iframeUrl;
+                    option.textContent = service;
+                    select.appendChild(option);
+                  } else {
+                    console.error('Invalid urlObj:', urlObj);
+                  }
+                });
+              } else {
+                console.error('Invalid urls format:', urls);
+              }
 
               select.addEventListener('change', function() {
                 const selectedUrl = select.value;
