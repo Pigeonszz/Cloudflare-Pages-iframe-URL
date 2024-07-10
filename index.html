@@ -107,7 +107,6 @@
 
               const select = document.getElementById('siteSelection');
               const iframe = document.getElementById('dynamic-iframe');
-              const favicon = document.getElementById('dynamic-favicon');
               const faviconMap = {};
 
               if (Array.isArray(favUrls)) {
@@ -148,9 +147,7 @@
                   moveSelectToTop();
                   const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
                   console.log('Setting favicon URL:', faviconUrl); // 调试信息
-                  favicon.href = faviconUrl;
-                  // 检查 favicon 是否正确设置
-                  console.log('Favicon element:', favicon);
+                  updateFavicon(faviconUrl);
                 }
               });
 
@@ -163,9 +160,7 @@
                 moveSelectToTop();
                 const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
                 console.log('Setting favicon URL:', faviconUrl); // 调试信息
-                favicon.href = faviconUrl;
-                // 检查 favicon 是否正确设置
-                console.log('Favicon element:', favicon);
+                updateFavicon(faviconUrl);
               }
             })
             .catch(error => console.error('Error fetching favicon URL:', error));
@@ -186,6 +181,18 @@
       select.addEventListener('mouseleave', function() {
         select.classList.remove('expanded');
       });
+    }
+
+    function updateFavicon(faviconUrl) {
+      const oldFavicon = document.getElementById('dynamic-favicon');
+      if (oldFavicon) {
+        oldFavicon.remove();
+      }
+      const newFavicon = document.createElement('link');
+      newFavicon.id = 'dynamic-favicon';
+      newFavicon.rel = 'icon';
+      newFavicon.href = faviconUrl;
+      document.head.appendChild(newFavicon);
     }
   </script>
 </body>
