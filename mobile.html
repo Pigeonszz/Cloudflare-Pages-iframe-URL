@@ -113,23 +113,36 @@
               const iframe = document.getElementById('dynamic-iframe');
               const favicon = document.getElementById('dynamic-favicon');
               const faviconMap = {};
-              
-              favUrls.forEach(favUrl => {
-                if (typeof favUrl === 'string') {
-                  const [service, iconUrl] = favUrl.split(';');
-                  faviconMap[service] = iconUrl;
-                } else {
-                  console.error('Invalid favUrl:', favUrl);
-                }
-              });
 
-              urls.forEach(urlObj => {
-                const [iframeUrl, service] = urlObj.split(';');
-                const option = document.createElement('option');
-                option.value = iframeUrl;
-                option.textContent = service;
-                select.appendChild(option);
-              });
+              // 处理 favUrls
+              if (Array.isArray(favUrls)) {
+                favUrls.forEach(favUrl => {
+                  if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('favicon')) {
+                    faviconMap[favUrl.service] = favUrl.favicon;
+                  } else {
+                    console.error('Invalid favUrl:', favUrl);
+                  }
+                });
+              } else {
+                console.error('Invalid favUrls format:', favUrls);
+              }
+
+              // 处理 urls
+              if (Array.isArray(urls)) {
+                urls.forEach(urlObj => {
+                  if (typeof urlObj === 'string') {
+                    const [iframeUrl, service] = urlObj.split(';');
+                    const option = document.createElement('option');
+                    option.value = iframeUrl;
+                    option.textContent = service;
+                    select.appendChild(option);
+                  } else {
+                    console.error('Invalid urlObj:', urlObj);
+                  }
+                });
+              } else {
+                console.error('Invalid urls format:', urls);
+              }
 
               select.addEventListener('change', function() {
                 const selectedUrl = select.value;
@@ -138,7 +151,7 @@
                   iframe.src = selectedUrl;
                   sessionStorage.setItem('selectedSite', selectedUrl);
                   setTitle(selectedOption);
-                  moveSelectToCorner();
+                  moveSelectToTop();
                   const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
                   favicon.href = faviconUrl;
                 }
@@ -150,7 +163,7 @@
                 select.value = lastSelectedSite;
                 const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
-                moveSelectToCorner();
+                moveSelectToTop();
                 const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
                 favicon.href = faviconUrl;
               }
@@ -164,7 +177,7 @@
       document.title = title || '主内容';
     }
 
-    function moveSelectToCorner() {
+    function moveSelectToTop() {
       const select = document.getElementById('siteSelection');
       select.classList.add('selected');
       const selectContainer = document.getElementById('selectContainer');
