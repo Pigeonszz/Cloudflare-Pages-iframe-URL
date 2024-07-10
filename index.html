@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" no-cache>
+  <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
   <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
@@ -191,7 +191,7 @@
       const newFavicon = document.createElement('link');
       newFavicon.id = 'dynamic-favicon';
       newFavicon.rel = 'icon';
-      newFavicon.href = faviconUrl;
+      newFavicon.href = faviconUrl + '?v=' + new Date().getTime(); // 防止缓存
       document.head.appendChild(newFavicon);
     }
   </script>
