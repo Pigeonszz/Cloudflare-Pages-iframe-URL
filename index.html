@@ -99,74 +99,51 @@
         }
       };
 
-      Promise.all([
-        fetch('/iframe-url', fetchOptions).then(response => response.json()),
-        fetch('/favicon', fetchOptions).then(response => response.json())
-      ]).then(([urls, favUrls]) => {
-        const select = document.getElementById('siteSelection');
-        const iframe = document.getElementById('dynamic-iframe');
-        const favicon = document.getElementById('dynamic-favicon');
-
-        // 合并相同 Service_Name 的项
-        const mergedUrls = mergeUrlsAndFavicons(urls, favUrls);
-
-        // 渲染选项和事件监听
-        mergedUrls.forEach(urlObj => {
-          const option = document.createElement('option');
-          option.value = urlObj.url;
-          option.textContent = urlObj.service;
-          select.appendChild(option);
-        });
-
-        select.addEventListener('change', function() {
-          const selectedUrl = select.value;
-          const selectedOption = select.options[select.selectedIndex].textContent;
-          if (selectedUrl) {
-            iframe.src = selectedUrl;
-            sessionStorage.setItem('selectedSite', selectedUrl);
-            setTitle(selectedOption);
-            moveSelectToTop();
-            const faviconObj = mergedUrls.find(fav => fav.url === selectedUrl);
-            if (faviconObj) {
-              favicon.href = faviconObj.favicon;
-            }
-          }
-        });
-
-        const lastSelectedSite = sessionStorage.getItem('selectedSite');
-        if (lastSelectedSite) {
-          iframe.src = lastSelectedSite;
-          select.value = lastSelectedSite;
-          const lastSelectedOption = select.options[select.selectedIndex].textContent;
-          setTitle(lastSelectedOption);
-          moveSelectToTop();
-          const faviconObj = mergedUrls.find(fav => fav.url === lastSelectedSite);
-          if (faviconObj) {
-            favicon.href = faviconObj.favicon;
-          }
-        }
-      }).catch(error => console.error('Error fetching URLs or favicons:', error));
-    }
-
-    function mergeUrlsAndFavicons(urls, favUrls) {
-      const merged = [];
-      urls.forEach(urlObj => {
-        const faviconObj = favUrls.find(fav => fav.service === urlObj.service);
-        if (faviconObj) {
-          merged.push({
-            url: urlObj.url,
-            service: urlObj.service,
-            favicon: faviconObj.faviconUrl
-          });
-        } else {
-          merged.push({
-            url: urlObj.url,
-            service: urlObj.service,
-            favicon: '/favicon.svg' // 默认 favicon URL
-          });
-        }
-      });
-      return merged;
+      fetch('/iframe-url', fetchOptions)
+        .then(response => response.json())
+        .then(urls => {
+          fetch('/favicon', fetchOptions)
+            .then(favResponse => favResponse.json())
+            .then(favUrls => {
+              const select = document.getElementById('siteSelection');
+              const iframe = document.getElementById('dynamic-iframe');
+              const favicon = document.getElementById('dynamic-favicon');
+              urls.forEach(urlObj => {
+                const option = document.createElement('option');
+                option.value = urlObj.url;
+                option.textContent = urlObj.service;
+                select.appendChild(option);
+              });
+              select.addEventListener('change', function() {
+                const selectedUrl = select.value;
+                const selectedOption = select.options[select.selectedIndex].textContent;
+                if (selectedUrl) {
+                  iframe.src = selectedUrl;
+                  sessionStorage.setItem('selectedSite', selectedUrl);
+                  setTitle(selectedOption);
+                  moveSelectToTop();
+                  const faviconObj = favUrls.find(fav => fav.url === selectedUrl);
+                  if (faviconObj) {
+                    favicon.href = faviconObj.favicon;
+                  }
+                }
+              });
+              const lastSelectedSite = sessionStorage.getItem('selectedSite');
+              if (lastSelectedSite) {
+                iframe.src = lastSelectedSite;
+                select.value = lastSelectedSite;
+                const lastSelectedOption = select.options[select.selectedIndex].textContent;
+                setTitle(lastSelectedOption);
+                moveSelectToTop();
+                const faviconObj = favUrls.find(fav => fav.url === lastSelectedSite);
+                if (faviconObj) {
+                  favicon.href = faviconObj.favicon;
+                }
+              }
+            })
+            .catch(error => console.error('Error fetching favicon URL:', error));
+        })
+        .catch(error => console.error('Error fetching iframe URL:', error));
     }
 
     function setTitle(title) {
