@@ -102,7 +102,7 @@
 
       Promise.all([
         fetch('/iframe-url', fetchOptions),
-        fetch('/preview-favicon', fetchOptions)
+        fetch('/favicon', fetchOptions)
       ])
       .then(responses => Promise.all(responses.map(response => response.json())))
       .then(data => {
