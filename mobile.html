@@ -105,17 +105,24 @@
         .then(urls => {
           fetch('/favicon', fetchOptions)
             .then(favResponse => favResponse.json())
-            .then(env => {
-              const favIcons = parseFavicons(env.SITE_FAVICON);
+            .then(favUrls => {
               const select = document.getElementById('siteSelection');
               const iframe = document.getElementById('dynamic-iframe');
               const favicon = document.getElementById('dynamic-favicon');
+              const faviconMap = {};
+              favUrls.forEach(favUrl => {
+                const [service, iconUrl] = favUrl.split(';');
+                faviconMap[service] = iconUrl;
+              });
+
               urls.forEach(urlObj => {
+                const [iframeUrl, service] = urlObj.split(';');
                 const option = document.createElement('option');
-                option.value = urlObj.url;
-                option.textContent = urlObj.service;
+                option.value = iframeUrl;
+                option.textContent = service;
                 select.appendChild(option);
               });
+
               select.addEventListener('change', function() {
                 const selectedUrl = select.value;
                 const selectedOption = select.options[select.selectedIndex].textContent;
@@ -124,10 +131,11 @@
                   sessionStorage.setItem('selectedSite', selectedUrl);
                   setTitle(selectedOption);
                   collapseSelect();
-                  const faviconUrl = favIcons[selectedOption] || '/favicon.svg';
+                  const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
                   favicon.href = faviconUrl;
                 }
               });
+
               const lastSelectedSite = sessionStorage.getItem('selectedSite');
               if (lastSelectedSite) {
                 iframe.src = lastSelectedSite;
@@ -135,21 +143,13 @@
                 const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
                 collapseSelect();
-                const faviconUrl = favIcons[lastSelectedOption] || '/favicon.svg';
+                const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
                 favicon.href = faviconUrl;
               }
             })
-            .catch(error => console.error('Error fetching SITE_FAVICON:', error));
+            .catch(error => console.error('Error fetching favicon URL:', error));
         })
         .catch(error => console.error('Error fetching iframe URL:', error));
-    }
-
-    function parseFavicons(faviconsString) {
-      return faviconsString.split(',').reduce((acc, fav) => {
-        const [key, value] = fav.split(';');
-        acc[key] = value;
-        return acc;
-      }, {});
     }
 
     function setTitle(title) {
@@ -158,7 +158,16 @@
 
     function collapseSelect() {
       const select = document.getElementById('siteSelection');
+      const selectContainer = document.getElementById('selectContainer');
       select.classList.add('selected');
+      selectContainer.style.top = '50%';
+      selectContainer.style.left = '50%';
+      selectContainer.style.transform = 'translate(-50%, -50%)';
+      setTimeout(function() {
+        selectContainer.style.top = '10px';
+        selectContainer.style.left = '10px';
+        selectContainer.style.transform = 'translate(0, 0)';
+      }, 5000);
       select.addEventListener('mouseenter', function() {
         select.classList.remove('selected');
       });
