@@ -117,8 +117,8 @@
         // 处理 favUrls
         if (Array.isArray(favUrls)) {
           favUrls.forEach(favUrl => {
-            if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64')) {
-              faviconMap[favUrl.service] = favUrl.base64;
+            if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('faviconUrl')) {
+              faviconMap[favUrl.service] = favUrl.faviconUrl;
             } else {
               console.error('Invalid favUrl:', favUrl);
             }
@@ -133,7 +133,7 @@
             if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
               const iframeUrl = urlObj.url;
               const service = urlObj.service;
-              const faviconBase64 = faviconMap[service] || '/favicon.svg';
+              const faviconUrl = faviconMap[service] || '/favicon.svg';
               const option = document.createElement('option');
               option.value = iframeUrl;
               option.textContent = service;
@@ -201,8 +201,8 @@
 
     function setFavicon(selectedOption, faviconMap) {
       const favicon = document.getElementById('dynamic-favicon');
-      const faviconBase64 = faviconMap[selectedOption] || '/favicon.svg';
-      favicon.href = `data:image/png;base64,${faviconBase64}`;
+      const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
+      favicon.href = faviconUrl;
     }
   </script>
 </body>

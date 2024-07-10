@@ -27,32 +27,8 @@ export async function onRequest(context) {
       return { service, faviconUrl }; // 返回对象包含服务名称和 favicon URL
     });
 
-    // 构建返回的 favicon base64 数组
-    const faviconBase64Promises = favicons.map(async faviconObj => {
-      try {
-        const response = await fetch(faviconObj.faviconUrl);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const blob = await response.blob();
-        const base64 = await blobToBase64(blob);
-        return {
-          service: faviconObj.service,
-          base64: base64
-        };
-      } catch (error) {
-        console.error(`Error fetching favicon for service ${faviconObj.service}:`, error);
-        return {
-          service: faviconObj.service,
-          base64: null
-        };
-      }
-    });
-
-    const faviconBase64Results = await Promise.all(faviconBase64Promises);
-
     // 返回 JSON 格式的响应
-    return new Response(JSON.stringify(faviconBase64Results), {
+    return new Response(JSON.stringify(favicons), {
       headers: { 'Content-Type': 'application/json' }
     });
   } else {
@@ -62,18 +38,4 @@ export async function onRequest(context) {
       headers: { 'Content-Type': 'application/json' }
     });
   }
-}
-
-// 辅助函数：将 Blob 转换为 Base64
-function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = () => {
-      const dataUrl = reader.result;
-      const base64 = dataUrl.split(',')[1];
-      resolve(base64);
-    };
-    reader.readAsDataURL(blob);
-  });
 }
