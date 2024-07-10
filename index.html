@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -69,10 +70,12 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
+    // 检测是否为移动设备并跳转到 mobile.html
     if (/Mobi|Android/i.test(navigator.userAgent)) {
       window.location.href = 'mobile.html';
     }
 
+    // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
       .then(env => {
@@ -103,12 +106,14 @@
           fetch('/favicon', fetchOptions)
             .then(favResponse => favResponse.json())
             .then(favUrls => {
-              console.log('Fetched favUrls:', favUrls);
+              console.log('Fetched favUrls:', favUrls); // 调试输出
 
               const select = document.getElementById('siteSelection');
               const iframe = document.getElementById('dynamic-iframe');
+              const favicon = document.getElementById('dynamic-favicon');
               const faviconMap = {};
 
+              // 处理 favUrls
               if (Array.isArray(favUrls)) {
                 favUrls.forEach(favUrl => {
                   if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('favicon')) {
@@ -121,6 +126,7 @@
                 console.error('Invalid favUrls format:', favUrls);
               }
 
+              // 处理 urls
               if (Array.isArray(urls)) {
                 urls.forEach(urlObj => {
                   if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
@@ -146,21 +152,19 @@
                   setTitle(selectedOption);
                   moveSelectToTop();
                   const faviconUrl = faviconMap[selectedOption] || '/favicon.svg';
-                  console.log('Setting favicon URL:', faviconUrl); // 调试信息
-                  updateFavicon(faviconUrl);
+                  favicon.href = faviconUrl;
                 }
               });
 
               const lastSelectedSite = sessionStorage.getItem('selectedSite');
               if (lastSelectedSite) {
                 iframe.src = lastSelectedSite;
-                const lastSelectedOption = select.querySelector(`option[value="${lastSelectedSite}"]`).textContent;
                 select.value = lastSelectedSite;
+                const lastSelectedOption = select.options[select.selectedIndex].textContent;
                 setTitle(lastSelectedOption);
                 moveSelectToTop();
                 const faviconUrl = faviconMap[lastSelectedOption] || '/favicon.svg';
-                console.log('Setting favicon URL:', faviconUrl); // 调试信息
-                updateFavicon(faviconUrl);
+                favicon.href = faviconUrl;
               }
             })
             .catch(error => console.error('Error fetching favicon URL:', error));
@@ -181,18 +185,6 @@
       select.addEventListener('mouseleave', function() {
         select.classList.remove('expanded');
       });
-    }
-
-    function updateFavicon(faviconUrl) {
-      const oldFavicon = document.getElementById('dynamic-favicon');
-      if (oldFavicon) {
-        oldFavicon.remove();
-      }
-      const newFavicon = document.createElement('link');
-      newFavicon.id = 'dynamic-favicon';
-      newFavicon.rel = 'icon';
-      newFavicon.href = faviconUrl + '?v=' + new Date().getTime(); // 防止缓存
-      document.head.appendChild(newFavicon);
     }
   </script>
 </body>
