@@ -18,7 +18,7 @@ Fork一份此项目，登录Cloudflare dashboard —— Workers and Pages ——
         URL1;服务名称1,
         URL2;Service_Name2,
 
-2, SITE_FAVICON (站点图标，支持URL/路径形式)
+2, SITE_FAVICON (站点图标，支持URL/路径形式)(实验性功能)
 
 格式为:
 
