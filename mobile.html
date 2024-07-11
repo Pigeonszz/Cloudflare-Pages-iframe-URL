@@ -157,6 +157,7 @@
         });
 
         const lastSelectedSite = sessionStorage.getItem('selectedSite');
+        const selectContainer = document.getElementById('selectContainer');
         if (lastSelectedSite) {
           iframe.src = lastSelectedSite;
           select.value = lastSelectedSite;
@@ -232,7 +233,7 @@
             selectContainer.style.top = '20px';
             selectContainer.style.right = '20px';
             selectContainer.style.transform = 'translate(0)';
-          }, 2500);
+          }, 2000);
         });
 
         const storedPosition = localStorage.getItem('selectContainerPosition');
