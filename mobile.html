@@ -79,6 +79,7 @@
 
     let isDragging = false;
     let offsetX, offsetY;
+    let originalPosition = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
 
     function init() {
       const lastPosition = JSON.parse(localStorage.getItem('selectContainerPosition'));
@@ -165,15 +166,10 @@
             setTitle(selectedOption);
             setFavicon(selectedOption, faviconMap);
             select.classList.add('selected');
+            originalPosition = { top: selectContainer.style.top, left: selectContainer.style.left, transform: selectContainer.style.transform };
             selectContainer.style.top = '20px';
             selectContainer.style.left = 'calc(100% - 70px)';
             selectContainer.style.transform = 'translate(0)';
-            setTimeout(() => {
-              select.classList.remove('selected');
-              selectContainer.style.top = '20px';
-              selectContainer.style.left = 'calc(100% - 70px)';
-              selectContainer.style.transform = 'translate(0)';
-            }, 5000);
           }
         });
 
@@ -256,10 +252,17 @@
     });
 
     select.addEventListener('click', function() {
-      select.classList.remove('selected');
-      setTimeout(() => {
+      if (select.classList.contains('selected')) {
+        select.classList.remove('selected');
+        selectContainer.style.top = '50%';
+        selectContainer.style.left = '50%';
+        selectContainer.style.transform = 'translate(-50%, -50%)';
+      } else {
         select.classList.add('selected');
-      }, 5000);
+        selectContainer.style.top = originalPosition.top;
+        selectContainer.style.left = originalPosition.left;
+        selectContainer.style.transform = originalPosition.transform;
+      }
     });
 
     init();
