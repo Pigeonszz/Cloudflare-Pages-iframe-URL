@@ -150,7 +150,7 @@
             setTitle(selectedOption);
             moveSelectToTop();
             const faviconBase64 = faviconMap[selectedOption] || '/favicon.svg';
-            favicon.href = `data:image/svg+xml;base64,${faviconBase64}`;
+            favicon.href = `data:${getMimeType(faviconBase64)};base64,${faviconBase64}`;
           }
         });
 
@@ -162,7 +162,7 @@
           setTitle(lastSelectedOption);
           moveSelectToTop();
           const faviconBase64 = faviconMap[lastSelectedOption] || '/favicon.svg';
-          favicon.href = `data:image/svg+xml;base64,${faviconBase64}`;
+          favicon.href = `data:${getMimeType(faviconBase64)};base64,${faviconBase64}`;
         }
       })
       .catch(error => console.error('Error fetching iframe or favicon URL:', error));
@@ -181,6 +181,29 @@
       select.addEventListener('mouseleave', function() {
         select.classList.remove('expanded');
       });
+    }
+
+    function getMimeType(base64) {
+      const header = base64.substring(0, 20);
+      if (header.indexOf('image/png') !== -1) {
+        return 'image/png';
+      } else if (header.indexOf('image/x-icon') !== -1) {
+        return 'image/x-icon';
+      } else if (header.indexOf('image/jpeg') !== -1 || header.indexOf('image/jpg') !== -1) {
+        return 'image/jpeg';
+      } else if (header.indexOf('image/gif') !== -1) {
+        return 'image/gif';
+      } else if (header.indexOf('image/svg+xml') !== -1) {
+        return 'image/svg+xml';
+      } else if (header.indexOf('image/webp') !== -1) {
+        return 'image/webp';
+      } else if (header.indexOf('image/avif') !== -1) {
+        return 'image/avif';
+      } else if (header.indexOf('image/raw') !== -1) {
+        return 'image/raw';
+      } else {
+        return 'image/png';
+      }
     }
   </script>
 </body>

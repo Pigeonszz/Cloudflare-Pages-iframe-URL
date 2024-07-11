@@ -199,8 +199,7 @@
     function setFavicon(selectedOption, faviconMap) {
       const favicon = document.getElementById('dynamic-favicon');
       const faviconBase64 = faviconMap[selectedOption] || '/favicon.svg';
-      const mimeType = getMimeType(faviconBase64);
-      favicon.href = `data:${mimeType};base64,${faviconBase64}`;
+      favicon.href = `data:${getMimeType(faviconBase64)};base64,${faviconBase64}`;
     }
 
     function getMimeType(base64) {
