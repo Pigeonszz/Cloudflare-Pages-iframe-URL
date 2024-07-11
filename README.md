@@ -7,18 +7,18 @@ Cloudflare Pages iframe URL
 
 如何使用
 
-Fork一份此项目，登录Cloudflare dashboard —— Workers and Pages —— 创建 —— pages —— 连接到Git，选择刚刚Fork的仓库
+Fork此项目，登录 Cloudflare dashboard 部署
 
 设置四个环境变量
 
-1, IFRAME_URL (iframe所要加载的URL，支持多URL，;后面用作站点标题)
+1, IFRAME_URL (iframe所要加载的URL，支持多URL，;后的服务名称用作站点标题)
 
-格式为:   
+格式为:
 
         URL1;服务名称1,
         URL2;Service_Name2,
 
-2, SITE_FAVICON (站点图标，支持URL/路径形式)(实验性功能)
+2, FAVICON_URL (站点图标, 填写URL, 目前仅测试过.svg文件, 其它的没有测试)
 
 格式为:
 
@@ -29,7 +29,7 @@ Fork一份此项目，登录Cloudflare dashboard —— Workers and Pages ——
 
 4, TURNSTILE_SITE_KEY (Cloudflare Turnstile 人机验证的站点密钥 )
 
-#在Cloudflare dashboard —— Turnstile —— 添加站点 —— 根据需要配置 —— 创建
+Cloudflare dashboard —— Turnstile —— 添加站点 —— 根据需要配置 —— 创建
 
 部署
 
@@ -37,4 +37,4 @@ Fork一份此项目，登录Cloudflare dashboard —— Workers and Pages ——
 
 部分站点可能不接受被嵌入在iframe里
 
-Powered by ChatGPT and Cloudflare Pages
+Powered by ChatGPT , DeepSeek and Cloudflare Pages
