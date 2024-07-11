@@ -28,6 +28,7 @@
       top: 20px;
       right: 20px;
       z-index: 100;
+      transition: top 0.3s ease, left 0.3s ease, transform 0.3s ease;
     }
     select {
       width: 200px;
@@ -178,7 +179,6 @@
           isDragging = true;
           offsetX = e.touches[0].clientX - selectContainer.offsetLeft;
           offsetY = e.touches[0].clientY - selectContainer.offsetTop;
-          select.classList.remove('selected');
         });
 
         selectContainer.addEventListener('touchmove', function(e) {
@@ -212,10 +212,6 @@
             left: selectContainer.style.left,
             top: selectContainer.style.top
           }));
-
-          setTimeout(() => {
-            select.classList.add('selected');
-          }, 2500);
         });
 
         select.addEventListener('click', function() {
