@@ -181,11 +181,19 @@
           offsetY = e.touches[0].clientY - selectContainer.offsetTop;
         });
 
+        let lastMoveTime = 0;
+
         selectContainer.addEventListener('touchmove', function(e) {
           if (isDragging) {
             e.preventDefault();
-            selectContainer.style.left = e.touches[0].clientX - offsetX + 'px';
-            selectContainer.style.top = e.touches[0].clientY - offsetY + 'px';
+            const now = performance.now();
+            if (now - lastMoveTime > 16) { // Roughly 60fps
+              lastMoveTime = now;
+              requestAnimationFrame(() => {
+                selectContainer.style.left = e.touches[0].clientX - offsetX + 'px';
+                selectContainer.style.top = e.touches[0].clientY - offsetY + 'px';
+              });
+            }
           }
         });
 
