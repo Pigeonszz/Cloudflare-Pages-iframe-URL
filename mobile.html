@@ -255,6 +255,13 @@
       }
     });
 
+    select.addEventListener('click', function() {
+      select.classList.remove('selected');
+      setTimeout(() => {
+        select.classList.add('selected');
+      }, 5000);
+    });
+
     init();
   </script>
 </body>
