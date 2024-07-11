@@ -25,8 +25,9 @@
     }
     .select-container {
       position: fixed;
+      top: 20px;
+      right: 20px;
       z-index: 100;
-      transition: all 0.3s ease;
     }
     select {
       width: 200px;
@@ -37,6 +38,7 @@
       border: 1px solid #ccc;
       border-radius: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s ease;
       cursor: pointer;
     }
     select.selected {
@@ -44,6 +46,7 @@
       height: 50px;
       border-radius: 50%;
       opacity: 0.5;
+      transform: translate(0);
     }
     iframe {
       width: 100%;
@@ -72,43 +75,22 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    const selectContainer = document.getElementById('selectContainer');
-    const select = document.getElementById('siteSelection');
-    const iframe = document.getElementById('dynamic-iframe');
-    const favicon = document.getElementById('dynamic-favicon');
-
-    let isDragging = false;
-    let offsetX, offsetY;
-    let originalPosition = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
-
-    function init() {
-      const lastPosition = JSON.parse(localStorage.getItem('selectContainerPosition'));
-      if (lastPosition) {
-        selectContainer.style.top = lastPosition.top;
-        selectContainer.style.left = lastPosition.left;
-      } else {
-        selectContainer.style.top = '50%';
-        selectContainer.style.left = '50%';
-        selectContainer.style.transform = 'translate(-50%, -50%)';
-      }
-
-      fetch('/Turnstile')
-        .then(response => response.json())
-        .then(env => {
-          if (env.TURNSTILE_ENABLED === 'true') {
-            const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
-            const currentTime = new Date().getTime();
-            if (turnstileValidUntil && currentTime < turnstileValidUntil) {
-              showIframe();
-            } else {
-              window.location.href = 'turnstile.html';
-            }
-          } else {
+    fetch('/Turnstile')
+      .then(response => response.json())
+      .then(env => {
+        if (env.TURNSTILE_ENABLED === 'true') {
+          const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
+          const currentTime = new Date().getTime();
+          if (turnstileValidUntil && currentTime < turnstileValidUntil) {
             showIframe();
+          } else {
+            window.location.href = 'turnstile.html';
           }
-        })
-        .catch(error => console.error('Error fetching Turnstile status:', error));
-    }
+        } else {
+          showIframe();
+        }
+      })
+      .catch(error => console.error('Error fetching Turnstile status:', error));
 
     function showIframe() {
       const fetchOptions = {
@@ -125,6 +107,10 @@
       .then(data => {
         const urls = data[0];
         const favUrls = data[1];
+
+        const select = document.getElementById('siteSelection');
+        const iframe = document.getElementById('dynamic-iframe');
+        const favicon = document.getElementById('dynamic-favicon');
         const faviconMap = {};
 
         if (Array.isArray(favUrls)) {
@@ -166,10 +152,6 @@
             setTitle(selectedOption);
             setFavicon(selectedOption, faviconMap);
             select.classList.add('selected');
-            originalPosition = { top: selectContainer.style.top, left: selectContainer.style.left, transform: selectContainer.style.transform };
-            selectContainer.style.top = '20px';
-            selectContainer.style.left = 'calc(100% - 70px)';
-            selectContainer.style.transform = 'translate(0)';
           }
         });
 
@@ -180,6 +162,80 @@
           const lastSelectedOption = select.options[select.selectedIndex].textContent;
           setTitle(lastSelectedOption);
           setFavicon(lastSelectedOption, faviconMap);
+          select.classList.add('selected');
+          selectContainer.style.top = '20px';
+          selectContainer.style.right = '20px';
+        } else {
+          selectContainer.style.top = '50%';
+          selectContainer.style.left = '50%';
+          selectContainer.style.transform = 'translate(-50%, -50%)';
+        }
+
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        selectContainer.addEventListener('touchstart', function(e) {
+          isDragging = true;
+          offsetX = e.touches[0].clientX - selectContainer.offsetLeft;
+          offsetY = e.touches[0].clientY - selectContainer.offsetTop;
+          select.classList.remove('selected');
+        });
+
+        selectContainer.addEventListener('touchmove', function(e) {
+          if (isDragging) {
+            e.preventDefault();
+            selectContainer.style.left = e.touches[0].clientX - offsetX + 'px';
+            selectContainer.style.top = e.touches[0].clientY - offsetY + 'px';
+          }
+        });
+
+        selectContainer.addEventListener('touchend', function() {
+          isDragging = false;
+          const rect = selectContainer.getBoundingClientRect();
+          const windowWidth = window.innerWidth;
+          const windowHeight = window.innerHeight;
+          const edgeThreshold = 20;
+
+          if (rect.left < edgeThreshold) {
+            selectContainer.style.left = '0px';
+          } else if (rect.right > windowWidth - edgeThreshold) {
+            selectContainer.style.left = windowWidth - rect.width + 'px';
+          }
+
+          if (rect.top < edgeThreshold) {
+            selectContainer.style.top = '0px';
+          } else if (rect.bottom > windowHeight - edgeThreshold) {
+            selectContainer.style.top = windowHeight - rect.height + 'px';
+          }
+
+          localStorage.setItem('selectContainerPosition', JSON.stringify({
+            left: selectContainer.style.left,
+            top: selectContainer.style.top
+          }));
+
+          setTimeout(() => {
+            select.classList.add('selected');
+          }, 2500);
+        });
+
+        select.addEventListener('click', function() {
+          select.classList.remove('selected');
+          selectContainer.style.top = '50%';
+          selectContainer.style.left = '50%';
+          selectContainer.style.transform = 'translate(-50%, -50%)';
+          setTimeout(() => {
+            select.classList.add('selected');
+            selectContainer.style.top = '20px';
+            selectContainer.style.right = '20px';
+            selectContainer.style.transform = 'translate(0)';
+          }, 2500);
+        });
+
+        const storedPosition = localStorage.getItem('selectContainerPosition');
+        if (storedPosition) {
+          const { left, top } = JSON.parse(storedPosition);
+          selectContainer.style.left = left;
+          selectContainer.style.top = top;
         }
       })
       .catch(error => console.error('Error fetching iframe or favicon URL:', error));
@@ -190,8 +246,10 @@
     }
 
     function setFavicon(selectedOption, faviconMap) {
+      const favicon = document.getElementById('dynamic-favicon');
       const faviconBase64 = faviconMap[selectedOption] || '/favicon.svg';
-      favicon.href = `data:${getMimeType(faviconBase64)};base64,${faviconBase64}`;
+      const mimeType = getMimeType(faviconBase64);
+      favicon.href = `data:${mimeType};base64,${faviconBase64}`;
     }
 
     function getMimeType(base64) {
@@ -216,56 +274,6 @@
         return 'image/png';
       }
     }
-
-    selectContainer.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      offsetX = e.clientX - selectContainer.offsetLeft;
-      offsetY = e.clientY - selectContainer.offsetTop;
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (isDragging) {
-        selectContainer.style.left = `${e.clientX - offsetX}px`;
-        selectContainer.style.top = `${e.clientY - offsetY}px`;
-      }
-    });
-
-    document.addEventListener('mouseup', () => {
-      if (isDragging) {
-        isDragging = false;
-        const rect = selectContainer.getBoundingClientRect();
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        let left = rect.left;
-        let top = rect.top;
-
-        if (left < 0) left = 0;
-        if (top < 0) top = 0;
-        if (left + rect.width > windowWidth) left = windowWidth - rect.width;
-        if (top + rect.height > windowHeight) top = windowHeight - rect.height;
-
-        selectContainer.style.left = `${left}px`;
-        selectContainer.style.top = `${top}px`;
-
-        localStorage.setItem('selectContainerPosition', JSON.stringify({ left, top }));
-      }
-    });
-
-    select.addEventListener('click', function() {
-      if (select.classList.contains('selected')) {
-        select.classList.remove('selected');
-        selectContainer.style.top = '50%';
-        selectContainer.style.left = '50%';
-        selectContainer.style.transform = 'translate(-50%, -50%)';
-      } else {
-        select.classList.add('selected');
-        selectContainer.style.top = originalPosition.top;
-        selectContainer.style.left = originalPosition.left;
-        selectContainer.style.transform = originalPosition.transform;
-      }
-    });
-
-    init();
   </script>
 </body>
 </html>
