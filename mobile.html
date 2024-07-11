@@ -50,7 +50,7 @@
     }
     iframe {
       width: 100%;
-      height: 100vh; /* 占据整个屏幕高度 */
+      height: 100vh;
       border: none;
     }
     @media (prefers-color-scheme: dark) {
@@ -75,7 +75,6 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    // 获取 Turnstile 验证状态
     fetch('/Turnstile')
       .then(response => response.json())
       .then(env => {
@@ -114,7 +113,6 @@
         const favicon = document.getElementById('dynamic-favicon');
         const faviconMap = {};
 
-        // 处理 favUrls
         if (Array.isArray(favUrls)) {
           favUrls.forEach(favUrl => {
             if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64')) {
@@ -127,7 +125,6 @@
           console.error('Invalid favUrls format:', favUrls);
         }
 
-        // 处理 urls
         if (Array.isArray(urls)) {
           urls.forEach(urlObj => {
             if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
@@ -154,7 +151,7 @@
             sessionStorage.setItem('selectedSite', selectedUrl);
             setTitle(selectedOption);
             setFavicon(selectedOption, faviconMap);
-            select.classList.add('selected'); // 设置选择框为圆形样式
+            select.classList.add('selected');
           }
         });
 
@@ -186,9 +183,9 @@
         });
 
         select.addEventListener('click', function() {
-          select.classList.remove('selected'); // 点击选择框时移除圆形样式
+          select.classList.remove('selected');
           setTimeout(() => {
-            select.classList.add('selected'); // 5秒后恢复圆形样式
+            select.classList.add('selected');
           }, 5000);
         });
       })
@@ -225,7 +222,7 @@
       } else if (header.indexOf('image/raw') !== -1) {
         return 'image/raw';
       } else {
-        return 'image/png'; // 默认使用 PNG
+        return 'image/png';
       }
     }
   </script>
