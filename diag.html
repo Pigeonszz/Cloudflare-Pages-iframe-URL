@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>诊断页面</title>
   <style>
     body {
@@ -16,11 +19,16 @@
     }
     .section h2 {
       margin-bottom: 10px;
+      cursor: pointer;
     }
     .section pre {
       background-color: #f4f4f4;
       padding: 10px;
       border-radius: 5px;
+      display: none;
+    }
+    .section.open pre {
+      display: block;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -39,33 +47,48 @@
   <h1>诊断页面</h1>
 
   <div class="section">
-    <h2>网络连接状态</h2>
+    <h2 onclick="toggleSection(this)">网络连接状态</h2>
     <pre id="networkStatus"></pre>
   </div>
 
   <div class="section">
-    <h2>浏览器信息</h2>
+    <h2 onclick="toggleSection(this)">浏览器信息</h2>
     <pre id="browserInfo"></pre>
   </div>
 
   <div class="section">
-    <h2>本地存储状态</h2>
+    <h2 onclick="toggleSection(this)">本地存储状态</h2>
     <pre id="localStorageInfo"></pre>
   </div>
 
   <div class="section">
-    <h2>/Turnstile 端点</h2>
+    <h2 onclick="toggleSection(this)">/Turnstile 端点</h2>
     <pre id="turnstileEndpointStatus"></pre>
   </div>
 
   <div class="section">
-    <h2>/favicon 端点</h2>
+    <h2 onclick="toggleSection(this)">/favicon 端点</h2>
     <pre id="faviconEndpointStatus"></pre>
   </div>
 
   <div class="section">
-    <h2>/iframe-url 端点</h2>
+    <h2 onclick="toggleSection(this)">/iframe-url 端点</h2>
     <pre id="iframeUrlEndpointStatus"></pre>
+  </div>
+
+  <div class="section">
+    <h2 onclick="toggleSection(this)">index.html 访问结果</h2>
+    <pre id="indexHtmlStatus"></pre>
+  </div>
+
+  <div class="section">
+    <h2 onclick="toggleSection(this)">mobile.html 访问结果</h2>
+    <pre id="mobileHtmlStatus"></pre>
+  </div>
+
+  <div class="section">
+    <h2 onclick="toggleSection(this)">turnstile.html 访问结果</h2>
+    <pre id="turnstileHtmlStatus"></pre>
   </div>
 
   <script>
@@ -76,7 +99,15 @@
       checkTurnstileEndpoint();
       checkFaviconEndpoint();
       checkIframeUrlEndpoint();
+      checkHtmlPage('index.html', 'indexHtmlStatus');
+      checkHtmlPage('mobile.html', 'mobileHtmlStatus');
+      checkHtmlPage('turnstile.html', 'turnstileHtmlStatus');
     });
+
+    function toggleSection(header) {
+      const section = header.parentElement;
+      section.classList.toggle('open');
+    }
 
     function checkNetworkStatus() {
       if (navigator.onLine) {
@@ -132,6 +163,29 @@
         document.getElementById('iframeUrlEndpointStatus').textContent = JSON.stringify(data, null, 2);
       } catch (error) {
         document.getElementById('iframeUrlEndpointStatus').textContent = 'Error: ' + error.message;
+      }
+    }
+
+    async function checkHtmlPage(page, elementId) {
+      try {
+        const response = await fetch(page);
+        const data = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+        const resources = [];
+
+        // Check for scripts, styles, and images
+        Array.from(doc.querySelectorAll('script, link[rel="stylesheet"], img')).forEach(el => {
+          resources.push({
+            tag: el.tagName,
+            src: el.src || el.href,
+            status: el.complete ? 'Loaded' : 'Not Loaded'
+          });
+        });
+
+        document.getElementById(elementId).textContent = JSON.stringify(resources, null, 2);
+      } catch (error) {
+        document.getElementById(elementId).textContent = 'Error: ' + error.message;
       }
     }
   </script>
