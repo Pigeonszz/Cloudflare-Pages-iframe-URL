@@ -26,17 +26,30 @@ export async function onRequest(context) {
     const faviconUrls = await Promise.all(urls.map(async urlObj => {
       const faviconObj = favicons.find(fav => fav.service === urlObj.service);
       if (faviconObj) {
-        const response = await fetch(faviconObj.faviconUrl);
-        const blob = await response.blob();
-        const base64 = await blobToBase64(blob);
-        return {
-          service: urlObj.service,
-          base64: base64
-        };
+        try {
+          const response = await fetch(faviconObj.faviconUrl);
+          if (!response.ok) throw new Error('Failed to fetch favicon');
+          const blob = await response.blob();
+          const base64 = await blobToBase64(blob);
+          const contentType = response.headers.get('content-type');
+          return {
+            service: urlObj.service,
+            base64: base64,
+            contentType: contentType
+          };
+        } catch (error) {
+          console.error(`Failed to fetch favicon for service ${urlObj.service}:`, error);
+          return {
+            service: urlObj.service,
+            base64: '',
+            contentType: 'image/svg+xml'
+          };
+        }
       } else {
         return {
           service: urlObj.service,
-          base64: ''
+          base64: '',
+          contentType: 'image/svg+xml'
         };
       }
     }));
