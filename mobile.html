@@ -151,6 +151,9 @@
             setTitle(selectedOption);
             setFavicon(selectedOption, faviconMap);
             select.classList.add('selected');
+            const selectContainer = document.getElementById('selectContainer');
+            selectContainer.style.top = '20px';
+            selectContainer.style.right = '20px';
           }
         });
 
@@ -170,47 +173,6 @@
           selectContainer.style.left = '50%';
           selectContainer.style.transform = 'translate(-50%, -50%)';
         }
-
-        let isDragging = false;
-        let offsetX, offsetY;
-
-        selectContainer.addEventListener('touchstart', function(e) {
-          if (select.classList.contains('selected')) {
-            isDragging = true;
-            offsetX = e.touches[0].clientX - selectContainer.offsetLeft;
-            offsetY = e.touches[0].clientY - selectContainer.offsetTop;
-          }
-        });
-
-        selectContainer.addEventListener('touchmove', function(e) {
-          if (isDragging) {
-            e.preventDefault();
-            selectContainer.style.left = e.touches[0].clientX - offsetX + 'px';
-            selectContainer.style.top = e.touches[0].clientY - offsetY + 'px';
-          }
-        });
-
-        selectContainer.addEventListener('touchend', function() {
-          if (isDragging) {
-            isDragging = false;
-            const rect = selectContainer.getBoundingClientRect();
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-            const edgeThreshold = 20;
-
-            if (rect.left < edgeThreshold) {
-              selectContainer.style.left = '0px';
-            } else if (rect.right > windowWidth - edgeThreshold) {
-              selectContainer.style.left = windowWidth - rect.width + 'px';
-            }
-
-            if (rect.top < edgeThreshold) {
-              selectContainer.style.top = '0px';
-            } else if (rect.bottom > windowHeight - edgeThreshold) {
-              selectContainer.style.top = windowHeight - rect.height + 'px';
-            }
-          }
-        });
 
         select.addEventListener('click', function() {
           select.classList.remove('selected');
