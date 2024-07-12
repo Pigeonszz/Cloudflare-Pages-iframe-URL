@@ -40,41 +40,44 @@
 
   <div class="section">
     <h2>网络连接状态</h2>
-    <button onclick="checkNetworkStatus()">检查网络连接</button>
     <pre id="networkStatus"></pre>
   </div>
 
   <div class="section">
     <h2>浏览器信息</h2>
-    <button onclick="getBrowserInfo()">获取浏览器信息</button>
     <pre id="browserInfo"></pre>
   </div>
 
   <div class="section">
     <h2>本地存储状态</h2>
-    <button onclick="getLocalStorageInfo()">获取本地存储信息</button>
     <pre id="localStorageInfo"></pre>
   </div>
 
   <div class="section">
     <h2>/Turnstile 端点</h2>
-    <button onclick="checkTurnstileEndpoint()">检查 /Turnstile 端点</button>
     <pre id="turnstileEndpointStatus"></pre>
   </div>
 
   <div class="section">
     <h2>/favicon 端点</h2>
-    <button onclick="checkFaviconEndpoint()">检查 /favicon 端点</button>
     <pre id="faviconEndpointStatus"></pre>
   </div>
 
   <div class="section">
     <h2>/iframe-url 端点</h2>
-    <button onclick="checkIframeUrlEndpoint()">检查 /iframe-url 端点</button>
     <pre id="iframeUrlEndpointStatus"></pre>
   </div>
 
   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkNetworkStatus();
+      getBrowserInfo();
+      getLocalStorageInfo();
+      checkTurnstileEndpoint();
+      checkFaviconEndpoint();
+      checkIframeUrlEndpoint();
+    });
+
     function checkNetworkStatus() {
       if (navigator.onLine) {
         document.getElementById('networkStatus').textContent = '网络连接正常';
