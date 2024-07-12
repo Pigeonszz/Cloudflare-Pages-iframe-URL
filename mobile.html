@@ -176,14 +176,8 @@
 
         select.addEventListener('click', function() {
           select.classList.remove('selected');
-          selectContainer.style.top = '50%';
-          selectContainer.style.left = '50%';
-          selectContainer.style.transform = 'translate(-50%, -50%)';
           setTimeout(() => {
             select.classList.add('selected');
-            selectContainer.style.top = '20px';
-            selectContainer.style.right = '20px';
-            selectContainer.style.transform = 'translate(0)';
           }, 2000);
         });
 
