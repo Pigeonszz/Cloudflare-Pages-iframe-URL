@@ -31,11 +31,6 @@
       display: flex;
       align-items: center;
     }
-    .select-container img {
-      margin-left: 10px;
-      width: 20px;
-      height: 20px;
-    }
     select {
       width: 200px;
       height: 40px;
@@ -47,6 +42,19 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, border-radius 0.3s ease;
       cursor: pointer;
+    }
+    select option {
+      display: flex;
+      align-items: center;
+    }
+    select option::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      background-size: contain;
+      background-repeat: no-repeat;
     }
     select.selected {
       width: 50px;
@@ -78,7 +86,6 @@
     <select id="siteSelection">
       <option value="">选择一个站点...</option>
     </select>
-    <img id="favicon" src="/favicon.svg" alt="favicon">
   </div>
   <iframe id="dynamic-iframe"></iframe>
 
@@ -118,7 +125,6 @@
 
         const select = document.getElementById('siteSelection');
         const iframe = document.getElementById('dynamic-iframe');
-        const favicon = document.getElementById('favicon');
         const faviconMap = {};
 
         if (Array.isArray(favUrls)) {
@@ -142,6 +148,7 @@
               const option = document.createElement('option');
               option.value = iframeUrl;
               option.textContent = service;
+              option.style.backgroundImage = `url(data:${faviconData.contentType};base64,${faviconData.base64})`;
               select.appendChild(option);
             } else {
               console.error('Invalid urlObj:', urlObj);
@@ -205,9 +212,9 @@
     }
 
     function setFavicon(selectedOption, faviconMap) {
-      const favicon = document.getElementById('favicon');
+      const favicon = document.getElementById('dynamic-favicon');
       const faviconData = faviconMap[selectedOption] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
-      favicon.src = `data:${faviconData.contentType};base64,${faviconData.base64}`;
+      favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
     }
   </script>
 </body>
