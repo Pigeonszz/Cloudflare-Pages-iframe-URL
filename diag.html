@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>诊断页面</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #fff;
+      color: #000;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      margin-bottom: 10px;
+    }
+    .section pre {
+      background-color: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #121212;
+        color: #fff;
+      }
+      .section pre {
+        background-color: #333;
+        color: #fff;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>诊断页面</h1>
+
+  <div class="section">
+    <h2>网络连接状态</h2>
+    <button onclick="checkNetworkStatus()">检查网络连接</button>
+    <pre id="networkStatus"></pre>
+  </div>
+
+  <div class="section">
+    <h2>浏览器信息</h2>
+    <button onclick="getBrowserInfo()">获取浏览器信息</button>
+    <pre id="browserInfo"></pre>
+  </div>
+
+  <div class="section">
+    <h2>本地存储状态</h2>
+    <button onclick="getLocalStorageInfo()">获取本地存储信息</button>
+    <pre id="localStorageInfo"></pre>
+  </div>
+
+  <div class="section">
+    <h2>/Turnstile 端点</h2>
+    <button onclick="checkTurnstileEndpoint()">检查 /Turnstile 端点</button>
+    <pre id="turnstileEndpointStatus"></pre>
+  </div>
+
+  <div class="section">
+    <h2>/favicon 端点</h2>
+    <button onclick="checkFaviconEndpoint()">检查 /favicon 端点</button>
+    <pre id="faviconEndpointStatus"></pre>
+  </div>
+
+  <div class="section">
+    <h2>/iframe-url 端点</h2>
+    <button onclick="checkIframeUrlEndpoint()">检查 /iframe-url 端点</button>
+    <pre id="iframeUrlEndpointStatus"></pre>
+  </div>
+
+  <script>
+    function checkNetworkStatus() {
+      if (navigator.onLine) {
+        document.getElementById('networkStatus').textContent = '网络连接正常';
+      } else {
+        document.getElementById('networkStatus').textContent = '网络连接异常';
+      }
+    }
+
+    function getBrowserInfo() {
+      const info = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        cookieEnabled: navigator.cookieEnabled
+      };
+      document.getElementById('browserInfo').textContent = JSON.stringify(info, null, 2);
+    }
+
+    function getLocalStorageInfo() {
+      const info = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        info[key] = localStorage.getItem(key);
+      }
+      document.getElementById('localStorageInfo').textContent = JSON.stringify(info, null, 2);
+    }
+
+    async function checkTurnstileEndpoint() {
+      try {
+        const response = await fetch('/Turnstile');
+        const data = await response.json();
+        document.getElementById('turnstileEndpointStatus').textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        document.getElementById('turnstileEndpointStatus').textContent = 'Error: ' + error.message;
+      }
+    }
+
+    async function checkFaviconEndpoint() {
+      try {
+        const response = await fetch('/favicon');
+        const data = await response.json();
+        document.getElementById('faviconEndpointStatus').textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        document.getElementById('faviconEndpointStatus').textContent = 'Error: ' + error.message;
+      }
+    }
+
+    async function checkIframeUrlEndpoint() {
+      try {
+        const response = await fetch('/iframe-url');
+        const data = await response.json();
+        document.getElementById('iframeUrlEndpointStatus').textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        document.getElementById('iframeUrlEndpointStatus').textContent = 'Error: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
