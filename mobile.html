@@ -25,10 +25,11 @@
     }
     .select-container {
       position: fixed;
-      top: 20px;
-      right: 20px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       z-index: 100;
-      transition: top 0.3s ease, left 0.3s ease, transform 0.3s ease;
+      transition: top 0.3s ease, left 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
     }
     select {
       width: 200px;
@@ -153,11 +154,11 @@
             setTitle(selectedOption);
             setFavicon(selectedOption, faviconMap);
             select.classList.add('selected');
+            moveSelectContainerToCorner();
           }
         });
 
         const lastSelectedSite = sessionStorage.getItem('selectedSite');
-        const selectContainer = document.getElementById('selectContainer');
         if (lastSelectedSite) {
           iframe.src = lastSelectedSite;
           select.value = lastSelectedSite;
@@ -165,12 +166,7 @@
           setTitle(lastSelectedOption);
           setFavicon(lastSelectedOption, faviconMap);
           select.classList.add('selected');
-          selectContainer.style.top = '20px';
-          selectContainer.style.right = '20px';
-        } else {
-          selectContainer.style.top = '50%';
-          selectContainer.style.left = '50%';
-          selectContainer.style.transform = 'translate(-50%, -50%)';
+          moveSelectContainerToCorner();
         }
 
         let isDragging = false;
@@ -200,27 +196,7 @@
 
         selectContainer.addEventListener('touchend', function() {
           isDragging = false;
-          const rect = selectContainer.getBoundingClientRect();
-          const windowWidth = window.innerWidth;
-          const windowHeight = window.innerHeight;
-          const edgeThreshold = 20;
-
-          if (rect.left < edgeThreshold) {
-            selectContainer.style.left = '0px';
-          } else if (rect.right > windowWidth - edgeThreshold) {
-            selectContainer.style.left = windowWidth - rect.width + 'px';
-          }
-
-          if (rect.top < edgeThreshold) {
-            selectContainer.style.top = '0px';
-          } else if (rect.bottom > windowHeight - edgeThreshold) {
-            selectContainer.style.top = windowHeight - rect.height + 'px';
-          }
-
-          localStorage.setItem('selectContainerPosition', JSON.stringify({
-            left: selectContainer.style.left,
-            top: selectContainer.style.top
-          }));
+          moveSelectContainerToEdge();
         });
 
         select.addEventListener('click', function() {
@@ -230,18 +206,10 @@
           selectContainer.style.transform = 'translate(-50%, -50%)';
           setTimeout(() => {
             select.classList.add('selected');
-            selectContainer.style.top = '20px';
-            selectContainer.style.right = '20px';
-            selectContainer.style.transform = 'translate(0)';
+            moveSelectContainerToCorner();
           }, 2000);
         });
 
-        const storedPosition = localStorage.getItem('selectContainerPosition');
-        if (storedPosition) {
-          const { left, top } = JSON.parse(storedPosition);
-          selectContainer.style.left = left;
-          selectContainer.style.top = top;
-        }
       })
       .catch(error => console.error('Error fetching iframe or favicon URL:', error));
     }
@@ -279,6 +247,56 @@
         return 'image/png';
       }
     }
+
+    function moveSelectContainerToCorner() {
+      const selectContainer = document.getElementById('selectContainer');
+      selectContainer.style.top = '20px';
+      selectContainer.style.left = 'auto';
+      selectContainer.style.right = '20px';
+      selectContainer.style.transform = 'none';
+    }
+
+    function moveSelectContainerToEdge() {
+      const selectContainer = document.getElementById('selectContainer');
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const containerRect = selectContainer.getBoundingClientRect();
+      const selectRect = selectContainer.querySelector('select').getBoundingClientRect();
+
+      let newX = containerRect.left;
+      let newY = containerRect.top;
+
+      if (containerRect.left < 0) newX = 0;
+      if (containerRect.top < 0) newY = 0;
+      if (containerRect.right > screenWidth) newX = screenWidth - containerRect.width;
+      if (containerRect.bottom > screenHeight) newY = screenHeight - containerRect.height;
+
+      if (newX > screenWidth - containerRect.width - 20) {
+        newX = screenWidth - containerRect.width - 20;
+      } else if (newX < 20) {
+        newX = 20;
+      }
+
+      if (newY > screenHeight - containerRect.height - 20) {
+        newY = screenHeight - containerRect.height - 20;
+      } else if (newY < 20) {
+        newY = 20;
+      }
+
+      selectContainer.style.left = newX + 'px';
+      selectContainer.style.top = newY + 'px';
+      selectContainer.style.transform = 'none';
+    }
+
+    document.addEventListener('scroll', function() {
+      const selectContainer = document.getElementById('selectContainer');
+      selectContainer.style.display = 'block';
+      clearTimeout(selectContainer.hideTimeout);
+      selectContainer.hideTimeout = setTimeout(function() {
+        selectContainer.style.display = 'none';
+      }, 5000);
+    });
+
   </script>
 </body>
 </html>
