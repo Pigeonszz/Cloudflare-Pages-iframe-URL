@@ -28,6 +28,13 @@
       top: 20px;
       right: 20px;
       z-index: 100;
+      display: flex;
+      align-items: center;
+    }
+    .select-container img {
+      margin-left: 10px;
+      width: 20px;
+      height: 20px;
     }
     select {
       width: 200px;
@@ -58,7 +65,7 @@
         background-color: #1e1e1e;
         color: white;
       }
-      select {
+      .select-container {
         background-color: #1e1e1e;
         color: white;
         border-color: #444;
@@ -71,6 +78,7 @@
     <select id="siteSelection">
       <option value="">选择一个站点...</option>
     </select>
+    <img id="favicon" src="/favicon.svg" alt="favicon">
   </div>
   <iframe id="dynamic-iframe"></iframe>
 
@@ -110,7 +118,7 @@
 
         const select = document.getElementById('siteSelection');
         const iframe = document.getElementById('dynamic-iframe');
-        const favicon = document.getElementById('dynamic-favicon');
+        const favicon = document.getElementById('favicon');
         const faviconMap = {};
 
         if (Array.isArray(favUrls)) {
@@ -197,9 +205,9 @@
     }
 
     function setFavicon(selectedOption, faviconMap) {
-      const favicon = document.getElementById('dynamic-favicon');
+      const favicon = document.getElementById('favicon');
       const faviconData = faviconMap[selectedOption] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
-      favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
+      favicon.src = `data:${faviconData.contentType};base64,${faviconData.base64}`;
     }
   </script>
 </body>
