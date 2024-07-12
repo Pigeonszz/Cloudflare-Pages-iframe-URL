@@ -26,8 +26,12 @@ export async function onRequest(context) {
     const faviconUrls = await Promise.all(urls.map(async urlObj => {
       const faviconObj = favicons.find(fav => fav.service === urlObj.service);
       if (faviconObj) {
+        let faviconUrl = faviconObj.faviconUrl;
+        if (isGithubUrl(faviconUrl)) {
+          faviconUrl = convertToJsdelivrUrl(faviconUrl);
+        }
         try {
-          const response = await fetch(faviconObj.faviconUrl);
+          const response = await fetch(faviconUrl);
           if (!response.ok) throw new Error('Failed to fetch favicon');
           const blob = await response.blob();
           const base64 = await blobToBase64(blob);
@@ -70,4 +74,17 @@ async function blobToBase64(blob) {
   const buffer = await response.arrayBuffer();
   const base64 = btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
   return base64;
+}
+
+function isGithubUrl(url) {
+  const githubRegex = /^https?:\/\/(?:www\.)?(?:github\.com|gist\.github\.com|raw\.githubusercontent\.com)\/.*\/.*\/(?:raw|blob)\/.*\/.*$/;
+  return githubRegex.test(url);
+}
+
+function convertToJsdelivrUrl(githubUrl) {
+  const jsdelivrUrl = githubUrl.replace(
+    /^https?:\/\/(?:www\.)?(?:github\.com|gist\.github\.com|raw\.githubusercontent\.com)\/(.*?)\/(.*?)\/(?:raw|blob)\/(.*)$/,
+    'https://cdn.jsdelivr.net/gh/$1/$2@$3'
+  );
+  return jsdelivrUrl;
 }
