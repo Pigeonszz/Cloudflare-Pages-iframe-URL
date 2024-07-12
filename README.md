@@ -1,40 +1,47 @@
-Cloudflare Pages iframe URL
+# Cloudflare Pages Iframe URL
 
-这是一个使用 Cloudflare Pages 部署的项目，用于显示一个包含 Turnstile 验证的 iframe。
+基于 Cloudflare Pages 渲染嵌入的 iframe 内容
+## 如何使用
 
-使用 Cloudflare 的 Turnstile API 进行人机验证(可选功能),
-在验证成功后加载指定的 iframe 内容。
+1. **Fork 此项目**到您自己的 GitHub 仓库。
+2. **登录 Cloudflare 控制面板**并部署项目。
 
-如何使用
+### 设置环境变量
 
-Fork此项目，登录 Cloudflare dashboard 部署
+在 Cloudflare Pages 设置中，配置以下四个环境变量：
 
-设置四个环境变量
+1. **IFRAME_URL**（iframe 要加载的 URL，支持多个 URL，服务名称用作站点标题）
 
-1, IFRAME_URL (iframe所要加载的URL，支持多URL，;后的服务名称用作站点标题)
+   格式如下：
+   ```
+   URL1;服务名称1,
+   URL2;Service_Name2,
+   ```
 
-格式为:
+2. **FAVICON_URL**（站点图标，填写 URL，目前仅测试了 .svg 和 .png 文件）
 
-        URL1;服务名称1,
-        URL2;Service_Name2,
+   格式如下：
+   ```
+   服务名称1;Favicon_URL1,
+   Service_Name2;Favicon_URL2,
+   ```
 
-2, FAVICON_URL (站点图标, 填写URL, 目前仅测试过.svg文件, 其它的没有测试)
+3. **TURNSTILE_ENABLED**（Turnstile 人机验证的开关，true/false）
 
-格式为:
+4. **TURNSTILE_SITE_KEY**（Cloudflare Turnstile 人机验证的站点密钥）
 
-        服务名称1;Favicon_URL1,
-        Service_Name2;Favicon_URL2,
+### 部署
 
-3, TURNSTILE_ENABLED (Turnstile 人机验证的开关 , true/false )
+### 享受
 
-4, TURNSTILE_SITE_KEY (Cloudflare Turnstile 人机验证的站点密钥 )
+## 注意事项
 
-Cloudflare dashboard —— Turnstile —— 添加站点 —— 根据需要配置 —— 创建
+部分站点可能拒绝被嵌入进 iframe
 
-部署
+## 免责声明
 
-享受
+本项目仅供学习和研究使用，不保证所有嵌入的网站都能正常工作。使用本项目时，请确保遵守相关网站的使用条款和法律法规。对于因使用本项目而导致的任何问题，本项目作者和贡献者不承担任何责任。
 
-部分站点可能不接受被嵌入在iframe里
+---
 
-Powered by ChatGPT , DeepSeek and Cloudflare Pages
+Powered by ChatGPT, DeepSeek, and Cloudflare Pages
