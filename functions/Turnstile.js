@@ -1,7 +1,6 @@
 export async function onRequest(context) {
   const keys = {
     siteKey: context.env.TURNSTILE_SITE_KEY,
-    secretKey: context.env.TURNSTILE_SECRET_KEY,
   };
   const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED || 'false';
 

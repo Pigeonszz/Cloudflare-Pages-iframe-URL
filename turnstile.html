@@ -59,10 +59,9 @@
         const siteKey = env.siteKey;
 
         // 检查 localStorage 中是否有验证状态
-        const turnstileValidUntil = localStorage.getItem('turnstileValidUntil');
-        const currentTime = new Date().getTime();
+        const turnstileToken = localStorage.getItem('turnstileToken');
 
-        if (turnstileValidUntil && currentTime < turnstileValidUntil) {
+        if (turnstileToken) {
           // 如果验证状态仍有效，则跳转回主内容页面
           window.location.href = 'index.html';
         } else if (turnstileEnabled) {
@@ -99,9 +98,8 @@
 
     // Turnstile 验证成功的回调函数
     function onTurnstileSuccess(token) {
-      // 存储验证状态有效期为 4 小时
-      const validUntil = new Date().getTime() + 4 * 60 * 60 * 1000; // 4小时后的时间戳
-      localStorage.setItem('turnstileValidUntil', validUntil);
+      // 存储 Turnstile 验证成功的回调 token
+      localStorage.setItem('turnstileToken', token);
 
       // 跳转回主内容页面
       window.location.href = 'index.html';
