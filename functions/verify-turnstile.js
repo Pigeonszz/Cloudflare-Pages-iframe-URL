@@ -15,7 +15,7 @@ export async function onRequest(context) {
 
     // 检查 token、uuid 和 ip 是否存在
     if (!token || !uuid || !ip) {
-        return new Response(JSON.stringify({ error: 'Token, UUID, or IP missing.' }), {
+        return new Response(JSON.stringify({ error: 'Token, UUID, or IP missing.', cat: 'https://http.cat/400' }), {
             status: 400,
             headers: { 'Content-Type': 'application/json' }
         });
@@ -70,7 +70,7 @@ export async function onRequest(context) {
         });
     } else {
         // 如果验证失败，返回错误信息
-        return new Response(JSON.stringify({ success: false, error: verificationResult['error-codes'] }), {
+        return new Response(JSON.stringify({ success: false, error: verificationResult['error-codes'], cat: 'https://http.cat/403' }), {
             status: 403,
             headers: { 'Content-Type': 'application/json' }
         });
