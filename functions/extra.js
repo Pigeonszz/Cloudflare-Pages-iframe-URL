@@ -1,10 +1,9 @@
 // /functions/extra.js
-
-import { verifyTurnstile } from './verify-turnstile.js';
+import { onRequest as verifyTurnstile } from './verify-turnstile.js';
 
 export async function onRequest(context) {
     // 获取环境变量
-    const getEnvVar = (name) => process.env[name] || '';
+    const getEnvVar = (name) => context.env[name] || '';
 
     // 检查 URL 是否是 GitHub 的 URL
     function isGithubUrl(url) {
