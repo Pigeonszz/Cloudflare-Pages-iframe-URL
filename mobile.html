@@ -72,20 +72,6 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script>
-    // 获取 IP 地址
-    function getClientIP() {
-      return fetch('https://www.cloudflare.com/cdn-cgi/trace')
-        .then(response => response.text())
-        .then(data => {
-          const ipMatch = data.match(/ip=((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))|ip=((?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(?=(?:[0-9a-fA-F]*:[0-9a-fA-F]*){1,7}$)(([0-9a-fA-F]{1,4}:){1,7}|:)((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))/);
-          return ipMatch ? ipMatch[1] || ipMatch[2] : null;
-        })
-        .catch(error => {
-          console.error('Error fetching IP address:', error);
-          return null;
-        });
-    }
-
     // 获取 Turnstile 状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -94,14 +80,12 @@
           const turnstileToken = localStorage.getItem('turnstileToken');
           const turnstileUUID = localStorage.getItem('turnstileUUID');
           if (turnstileToken && turnstileUUID) {
-            getClientIP().then(ip => {
-              verifyToken(turnstileToken, turnstileUUID, ip).then(isValid => {
-                if (isValid) {
-                  showIframe(turnstileToken, turnstileUUID, ip);
-                } else {
-                  window.location.href = 'turnstile.html';
-                }
-              });
+            verifyToken(turnstileToken, turnstileUUID).then(isValid => {
+              if (isValid) {
+                showIframe();
+              } else {
+                window.location.href = 'turnstile.html';
+              }
             });
           } else {
             window.location.href = 'turnstile.html';
@@ -113,18 +97,10 @@
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
     // 显示 iframe 内容
-    function showIframe(token, uuid, ip) {
-      const fetchOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ token, uuid, ip })
-      };
-
+    function showIframe() {
       Promise.all([
-        fetch('/iframe-url', fetchOptions),
-        fetch('/favicon', fetchOptions)
+        fetch('/iframe-url'),
+        fetch('/favicon')
       ])
       .then(responses => Promise.all(responses.map(response => response.json())))
       .then(data => {
@@ -228,13 +204,13 @@
     }
 
     // 验证 Turnstile 令牌
-    async function verifyToken(token, uuid, ip) {
+    async function verifyToken(token, uuid) {
       const response = await fetch('/verify-turnstile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token, uuid, ip })
+        body: JSON.stringify({ token, uuid })
       });
 
       const result = await response.json();
