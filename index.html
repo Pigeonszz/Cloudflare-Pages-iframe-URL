@@ -1,12 +1,72 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>加载中...</title>
   <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
-  <script src="./injectScript.js"></script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+      background-color: white;
+      color: black;
+    }
+
+    select {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 10px;
+      font-size: 16px;
+      z-index: 100;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease, top 0.3s ease;
+    }
+
+    select.top {
+      top: -30px;
+      transform: translate(-50%, 0);
+    }
+
+    select.expanded {
+      top: 10px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100vh;
+      border: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1e1e1e;
+        color: white;
+      }
+
+      select {
+        background-color: #1e1e1e;
+        color: white;
+        border-color: #444;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <select id="siteSelection">
     <option value="">选择一个站点...</option>
@@ -73,10 +133,10 @@
         fetch('/iframe-url', fetchOptions),
         fetch('/favicon', fetchOptions)
       ])
-        .then(responses => Promise.all(responses.map(response => response.text())))
+        .then(responses => Promise.all(responses.map(response => response.json())))
         .then(data => {
-          const urls = JSON.parse(data[0]);
-          const favUrls = JSON.parse(data[1]);
+          const urls = data[0];
+          const favUrls = data[1];
 
           const select = document.getElementById('siteSelection');
           const iframe = document.getElementById('dynamic-iframe');
@@ -137,7 +197,7 @@
             favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
           }
         })
-        .catch(error => console.error('Error fetching iframe or favicon content:', error));
+        .catch(error => console.error('Error fetching iframe or favicon URL:', error));
     }
 
     // 设置页面标题
