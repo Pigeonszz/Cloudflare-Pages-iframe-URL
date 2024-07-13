@@ -23,6 +23,12 @@ export async function onRequest(context) {
     // 使用 Cloudflare D1 数据库
     const db = context.env.D1;
 
+    // 检查是否存在 uuid_store 表，若不存在则创建
+    const tableCheck = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="uuid_store"').first();
+    if (!tableCheck) {
+        await db.prepare('CREATE TABLE uuid_store (uuid TEXT PRIMARY KEY, timestamp INTEGER)').run();
+    }
+
     // 清理过期的 UUID 记录
     const currentTime = Math.floor(Date.now() / 1000);
     await db.prepare('DELETE FROM uuid_store WHERE timestamp < ?').bind(currentTime - TURNSTILE_TIME).run();
