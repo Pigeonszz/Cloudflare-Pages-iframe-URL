@@ -28,7 +28,7 @@
           |    |    服务名称1;Favicon_URL1,
           |    |    Service_Name2;Favicon_URL2,
           |    |    ```
-          
+
 |—— 人机验证
      |—— TURNSTILE_ENABLED
           |—— 描述: Turnstile 人机验证的开关，true / false。
@@ -41,7 +41,7 @@
           |    |—— 描述: Cloudflare Turnstile 人机验证的密钥。
           |
           |—— TURNSTILE_TIME
-          |    |—— 描述: Cloudflare Turnstile 人机验证通过后的有效时间，单位为秒，默认 14400s=4h。
+          |    |—— 描述: Cloudflare Turnstile 人机验证通过后的有效时间，单位为秒。
           |    |—— 默认值: `14400`
 ```
 
