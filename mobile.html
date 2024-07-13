@@ -71,6 +71,7 @@
   </div>
   <iframe id="dynamic-iframe"></iframe>
 
+  <script src="injectScript.js"></script>
   <script>
     // 获取 IP 地址
     function getClientIP() {
@@ -124,14 +125,12 @@
 
       Promise.all([
         fetch('/iframe-url', fetchOptions),
-        fetch('/favicon', fetchOptions),
-        fetch('/extra', fetchOptions)
+        fetch('/favicon', fetchOptions)
       ])
       .then(responses => Promise.all(responses.map(response => response.text())))
       .then(data => {
         const urls = JSON.parse(data[0]);
         const favUrls = JSON.parse(data[1]);
-        const extraContent = data[2];
 
         const select = document.getElementById('siteSelection');
         const iframe = document.getElementById('dynamic-iframe');
@@ -213,11 +212,8 @@
             select.classList.add('selected');
           }, 5000);
         });
-
-        // 插入 /extra 的内容
-        document.head.insertAdjacentHTML('beforeend', extraContent);
       })
-      .catch(error => console.error('Error fetching iframe, favicon, or extra content:', error));
+      .catch(error => console.error('Error fetching iframe or favicon content:', error));
     }
 
     // 设置页面标题
