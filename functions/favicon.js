@@ -54,25 +54,26 @@ export async function onRequest(context) {
   // 解析请求体中的 JSON 数据
   const body = await context.request.json();
 
-  // 从请求体中提取 token 和 uuid
+  // 从请求体中提取 token、uuid 和 ip
   const token = body.token;
   const uuid = body.uuid;
+  const ip = body.ip;
 
-  // 检查 token 和 uuid 是否存在
-  if (!token || !uuid) {
-    return new Response(JSON.stringify({ error: 'Token or UUID missing.' }), {
+  // 检查 token、uuid 和 ip 是否存在
+  if (!token || !uuid || !ip) {
+    return new Response(JSON.stringify({ error: 'Token, UUID, or IP missing.' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 
-  // 调用 verifyTurnstile 函数验证 token 和 uuid
+  // 调用 verifyTurnstile 函数验证 token、uuid 和 ip
   const verificationResponse = await verifyTurnstile({
     ...context,
     request: new Request('https://dummy.url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, uuid })
+      body: JSON.stringify({ token, uuid, ip })
     })
   });
 

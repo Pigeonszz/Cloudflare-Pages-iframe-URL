@@ -8,13 +8,14 @@ export async function onRequest(context) {
     // 解析请求体中的 JSON 数据
     const body = await context.request.json();
     
-    // 从请求体中提取 token 和 uuid
+    // 从请求体中提取 token、uuid 和 ip
     const token = body.token;
     const uuid = body.uuid;
+    const ip = body.ip;
 
-    // 检查 token 和 uuid 是否存在
-    if (!token || !uuid) {
-        return new Response(JSON.stringify({ error: 'Token or UUID missing.' }), {
+    // 检查 token、uuid 和 ip 是否存在
+    if (!token || !uuid || !ip) {
+        return new Response(JSON.stringify({ error: 'Token, UUID, or IP missing.' }), {
             status: 400,
             headers: { 'Content-Type': 'application/json' }
         });
@@ -33,28 +34,18 @@ export async function onRequest(context) {
     const currentTime = Math.floor(Date.now() / 1000);
     await db.prepare('DELETE FROM uuid_store WHERE timestamp < ?').bind(currentTime - TURNSTILE_TIME).run();
 
-    // 检查 UUID 是否过期
-    const storedTimeResult = await db.prepare('SELECT timestamp FROM uuid_store WHERE uuid = ?').bind(uuid).first();
-    if (storedTimeResult) {
-        const storedTime = storedTimeResult.timestamp;
-        if (currentTime - storedTime < TURNSTILE_TIME) {
+    // 检查 UUID 和 IP 是否有变化
+    const storedResult = await db.prepare('SELECT timestamp, ip FROM uuid_store WHERE uuid = ?').bind(uuid).first();
+    if (storedResult) {
+        const storedTime = storedResult.timestamp;
+        const storedIp = storedResult.ip;
+
+        // 如果 UUID 和 IP 都没有变化，并且 UUID 没有过期
+        if (storedIp === ip && currentTime - storedTime < TURNSTILE_TIME) {
             return new Response(JSON.stringify({ success: true }), {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-    }
-
-    // 从 https://www.cloudflare.com/cdn-cgi/trace 获取真实IP
-    const traceResponse = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
-    const traceText = await traceResponse.text();
-    const ipMatch = traceText.match(/ip=([\d\.:a-fA-F]+)/);
-    const ip = ipMatch ? ipMatch[1] : null;
-
-    if (!ip) {
-        return new Response(JSON.stringify({ error: 'Unable to retrieve IP address.' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' }
-        });
     }
 
     // 向 Cloudflare Turnstile 验证服务发送验证请求
