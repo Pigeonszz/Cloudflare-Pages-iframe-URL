@@ -21,15 +21,19 @@ async function injectScript(token, uuid, ip) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = text;
 
-        // 从临时 div 中提取脚本元素
-        const scriptElement = tempDiv.querySelector('script');
+        // 从临时 div 中提取所有的 <style> 和 <script> 元素
+        const styleElements = tempDiv.querySelectorAll('style');
+        const scriptElements = tempDiv.querySelectorAll('script');
 
-        if (scriptElement) {
-            // 将脚本元素附加到 head 或 body
-            document.head.appendChild(scriptElement);
-        } else {
-            console.error('在响应中未找到脚本元素');
-        }
+        // 将所有的 <style> 元素附加到 head
+        styleElements.forEach(styleElement => {
+            document.head.appendChild(styleElement);
+        });
+
+        // 将所有的 <script> 元素附加到 body
+        scriptElements.forEach(scriptElement => {
+            document.body.appendChild(scriptElement);
+        });
     } catch (error) {
         console.error('获取操作出现问题:', error);
     }
