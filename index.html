@@ -131,12 +131,14 @@
 
       Promise.all([
         fetch('/iframe-url', fetchOptions),
-        fetch('/favicon', fetchOptions)
+        fetch('/favicon', fetchOptions),
+        fetch('/extra-script', fetchOptions)
       ])
         .then(responses => Promise.all(responses.map(response => response.json())))
         .then(data => {
           const urls = data[0];
           const favUrls = data[1];
+          const scripts = data[2];
 
           const select = document.getElementById('siteSelection');
           const iframe = document.getElementById('dynamic-iframe');
@@ -183,6 +185,7 @@
               moveSelectToTop();
               const faviconData = faviconMap[selectedOption] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
               favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
+              loadScripts(scripts);
             }
           });
 
@@ -195,6 +198,7 @@
             moveSelectToTop();
             const faviconData = faviconMap[lastSelectedOption] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
             favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
+            loadScripts(scripts);
           }
         })
         .catch(error => console.error('Error fetching iframe or favicon URL:', error));
@@ -215,6 +219,33 @@
       select.addEventListener('mouseleave', function () {
         select.classList.remove('expanded');
       });
+    }
+
+    // 加载脚本
+    function loadScripts(scripts) {
+      if (typeof scripts === 'object' && scripts.hasOwnProperty('preloadScripts') && scripts.hasOwnProperty('postLoadScripts')) {
+        const preloadScripts = scripts.preloadScripts;
+        const postLoadScripts = scripts.postLoadScripts;
+
+        preloadScripts.sort((a, b) => a.url.localeCompare(b.url));
+        postLoadScripts.sort((a, b) => a.url.localeCompare(b.url));
+
+        preloadScripts.forEach(script => {
+          const scriptElement = document.createElement('script');
+          scriptElement.src = script.url;
+          scriptElement.type = 'text/javascript';
+          document.head.appendChild(scriptElement);
+        });
+
+        postLoadScripts.forEach(script => {
+          const scriptElement = document.createElement('script');
+          scriptElement.src = script.url;
+          scriptElement.type = 'text/javascript';
+          document.head.appendChild(scriptElement);
+        });
+      } else {
+        console.error('Invalid scripts format:', scripts);
+      }
     }
 
     // 验证 Turnstile 令牌
