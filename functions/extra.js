@@ -1,4 +1,5 @@
 // /functions/extra.js
+
 import { onRequest as verifyTurnstile } from './verify-turnstile.js';
 
 export async function onRequest(context) {
@@ -57,19 +58,33 @@ export async function onRequest(context) {
 
             for (const item of items) {
                 const [css, js] = item.split('|').map(str => str.trim());
-                if (css) {
+                if (css && isValidUrl(css)) {
                     const response = await fetch(css);
                     cssContents.push(await response.text());
+                } else if (css) {
+                    cssContents.push(css);
                 }
-                if (js) {
+                if (js && isValidUrl(js)) {
                     const response = await fetch(js);
                     jsContents.push(await response.text());
+                } else if (js) {
+                    jsContents.push(js);
                 }
             }
 
             return { cssContents, jsContents };
         }
         return { cssContents: [], jsContents: [] };
+    }
+
+    // 验证 URL 是否有效
+    function isValidUrl(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
     }
 
     // 获取 TURNSTILE_ENABLED 环境变量
