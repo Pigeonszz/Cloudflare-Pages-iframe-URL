@@ -1,3 +1,4 @@
+// /functions/favicon.js
 import { onRequest as verifyTurnstile } from './verify-turnstile.js';
 
 export async function onRequest(context) {
