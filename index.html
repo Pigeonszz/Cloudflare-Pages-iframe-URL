@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>加载中...</title>
   <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
   <style>
@@ -23,6 +21,7 @@
       background-color: white;
       color: black;
     }
+
     select {
       position: fixed;
       top: 50%;
@@ -37,23 +36,28 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       transition: transform 0.3s ease, top 0.3s ease;
     }
+
     select.top {
       top: -30px;
       transform: translate(-50%, 0);
     }
+
     select.expanded {
       top: 10px;
     }
+
     iframe {
       width: 100%;
       height: 100vh;
       border: none;
     }
+
     @media (prefers-color-scheme: dark) {
       body {
         background-color: #1e1e1e;
         color: white;
       }
+
       select {
         background-color: #1e1e1e;
         color: white;
@@ -62,6 +66,7 @@
     }
   </style>
 </head>
+
 <body>
   <select id="siteSelection">
     <option value="">选择一个站点...</option>
@@ -74,6 +79,20 @@
       window.location.href = 'mobile.html';
     }
 
+    // 获取 IP 地址
+    function getClientIP() {
+      return fetch('https://www.cloudflare.com/cdn-cgi/trace')
+        .then(response => response.text())
+        .then(data => {
+          const ipMatch = data.match(/ip=([0-9a-fA-F:\.]+)/);
+          return ipMatch ? ipMatch[1] : null;
+        })
+        .catch(error => {
+          console.error('Error fetching IP address:', error);
+          return null;
+        });
+    }
+
     // 获取 Turnstile 状态
     fetch('/Turnstile')
       .then(response => response.json())
@@ -82,12 +101,14 @@
           const turnstileToken = localStorage.getItem('turnstileToken');
           const turnstileUUID = localStorage.getItem('turnstileUUID');
           if (turnstileToken && turnstileUUID) {
-            verifyToken(turnstileToken, turnstileUUID).then(isValid => {
-              if (isValid) {
-                showIframe(turnstileToken, turnstileUUID);
-              } else {
-                window.location.href = 'turnstile.html';
-              }
+            getClientIP().then(ip => {
+              verifyToken(turnstileToken, turnstileUUID, ip).then(isValid => {
+                if (isValid) {
+                  showIframe(turnstileToken, turnstileUUID, ip);
+                } else {
+                  window.location.href = 'turnstile.html';
+                }
+              });
             });
           } else {
             window.location.href = 'turnstile.html';
@@ -99,84 +120,84 @@
       .catch(error => console.error('Error fetching Turnstile status:', error));
 
     // 显示 iframe 内容
-    function showIframe(token, uuid) {
+    function showIframe(token, uuid, ip) {
       const fetchOptions = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token, uuid })
+        body: JSON.stringify({ token, uuid, ip })
       };
 
       Promise.all([
         fetch('/iframe-url', fetchOptions),
         fetch('/favicon', fetchOptions)
       ])
-      .then(responses => Promise.all(responses.map(response => response.json())))
-      .then(data => {
-        const urls = data[0];
-        const favUrls = data[1];
+        .then(responses => Promise.all(responses.map(response => response.json())))
+        .then(data => {
+          const urls = data[0];
+          const favUrls = data[1];
 
-        const select = document.getElementById('siteSelection');
-        const iframe = document.getElementById('dynamic-iframe');
-        const favicon = document.getElementById('dynamic-favicon');
-        const faviconMap = {};
+          const select = document.getElementById('siteSelection');
+          const iframe = document.getElementById('dynamic-iframe');
+          const favicon = document.getElementById('dynamic-favicon');
+          const faviconMap = {};
 
-        if (Array.isArray(favUrls)) {
-          favUrls.forEach(favUrl => {
-            if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64') && favUrl.hasOwnProperty('contentType')) {
-              faviconMap[favUrl.service] = { base64: favUrl.base64, contentType: favUrl.contentType };
-            } else {
-              console.error('Invalid favUrl:', favUrl);
+          if (Array.isArray(favUrls)) {
+            favUrls.forEach(favUrl => {
+              if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64') && favUrl.hasOwnProperty('contentType')) {
+                faviconMap[favUrl.service] = { base64: favUrl.base64, contentType: favUrl.contentType };
+              } else {
+                console.error('Invalid favUrl:', favUrl);
+              }
+            });
+          } else {
+            console.error('Invalid favUrls format:', favUrls);
+          }
+
+          if (Array.isArray(urls)) {
+            urls.forEach(urlObj => {
+              if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
+                const iframeUrl = urlObj.url;
+                const service = urlObj.service;
+                const faviconData = faviconMap[service] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
+                const option = document.createElement('option');
+                option.value = iframeUrl;
+                option.textContent = service;
+                select.appendChild(option);
+              } else {
+                console.error('Invalid urlObj:', urlObj);
+              }
+            });
+          } else {
+            console.error('Invalid urls format:', urls);
+          }
+
+          select.addEventListener('change', function () {
+            const selectedUrl = select.value;
+            const selectedOption = select.options[select.selectedIndex].textContent;
+            if (selectedUrl) {
+              iframe.src = selectedUrl;
+              sessionStorage.setItem('selectedSite', selectedUrl);
+              setTitle(selectedOption);
+              moveSelectToTop();
+              const faviconData = faviconMap[selectedOption] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
+              favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
             }
           });
-        } else {
-          console.error('Invalid favUrls format:', favUrls);
-        }
 
-        if (Array.isArray(urls)) {
-          urls.forEach(urlObj => {
-            if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
-              const iframeUrl = urlObj.url;
-              const service = urlObj.service;
-              const faviconData = faviconMap[service] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
-              const option = document.createElement('option');
-              option.value = iframeUrl;
-              option.textContent = service;
-              select.appendChild(option);
-            } else {
-              console.error('Invalid urlObj:', urlObj);
-            }
-          });
-        } else {
-          console.error('Invalid urls format:', urls);
-        }
-
-        select.addEventListener('change', function() {
-          const selectedUrl = select.value;
-          const selectedOption = select.options[select.selectedIndex].textContent;
-          if (selectedUrl) {
-            iframe.src = selectedUrl;
-            sessionStorage.setItem('selectedSite', selectedUrl);
-            setTitle(selectedOption);
+          const lastSelectedSite = sessionStorage.getItem('selectedSite');
+          if (lastSelectedSite) {
+            iframe.src = lastSelectedSite;
+            select.value = lastSelectedSite;
+            const lastSelectedOption = select.options[select.selectedIndex].textContent;
+            setTitle(lastSelectedOption);
             moveSelectToTop();
-            const faviconData = faviconMap[selectedOption] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
+            const faviconData = faviconMap[lastSelectedOption] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
             favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
           }
-        });
-
-        const lastSelectedSite = sessionStorage.getItem('selectedSite');
-        if (lastSelectedSite) {
-          iframe.src = lastSelectedSite;
-          select.value = lastSelectedSite;
-          const lastSelectedOption = select.options[select.selectedIndex].textContent;
-          setTitle(lastSelectedOption);
-          moveSelectToTop();
-          const faviconData = faviconMap[lastSelectedOption] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
-          favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
-        }
-      })
-      .catch(error => console.error('Error fetching iframe or favicon URL:', error));
+        })
+        .catch(error => console.error('Error fetching iframe or favicon URL:', error));
     }
 
     // 设置页面标题
@@ -188,22 +209,22 @@
     function moveSelectToTop() {
       const select = document.getElementById('siteSelection');
       select.classList.add('top');
-      select.addEventListener('mouseenter', function() {
+      select.addEventListener('mouseenter', function () {
         select.classList.add('expanded');
       });
-      select.addEventListener('mouseleave', function() {
+      select.addEventListener('mouseleave', function () {
         select.classList.remove('expanded');
       });
     }
 
     // 验证 Turnstile 令牌
-    async function verifyToken(token, uuid) {
+    async function verifyToken(token, uuid, ip) {
       const response = await fetch('/verify-turnstile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token, uuid })
+        body: JSON.stringify({ token, uuid, ip })
       });
 
       const result = await response.json();

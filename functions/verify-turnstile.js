@@ -8,13 +8,14 @@ export async function onRequest(context) {
     // 解析请求体中的 JSON 数据
     const body = await context.request.json();
     
-    // 从请求体中提取 token 和 uuid
+    // 从请求体中提取 token、uuid 和 ip
     const token = body.token;
     const uuid = body.uuid;
+    const ip = body.ip;
 
-    // 检查 token 和 uuid 是否存在
-    if (!token || !uuid) {
-        return new Response(JSON.stringify({ error: 'Token or UUID missing.' }), {
+    // 检查 token、uuid 和 ip 是否存在
+    if (!token || !uuid || !ip) {
+        return new Response(JSON.stringify({ error: 'Token, UUID, or IP missing.' }), {
             status: 400,
             headers: { 'Content-Type': 'application/json' }
         });
@@ -26,18 +27,21 @@ export async function onRequest(context) {
     // 检查是否存在 uuid_store 表，若不存在则创建
     const tableCheck = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="uuid_store"').first();
     if (!tableCheck) {
-        await db.prepare('CREATE TABLE uuid_store (uuid TEXT PRIMARY KEY, timestamp INTEGER)').run();
+        await db.prepare('CREATE TABLE uuid_store (uuid TEXT PRIMARY KEY, timestamp INTEGER, ip TEXT)').run();
     }
 
     // 清理过期的 UUID 记录
     const currentTime = Math.floor(Date.now() / 1000);
     await db.prepare('DELETE FROM uuid_store WHERE timestamp < ?').bind(currentTime - TURNSTILE_TIME).run();
 
-    // 检查 UUID 是否过期
-    const storedTimeResult = await db.prepare('SELECT timestamp FROM uuid_store WHERE uuid = ?').bind(uuid).first();
-    if (storedTimeResult) {
-        const storedTime = storedTimeResult.timestamp;
-        if (currentTime - storedTime < TURNSTILE_TIME) {
+    // 检查 UUID 和 IP 是否有变化
+    const storedResult = await db.prepare('SELECT timestamp, ip FROM uuid_store WHERE uuid = ?').bind(uuid).first();
+    if (storedResult) {
+        const storedTime = storedResult.timestamp;
+        const storedIp = storedResult.ip;
+
+        // 如果 UUID 和 IP 都没有变化，并且 UUID 没有过期
+        if (storedIp === ip && currentTime - storedTime < TURNSTILE_TIME) {
             return new Response(JSON.stringify({ success: true }), {
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -50,16 +54,16 @@ export async function onRequest(context) {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `secret=${TURNSTILE_SECRET_KEY}&response=${token}`
+        body: `secret=${TURNSTILE_SECRET_KEY}&response=${token}&remoteip=${ip}`
     });
 
     // 解析验证结果
     const verificationResult = await verificationResponse.json();
 
-    // 如果验证成功，存储 UUID 和当前时间
+    // 如果验证成功，存储 UUID 和当前时间以及IP地址
     if (verificationResult.success) {
         const currentTime = Math.floor(Date.now() / 1000);
-        await db.prepare('INSERT OR REPLACE INTO uuid_store (uuid, timestamp) VALUES (?, ?)').bind(uuid, currentTime).run();
+        await db.prepare('INSERT OR REPLACE INTO uuid_store (uuid, timestamp, ip) VALUES (?, ?, ?)').bind(uuid, currentTime, ip).run();
 
         return new Response(JSON.stringify({ success: true }), {
             headers: { 'Content-Type': 'application/json' }
