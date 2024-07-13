@@ -1,4 +1,4 @@
-import { onRequest as verifyTurnstile } from '/functions/verify-turnstile.js';
+import { onRequest as verifyTurnstile } from './verify-turnstile.js';
 
 export async function onRequest(context) {
   const IFRAME_URL = context.env.IFRAME_URL;
