@@ -44,8 +44,18 @@ export async function onRequest(context) {
         }
     }
 
-    // 从请求头中获取真实IP
-    const ip = context.request.headers.get('CF-Connecting-IP');
+    // 从 https://www.cloudflare.com/cdn-cgi/trace 获取真实IP
+    const traceResponse = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+    const traceText = await traceResponse.text();
+    const ipMatch = traceText.match(/ip=([\d\.:a-fA-F]+)/);
+    const ip = ipMatch ? ipMatch[1] : null;
+
+    if (!ip) {
+        return new Response(JSON.stringify({ error: 'Unable to retrieve IP address.' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 
     // 向 Cloudflare Turnstile 验证服务发送验证请求
     const verificationResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
