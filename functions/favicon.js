@@ -1,13 +1,59 @@
 import { onRequest as verifyTurnstile } from './verify-turnstile.js';
 
 export async function onRequest(context) {
-  // 从环境变量中获取 IFRAME_URL 和 FAVICON_URL
+  // 从环境变量中获取 IFRAME_URL、FAVICON_URL 和 TURNSTILE_ENABLED
   const IFRAME_URL = context.env.IFRAME_URL;
   const FAVICON_URL = context.env.FAVICON_URL;
-  
+  const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED === 'true';
+
+  // 如果 TURNSTILE_ENABLED 为 false，直接返回 FAVICON_URL
+  if (!TURNSTILE_ENABLED) {
+    if (FAVICON_URL) {
+      const favicons = FAVICON_URL.split(',').map(item => {
+        const [service, faviconUrl] = item.split(';');
+        return { service, faviconUrl };
+      });
+
+      const faviconUrls = await Promise.all(favicons.map(async faviconObj => {
+        let faviconUrl = faviconObj.faviconUrl;
+        if (isGithubUrl(faviconUrl)) {
+          faviconUrl = convertToJsdelivrUrl(faviconUrl);
+        }
+        try {
+          const response = await fetch(faviconUrl);
+          if (!response.ok) throw new Error('Failed to fetch favicon');
+          const blob = await response.blob();
+          const base64 = await blobToBase64(blob);
+          const contentType = response.headers.get('content-type');
+          return {
+            service: faviconObj.service,
+            base64: base64,
+            contentType: contentType
+          };
+        } catch (error) {
+          console.error(`Failed to fetch favicon for service ${faviconObj.service}:`, error);
+          return {
+            service: faviconObj.service,
+            base64: '',
+            contentType: 'image/svg+xml'
+          };
+        }
+      }));
+
+      return new Response(JSON.stringify(faviconUrls), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } else {
+      return new Response(JSON.stringify({ error: 'FAVICON_URL environment variable not found.' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
   // 解析请求体中的 JSON 数据
   const body = await context.request.json();
-  
+
   // 从请求体中提取 token 和 uuid
   const token = body.token;
   const uuid = body.uuid;
