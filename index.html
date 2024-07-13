@@ -78,8 +78,9 @@
       .then(env => {
         if (env.TURNSTILE_ENABLED === 'true') {
           const turnstileToken = localStorage.getItem('turnstileToken');
-          if (turnstileToken) {
-            verifyToken(turnstileToken).then(isValid => {
+          const turnstileUUID = localStorage.getItem('turnstileUUID');
+          if (turnstileToken && turnstileUUID) {
+            verifyToken(turnstileToken, turnstileUUID).then(isValid => {
               if (isValid) {
                 showIframe(turnstileToken);
               } else {
@@ -188,13 +189,13 @@
       });
     }
 
-    async function verifyToken(token) {
+    async function verifyToken(token, uuid) {
       const response = await fetch('/verify-turnstile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token })
+        body: JSON.stringify({ token, uuid })
       });
 
       const result = await response.json();
