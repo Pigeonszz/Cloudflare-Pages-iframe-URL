@@ -1,7 +1,32 @@
 // injectScript.js
 
 // 函数：从 /extra 获取脚本并注入到 HTML 中
-async function injectScript(token, uuid, ip) {
+async function injectScript() {
+    const token = localStorage.getItem('turnstileToken');
+    const uuid = localStorage.getItem('turnstileUUID');
+
+    if (!token || !uuid) {
+        console.error('Token or UUID not found in localStorage');
+        return;
+    }
+
+    // 获取客户端 IP 地址
+    let ip = null;
+    try {
+        const response = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+        const text = await response.text();
+        const ipMatch = text.match(/ip=([0-9a-fA-F:\.]+)/);
+        if (ipMatch) {
+            ip = ipMatch[1];
+        } else {
+            console.error('IP address not found in trace response');
+            return;
+        }
+    } catch (error) {
+        console.error('Error fetching IP address:', error);
+        return;
+    }
+
     try {
         const response = await fetch('/extra', {
             method: 'POST',
@@ -39,52 +64,5 @@ async function injectScript(token, uuid, ip) {
     }
 }
 
-// 函数：验证 Turnstile 令牌
-async function verifyToken(token, uuid, ip) {
-    const response = await fetch('/verify-turnstile', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ token, uuid, ip })
-    });
-
-    const result = await response.json();
-    return result.success;
-}
-
-// 函数：获取客户端 IP 地址
-async function getClientIP() {
-    return fetch('https://www.cloudflare.com/cdn-cgi/trace')
-        .then(response => response.text())
-        .then(data => {
-            const ipMatch = data.match(/ip=([0-9a-fA-F:\.]+)/);
-            return ipMatch ? ipMatch[1] : null;
-        })
-        .catch(error => {
-            console.error('获取 IP 地址时出错:', error);
-            return null;
-        });
-}
-
-// 函数：检查 Turnstile 状态并注入脚本
-async function checkTurnstileAndInjectScript() {
-    const turnstileToken = localStorage.getItem('turnstileToken');
-    const turnstileUUID = localStorage.getItem('turnstileUUID');
-
-    if (turnstileToken && turnstileUUID) {
-        const ip = await getClientIP();
-        const isValid = await verifyToken(turnstileToken, turnstileUUID, ip);
-
-        if (isValid) {
-            injectScript(turnstileToken, turnstileUUID, ip);
-        } else {
-            window.location.href = 'turnstile.html';
-        }
-    } else {
-        window.location.href = 'turnstile.html';
-    }
-}
-
 // 当窗口加载时调用函数
-window.addEventListener('load', checkTurnstileAndInjectScript);
+window.addEventListener('load', injectScript);
