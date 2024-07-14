@@ -1,5 +1,14 @@
-// 获取 IP 地址
-function getClientIP() {
+// 检测桌面端 UA 并重定向到 index.html
+function isDesktopDevice() {
+    return !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
+  }
+  
+  if (isDesktopDevice()) {
+    window.location.href = 'index.html';
+  }
+  
+  // 获取 IP 地址
+  function getClientIP() {
     return fetch('https://www.cloudflare.com/cdn-cgi/trace')
       .then(response => response.text())
       .then(data => {

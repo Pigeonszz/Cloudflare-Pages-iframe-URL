@@ -1,5 +1,9 @@
 // 检查用户代理是否为移动设备，如果是则重定向到移动版页面
-if (/Mobi|Android/i.test(navigator.userAgent)) {
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
+  }
+  
+  if (isMobileDevice()) {
     window.location.href = 'mobile.html';
   }
   
