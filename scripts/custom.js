@@ -59,7 +59,7 @@ function loadResourceGroup(resourceGroup, targetElement) {
   if (resourceGroup.js) {
     console.log('Preload JS:', resourceGroup.js); // 调试输出
     const preloadScript = document.createElement('script');
-    preloadScript.textContent = resourceGroup.js;
+    preloadScript.innerHTML = resourceGroup.js; // 使用 innerHTML
     targetElement.appendChild(preloadScript);
   }
 
