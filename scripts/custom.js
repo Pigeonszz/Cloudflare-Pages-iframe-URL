@@ -51,8 +51,9 @@ async function loadResources() {
 
   // 预先加载其他资源
   if (deviceResources.preload.other) {
+    console.log('Preload Other:', deviceResources.preload.other); // 调试输出
     const preloadOther = document.createElement('div');
-    preloadOther.innerHTML = deviceResources.preload.other;
+    preloadOther.textContent = deviceResources.preload.other; // 使用 textContent
     document.head.appendChild(preloadOther);
   }
 
@@ -74,8 +75,9 @@ async function loadResources() {
 
     // 后加载其他资源
     if (deviceResources.postload.other) {
+      console.log('Postload Other:', deviceResources.postload.other); // 调试输出
       const postloadOther = document.createElement('div');
-      postloadOther.innerHTML = deviceResources.postload.other;
+      postloadOther.textContent = deviceResources.postload.other; // 使用 textContent
       document.body.appendChild(postloadOther);
     }
   });
