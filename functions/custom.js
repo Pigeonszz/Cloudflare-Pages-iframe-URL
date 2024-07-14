@@ -3,6 +3,14 @@ addEventListener('fetch', event => {
   });
   
   async function handleRequest(request) {
+    if (new URL(request.url).pathname === '/custom') {
+      return handleCustomRequest(request);
+    }
+  
+    return new Response('Not Found', { status: 404 });
+  }
+  
+  async function handleCustomRequest(request) {
     // 读取环境变量
     const M_POST_LOAD = processEnvVariable(env.M_POST_LOAD);
     const M_PRELOAD = processEnvVariable(env.M_PRELOAD);
