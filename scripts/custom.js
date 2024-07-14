@@ -32,19 +32,16 @@ async function loadResources() {
   const order = loadOrder[deviceType] || loadOrder.desktop;
 
   order.forEach(key => {
-    if (key.includes('PRELOAD')) {
-      styles.forEach(style => {
-        if (style.textContent.includes(key)) {
-          document.head.appendChild(style);
-        }
-      });
-    } else if (key.includes('POST_LOAD')) {
-      scripts.forEach(script => {
-        if (script.textContent.includes(key)) {
-          document.body.appendChild(script);
-        }
-      });
-    }
+    styles.forEach(style => {
+      if (style.textContent.includes(`<!-- ${key}_CONTENT -->`)) {
+        document.head.appendChild(style);
+      }
+    });
+    scripts.forEach(script => {
+      if (script.textContent.includes(`<!-- ${key}_CONTENT -->`)) {
+        document.body.appendChild(script);
+      }
+    });
   });
 }
 

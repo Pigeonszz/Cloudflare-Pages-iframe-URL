@@ -70,12 +70,32 @@ export async function onRequest(context) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Custom Response</title>
         <style>
+          <!-- M_PRELOAD_CONTENT -->
           ${M_PRELOAD_CONTENT}
+          <!-- /M_PRELOAD_CONTENT -->
+          <!-- PRELOAD_CONTENT -->
           ${PRELOAD_CONTENT}
+          <!-- /PRELOAD_CONTENT -->
+          <!-- M_POST_LOAD_CONTENT -->
+          ${M_POST_LOAD_CONTENT}
+          <!-- /M_POST_LOAD_CONTENT -->
+          <!-- POST_LOAD_CONTENT -->
+          ${POST_LOAD_CONTENT}
+          <!-- /POST_LOAD_CONTENT -->
         </style>
         <script>
+          <!-- M_PRELOAD_CONTENT -->
+          ${M_PRELOAD_CONTENT}
+          <!-- /M_PRELOAD_CONTENT -->
+          <!-- PRELOAD_CONTENT -->
+          ${PRELOAD_CONTENT}
+          <!-- /PRELOAD_CONTENT -->
+          <!-- M_POST_LOAD_CONTENT -->
           ${M_POST_LOAD_CONTENT}
+          <!-- /M_POST_LOAD_CONTENT -->
+          <!-- POST_LOAD_CONTENT -->
           ${POST_LOAD_CONTENT}
+          <!-- /POST_LOAD_CONTENT -->
         </script>
       </head>
       <body>
