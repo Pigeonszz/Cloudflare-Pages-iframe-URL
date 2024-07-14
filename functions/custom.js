@@ -94,19 +94,6 @@ export async function onRequest(context) {
         const inlineJsContent = inlineJsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n");
         
         // Fetch external CSS and JS content
-        const fetchResource = async (url) => {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
-                }
-                return await response.text();
-            } catch (error) {
-                console.error(`Error fetching ${url}: ${error.message}`);
-                return "";
-            }
-        };
-        
         const externalCssContent = await Promise.all(externalCssMatches.map(fetchResource));
         const externalJsContent = await Promise.all(externalJsMatches.map(fetchResource));
         
@@ -120,6 +107,12 @@ export async function onRequest(context) {
             jsContent: inlineJsContent + "\n" + externalJsContent.join("\n") 
         };
     };
+
+    // 提取 CSS 和 JS 内容
+    const { cssContent: M_PRELOAD_CSS, jsContent: M_PRELOAD_JS } = await extractCssAndJs(M_PRELOAD_CONTENT);
+    const { cssContent: PRELOAD_CSS, jsContent: PRELOAD_JS } = await extractCssAndJs(PRELOAD_CONTENT);
+    const { cssContent: M_POST_LOAD_CSS, jsContent: M_POST_LOAD_JS } = await extractCssAndJs(M_POST_LOAD_CONTENT);
+    const { cssContent: POST_LOAD_CSS, jsContent: POST_LOAD_JS } = await extractCssAndJs(POST_LOAD_CONTENT);
 
     // 生成 HTML 响应
     const responseBody = `
