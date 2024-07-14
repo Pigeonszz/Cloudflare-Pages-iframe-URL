@@ -13,6 +13,12 @@ function detectDeviceType() {
 async function loadResources() {
   const deviceType = detectDeviceType();
   const response = await fetch('/custom');
+  
+  if (!response.ok) {
+    console.error('Failed to fetch resources from /custom');
+    return;
+  }
+
   const jsonResponse = await response.json();
 
   // 根据设备类型获取相应的资源
