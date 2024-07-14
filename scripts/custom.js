@@ -13,40 +13,57 @@ function detectDeviceType() {
 async function loadResources() {
   const deviceType = detectDeviceType();
   const response = await fetch('/custom');
-  const html = await response.text();
+  const jsonResponse = await response.json();
 
-  // 创建一个临时容器来解析 HTML
-  const tempContainer = document.createElement('div');
-  tempContainer.innerHTML = html;
-
-  // 获取所有的 <style> 和 <script> 标签
-  const styles = tempContainer.querySelectorAll('style');
-  const scripts = tempContainer.querySelectorAll('script');
-
-  // 根据设备类型和顺序加载资源
-  const loadOrder = {
-    mobile: ['M_PRELOAD', 'M_POST_LOAD'],
-    desktop: ['PRELOAD', 'POST_LOAD']
+  // 根据设备类型获取相应的资源
+  const resources = {
+    mobile: {
+      preload: jsonResponse.M_PRELOAD,
+      postload: jsonResponse.M_POST_LOAD
+    },
+    desktop: {
+      preload: jsonResponse.PRELOAD,
+      postload: jsonResponse.POST_LOAD
+    }
   };
 
-  const order = loadOrder[deviceType] || loadOrder.desktop;
+  const deviceResources = resources[deviceType] || resources.desktop;
 
-  order.forEach(key => {
-    styles.forEach(style => {
-      if (style.textContent.includes(`<!-- ${key}_CONTENT -->`)) {
-        const newStyle = document.createElement('style');
-        newStyle.textContent = style.textContent.replace(`<!-- ${key}_CONTENT -->`, '').replace(`<!-- /${key}_CONTENT -->`, '');
-        document.head.appendChild(newStyle);
-      }
-    });
-    scripts.forEach(script => {
-      if (script.textContent.includes(`<!-- ${key}_CONTENT -->`)) {
-        const newScript = document.createElement('script');
-        newScript.textContent = script.textContent.replace(`<!-- ${key}_CONTENT -->`, '').replace(`<!-- /${key}_CONTENT -->`, '');
-        document.body.appendChild(newScript);
-      }
-    });
-  });
+  // 注入 CSS 资源
+  if (deviceResources.preload.css) {
+    const preloadStyle = document.createElement('style');
+    preloadStyle.textContent = deviceResources.preload.css;
+    document.head.appendChild(preloadStyle);
+  }
+  if (deviceResources.postload.css) {
+    const postloadStyle = document.createElement('style');
+    postloadStyle.textContent = deviceResources.postload.css;
+    document.head.appendChild(postloadStyle);
+  }
+
+  // 注入 JS 资源
+  if (deviceResources.preload.js) {
+    const preloadScript = document.createElement('script');
+    preloadScript.textContent = deviceResources.preload.js;
+    document.body.appendChild(preloadScript);
+  }
+  if (deviceResources.postload.js) {
+    const postloadScript = document.createElement('script');
+    postloadScript.textContent = deviceResources.postload.js;
+    document.body.appendChild(postloadScript);
+  }
+
+  // 注入其他资源
+  if (deviceResources.preload.other) {
+    const preloadOther = document.createElement('div');
+    preloadOther.innerHTML = deviceResources.preload.other;
+    document.body.appendChild(preloadOther);
+  }
+  if (deviceResources.postload.other) {
+    const postloadOther = document.createElement('div');
+    postloadOther.innerHTML = deviceResources.postload.other;
+    document.body.appendChild(postloadOther);
+  }
 }
 
 // 页面加载完成后执行
