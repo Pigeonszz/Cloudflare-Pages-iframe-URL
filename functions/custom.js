@@ -27,10 +27,10 @@ export async function onRequest(context) {
   
     // 处理环境变量中的 URL 和内联内容
     const processUrls = async (input) => {
-      // 使用正则表达式匹配所有 URL
-      const urls = input.match(/(https?:\/\/[^\s,;:]+)/g) || [];
+      // 使用正则表达式匹配所有 URL，排除掉 <script> 标签中的 src 属性以及内联代码片段中的 URL
+      const urls = input.match(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g) || [];
       // 移除所有 URL，剩下的就是内联内容
-      const inlineContent = input.replace(/(https?:\/\/[^\s,;:]+)/g, "").trim();
+      const inlineContent = input.replace(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g, "").trim();
       const fetchedContent = await Promise.all(
         urls.map(async (url) => {
           if (isValidUrl(url)) {
