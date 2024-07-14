@@ -79,17 +79,21 @@ export async function onRequest(context) {
     // 分离 CSS 和 JS 内容
     const extractCssAndJs = (content) => {
         console.log("Extracting CSS and JS from content:", content);
+        
         const cssRegex = /<style>([\s\S]*?)<\/style>/g;
         const jsRegex = /<script>([\s\S]*?)<\/script>/g;
+        
         const cssMatches = content.match(cssRegex) || [];
         const jsMatches = content.match(jsRegex) || [];
-        const cssContent = cssMatches.length > 0 ? cssMatches.map(match => match.replace(/<\/?style>/g, '')).join("\n") : "";
-        const jsContent = jsMatches.length > 0 ? jsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n") : "";
+        
+        const cssContent = cssMatches.map(match => match.replace(/<\/?style>/g, '')).join("\n");
+        const jsContent = jsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n");
+        
         console.log("Extracted CSS content:", cssContent);
         console.log("Extracted JS content:", jsContent);
+        
         return { cssContent, jsContent };
     };
-
 
     const { cssContent: M_PRELOAD_CSS, jsContent: M_PRELOAD_JS } = extractCssAndJs(M_PRELOAD_CONTENT);
     const { cssContent: PRELOAD_CSS, jsContent: PRELOAD_JS } = extractCssAndJs(PRELOAD_CONTENT);
