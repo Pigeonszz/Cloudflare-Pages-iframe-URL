@@ -35,41 +35,50 @@ async function loadResources() {
 
   const deviceResources = resources[deviceType] || resources.desktop;
 
-  // 注入 CSS 资源
+  // 预先加载 CSS 资源
   if (deviceResources.preload.css) {
     const preloadStyle = document.createElement('style');
     preloadStyle.textContent = deviceResources.preload.css;
     document.head.appendChild(preloadStyle);
   }
-  if (deviceResources.postload.css) {
-    const postloadStyle = document.createElement('style');
-    postloadStyle.textContent = deviceResources.postload.css;
-    document.head.appendChild(postloadStyle);
-  }
 
-  // 注入 JS 资源
+  // 预先加载 JS 资源
   if (deviceResources.preload.js) {
     const preloadScript = document.createElement('script');
     preloadScript.textContent = deviceResources.preload.js;
-    document.body.appendChild(preloadScript);
-  }
-  if (deviceResources.postload.js) {
-    const postloadScript = document.createElement('script');
-    postloadScript.textContent = deviceResources.postload.js;
-    document.body.appendChild(postloadScript);
+    document.head.appendChild(preloadScript);
   }
 
-  // 注入其他资源
+  // 预先加载其他资源
   if (deviceResources.preload.other) {
     const preloadOther = document.createElement('div');
     preloadOther.innerHTML = deviceResources.preload.other;
-    document.body.appendChild(preloadOther);
+    document.head.appendChild(preloadOther);
   }
-  if (deviceResources.postload.other) {
-    const postloadOther = document.createElement('div');
-    postloadOther.innerHTML = deviceResources.postload.other;
-    document.body.appendChild(postloadOther);
-  }
+
+  // 页面加载完成后加载后加载的资源
+  document.addEventListener('DOMContentLoaded', () => {
+    // 后加载 CSS 资源
+    if (deviceResources.postload.css) {
+      const postloadStyle = document.createElement('style');
+      postloadStyle.textContent = deviceResources.postload.css;
+      document.body.appendChild(postloadStyle);
+    }
+
+    // 后加载 JS 资源
+    if (deviceResources.postload.js) {
+      const postloadScript = document.createElement('script');
+      postloadScript.textContent = deviceResources.postload.js;
+      document.body.appendChild(postloadScript);
+    }
+
+    // 后加载其他资源
+    if (deviceResources.postload.other) {
+      const postloadOther = document.createElement('div');
+      postloadOther.innerHTML = deviceResources.postload.other;
+      document.body.appendChild(postloadOther);
+    }
+  });
 }
 
 // 页面加载完成后执行
