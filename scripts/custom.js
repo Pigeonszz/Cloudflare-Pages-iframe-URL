@@ -34,12 +34,16 @@ async function loadResources() {
   order.forEach(key => {
     styles.forEach(style => {
       if (style.textContent.includes(`<!-- ${key}_CONTENT -->`)) {
-        document.head.appendChild(style);
+        const newStyle = document.createElement('style');
+        newStyle.textContent = style.textContent.replace(`<!-- ${key}_CONTENT -->`, '').replace(`<!-- /${key}_CONTENT -->`, '');
+        document.head.appendChild(newStyle);
       }
     });
     scripts.forEach(script => {
       if (script.textContent.includes(`<!-- ${key}_CONTENT -->`)) {
-        document.body.appendChild(script);
+        const newScript = document.createElement('script');
+        newScript.textContent = script.textContent.replace(`<!-- ${key}_CONTENT -->`, '').replace(`<!-- /${key}_CONTENT -->`, '');
+        document.body.appendChild(newScript);
       }
     });
   });

@@ -61,6 +61,22 @@ export async function onRequest(context) {
       processUrls(PRELOAD),
     ]);
   
+    // 分离 CSS 和 JS 内容
+    const extractCssAndJs = (content) => {
+      const cssRegex = /<style>([\s\S]*?)<\/style>/g;
+      const jsRegex = /<script>([\s\S]*?)<\/script>/g;
+      const cssMatches = content.match(cssRegex) || [];
+      const jsMatches = content.match(jsRegex) || [];
+      const cssContent = cssMatches.map(match => match.replace(/<\/?style>/g, '')).join("\n");
+      const jsContent = jsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n");
+      return { cssContent, jsContent };
+    };
+  
+    const { cssContent: M_PRELOAD_CSS, jsContent: M_PRELOAD_JS } = extractCssAndJs(M_PRELOAD_CONTENT);
+    const { cssContent: PRELOAD_CSS, jsContent: PRELOAD_JS } = extractCssAndJs(PRELOAD_CONTENT);
+    const { cssContent: M_POST_LOAD_CSS, jsContent: M_POST_LOAD_JS } = extractCssAndJs(M_POST_LOAD_CONTENT);
+    const { cssContent: POST_LOAD_CSS, jsContent: POST_LOAD_JS } = extractCssAndJs(POST_LOAD_CONTENT);
+  
     // 生成 HTML 响应
     const responseBody = `
       <!DOCTYPE html>
@@ -70,32 +86,32 @@ export async function onRequest(context) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Custom Response</title>
         <style>
-          <!-- M_PRELOAD_CONTENT -->
-          ${M_PRELOAD_CONTENT}
-          <!-- /M_PRELOAD_CONTENT -->
-          <!-- PRELOAD_CONTENT -->
-          ${PRELOAD_CONTENT}
-          <!-- /PRELOAD_CONTENT -->
-          <!-- M_POST_LOAD_CONTENT -->
-          ${M_POST_LOAD_CONTENT}
-          <!-- /M_POST_LOAD_CONTENT -->
-          <!-- POST_LOAD_CONTENT -->
-          ${POST_LOAD_CONTENT}
-          <!-- /POST_LOAD_CONTENT -->
+          <!-- M_PRELOAD_CSS -->
+          ${M_PRELOAD_CSS}
+          <!-- /M_PRELOAD_CSS -->
+          <!-- PRELOAD_CSS -->
+          ${PRELOAD_CSS}
+          <!-- /PRELOAD_CSS -->
+          <!-- M_POST_LOAD_CSS -->
+          ${M_POST_LOAD_CSS}
+          <!-- /M_POST_LOAD_CSS -->
+          <!-- POST_LOAD_CSS -->
+          ${POST_LOAD_CSS}
+          <!-- /POST_LOAD_CSS -->
         </style>
         <script>
-          <!-- M_PRELOAD_CONTENT -->
-          ${M_PRELOAD_CONTENT}
-          <!-- /M_PRELOAD_CONTENT -->
-          <!-- PRELOAD_CONTENT -->
-          ${PRELOAD_CONTENT}
-          <!-- /PRELOAD_CONTENT -->
-          <!-- M_POST_LOAD_CONTENT -->
-          ${M_POST_LOAD_CONTENT}
-          <!-- /M_POST_LOAD_CONTENT -->
-          <!-- POST_LOAD_CONTENT -->
-          ${POST_LOAD_CONTENT}
-          <!-- /POST_LOAD_CONTENT -->
+          <!-- M_PRELOAD_JS -->
+          ${M_PRELOAD_JS}
+          <!-- /M_PRELOAD_JS -->
+          <!-- PRELOAD_JS -->
+          ${PRELOAD_JS}
+          <!-- /PRELOAD_JS -->
+          <!-- M_POST_LOAD_JS -->
+          ${M_POST_LOAD_JS}
+          <!-- /M_POST_LOAD_JS -->
+          <!-- POST_LOAD_JS -->
+          ${POST_LOAD_JS}
+          <!-- /POST_LOAD_JS -->
         </script>
       </head>
       <body>
