@@ -1,25 +1,27 @@
 // scripts/custom.js
 
-// 检测设备类型
+// 检测设备类型的函数
 function detectDeviceType() {
-  const ua = navigator.userAgent;
+  const ua = navigator.userAgent; // 获取用户代理字符串
+  // 通过用户代理字符串检测设备类型
   if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
-    return 'mobile';
+    return 'mobile'; // 返回移动设备类型
   }
-  return 'desktop';
+  return 'desktop'; // 返回桌面设备类型
 }
 
-// 根据设备类型和顺序加载资源
+// 根据设备类型和顺序加载资源的函数
 async function loadResources() {
-  const deviceType = detectDeviceType();
-  const response = await fetch('/custom');
+  const deviceType = detectDeviceType(); // 检测设备类型
+  const response = await fetch('/custom'); // 从 /custom 端点获取资源信息
   
+  // 检查响应是否成功
   if (!response.ok) {
     console.error('Failed to fetch resources from /custom');
     return;
   }
 
-  const jsonResponse = await response.json();
+  const jsonResponse = await response.json(); // 解析 JSON 响应
 
   // 根据设备类型获取相应的资源
   const resources = {
@@ -33,54 +35,40 @@ async function loadResources() {
     }
   };
 
-  const deviceResources = resources[deviceType] || resources.desktop;
+  const deviceResources = resources[deviceType] || resources.desktop; // 获取设备对应的资源，如果没有则使用桌面资源
 
-  // 预先加载 CSS 资源
-  if (deviceResources.preload.css) {
-    const preloadStyle = document.createElement('style');
-    preloadStyle.textContent = deviceResources.preload.css;
-    document.head.appendChild(preloadStyle);
-  }
-
-  // 预先加载 JS 资源
-  if (deviceResources.preload.js) {
-    const preloadScript = document.createElement('script');
-    preloadScript.textContent = deviceResources.preload.js;
-    document.head.appendChild(preloadScript);
-  }
-
-  // 预先加载其他资源
-  if (deviceResources.preload.other) {
-    console.log('Preload Other:', deviceResources.preload.other); // 调试输出
-    const preloadOther = document.createElement('div');
-    preloadOther.textContent = deviceResources.preload.other; // 使用 textContent
-    document.head.appendChild(preloadOther);
-  }
+  // 预先加载资源
+  loadResourceGroup(deviceResources.preload, document.head);
 
   // 页面加载完成后加载后加载的资源
   document.addEventListener('DOMContentLoaded', () => {
-    // 后加载 CSS 资源
-    if (deviceResources.postload.css) {
-      const postloadStyle = document.createElement('style');
-      postloadStyle.textContent = deviceResources.postload.css;
-      document.body.appendChild(postloadStyle);
-    }
-
-    // 后加载 JS 资源
-    if (deviceResources.postload.js) {
-      const postloadScript = document.createElement('script');
-      postloadScript.textContent = deviceResources.postload.js;
-      document.body.appendChild(postloadScript);
-    }
-
-    // 后加载其他资源
-    if (deviceResources.postload.other) {
-      console.log('Postload Other:', deviceResources.postload.other); // 调试输出
-      const postloadOther = document.createElement('div');
-      postloadOther.textContent = deviceResources.postload.other; // 使用 textContent
-      document.body.appendChild(postloadOther);
-    }
+    loadResourceGroup(deviceResources.postload, document.body);
   });
+}
+
+// 加载资源组的函数
+function loadResourceGroup(resourceGroup, targetElement) {
+  // 预先加载 CSS 资源
+  if (resourceGroup.css) {
+    const preloadStyle = document.createElement('style');
+    preloadStyle.textContent = resourceGroup.css;
+    targetElement.appendChild(preloadStyle);
+  }
+
+  // 预先加载 JS 资源
+  if (resourceGroup.js) {
+    const preloadScript = document.createElement('script');
+    preloadScript.textContent = resourceGroup.js;
+    targetElement.appendChild(preloadScript);
+  }
+
+  // 预先加载其他资源
+  if (resourceGroup.other) {
+    console.log('Preload Other:', resourceGroup.other); // 调试输出
+    const preloadOther = document.createElement('div');
+    preloadOther.textContent = resourceGroup.other; // 使用 textContent
+    targetElement.appendChild(preloadOther);
+  }
 }
 
 // 页面加载完成后执行
