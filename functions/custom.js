@@ -18,58 +18,74 @@ export async function onRequest(context) {
   
     // 获取指定 URL 的内容
     const fetchResource = async (url) => {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${url}`);
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+        }
+        return await response.text();
+      } catch (error) {
+        console.error(`Error fetching ${url}: ${error.message}`);
+        return "";
       }
-      return await response.text();
     };
   
     // 处理环境变量中的 URL 和内联内容
     const processUrls = async (input) => {
-      // 使用正则表达式匹配所有 URL，排除掉 <script> 标签中的 src 属性以及内联代码片段中的 URL
-      const urls = input.match(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g) || [];
-      // 移除所有 URL，剩下的就是内联内容
-      const inlineContent = input.replace(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g, "").trim();
-      const fetchedContent = await Promise.all(
-        urls.map(async (url) => {
-          if (isValidUrl(url)) {
-            try {
+      try {
+        // 使用正则表达式匹配所有 URL，排除掉 <script> 标签中的 src 属性以及内联代码片段中的 URL
+        const urls = input.match(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g) || [];
+        // 移除所有 URL，剩下的就是内联内容
+        const inlineContent = input.replace(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g, "").trim();
+        const fetchedContent = await Promise.all(
+          urls.map(async (url) => {
+            if (isValidUrl(url)) {
               // 如果 URL 是 GitHub URL，则转换为 jsDelivr URL
               if (isGithubUrl(url)) {
                 url = convertToJsdelivrUrl(url);
               }
               return await fetchResource(url);
-            } catch (error) {
-              console.error(error.message);
+            } else {
+              console.error(`Invalid URL: ${url}`);
               return "";
             }
-          } else {
-            console.error(`Invalid URL: ${url}`);
-            return "";
-          }
-        })
-      );
-      return [inlineContent, ...fetchedContent].join("\n");
+          })
+        );
+        return [inlineContent, ...fetchedContent].join("\n");
+      } catch (error) {
+        console.error(`Error processing URLs: ${error.message}`);
+        return "";
+      }
     };
   
     // 并行处理所有环境变量
-    const [M_POST_LOAD_CONTENT, M_PRELOAD_CONTENT, POST_LOAD_CONTENT, PRELOAD_CONTENT] = await Promise.all([
-      processUrls(M_POST_LOAD),
-      processUrls(M_PRELOAD),
-      processUrls(POST_LOAD),
-      processUrls(PRELOAD),
-    ]);
+    let M_POST_LOAD_CONTENT, M_PRELOAD_CONTENT, POST_LOAD_CONTENT, PRELOAD_CONTENT;
+    try {
+      [M_POST_LOAD_CONTENT, M_PRELOAD_CONTENT, POST_LOAD_CONTENT, PRELOAD_CONTENT] = await Promise.all([
+        processUrls(M_POST_LOAD),
+        processUrls(M_PRELOAD),
+        processUrls(POST_LOAD),
+        processUrls(PRELOAD),
+      ]);
+    } catch (error) {
+      console.error(`Error processing environment variables: ${error.message}`);
+      M_POST_LOAD_CONTENT = M_PRELOAD_CONTENT = POST_LOAD_CONTENT = PRELOAD_CONTENT = "";
+    }
   
     // 分离 CSS 和 JS 内容
     const extractCssAndJs = (content) => {
-      const cssRegex = /<style>([\s\S]*?)<\/style>/g;
-      const jsRegex = /<script>([\s\S]*?)<\/script>/g;
-      const cssMatches = content.match(cssRegex) || [];
-      const jsMatches = content.match(jsRegex) || [];
-      const cssContent = cssMatches.map(match => match.replace(/<\/?style>/g, '')).join("\n");
-      const jsContent = jsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n");
-      return { cssContent, jsContent };
+      try {
+        const cssRegex = /<style>([\s\S]*?)<\/style>/g;
+        const jsRegex = /<script>([\s\S]*?)<\/script>/g;
+        const cssMatches = content.match(cssRegex) || [];
+        const jsMatches = content.match(jsRegex) || [];
+        const cssContent = cssMatches.map(match => match.replace(/<\/?style>/g, '')).join("\n");
+        const jsContent = jsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n");
+        return { cssContent, jsContent };
+      } catch (error) {
+        console.error(`Error extracting CSS and JS content: ${error.message}`);
+        return { cssContent: "", jsContent: "" };
+      }
     };
   
     const { cssContent: M_PRELOAD_CSS, jsContent: M_PRELOAD_JS } = extractCssAndJs(M_PRELOAD_CONTENT);
