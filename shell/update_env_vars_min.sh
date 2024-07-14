@@ -4,7 +4,7 @@
 TOKEN=
 ACCOUNT_ID=
 PROJECT_ID=
-LANG= ZH_CN / ENG
+LANG=
 
 # 语言选择
 if [[ -z "$LANG" ]]; then
