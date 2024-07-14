@@ -77,28 +77,49 @@ export async function onRequest(context) {
     }
 
     // 分离 CSS 和 JS 内容
-    const extractCssAndJs = (content) => {
+    const extractCssAndJs = async (content) => {
         console.log("Extracting CSS and JS from content:", content);
         
         const cssRegex = /<style>([\s\S]*?)<\/style>/g;
-        const jsRegex = /<script>([\s\S]*?)<\/script>/g;
+        const inlineJsRegex = /<script>([\s\S]*?)<\/script>/g;
+        const externalCssRegex = /<link[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/g;
+        const externalJsRegex = /<script[^>]*src=["']([^"']+)["'][^>]*>/g;
         
         const cssMatches = content.match(cssRegex) || [];
-        const jsMatches = content.match(jsRegex) || [];
+        const inlineJsMatches = content.match(inlineJsRegex) || [];
+        const externalCssMatches = [...content.matchAll(externalCssRegex)].map(match => match[1]) || [];
+        const externalJsMatches = [...content.matchAll(externalJsRegex)].map(match => match[1]) || [];
         
         const cssContent = cssMatches.map(match => match.replace(/<\/?style>/g, '')).join("\n");
-        const jsContent = jsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n");
+        const inlineJsContent = inlineJsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n");
+        
+        // Fetch external CSS and JS content
+        const fetchResource = async (url) => {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+                }
+                return await response.text();
+            } catch (error) {
+                console.error(`Error fetching ${url}: ${error.message}`);
+                return "";
+            }
+        };
+        
+        const externalCssContent = await Promise.all(externalCssMatches.map(fetchResource));
+        const externalJsContent = await Promise.all(externalJsMatches.map(fetchResource));
         
         console.log("Extracted CSS content:", cssContent);
-        console.log("Extracted JS content:", jsContent);
+        console.log("Extracted inline JS content:", inlineJsContent);
+        console.log("Extracted external CSS content:", externalCssContent);
+        console.log("Extracted external JS content:", externalJsContent);
         
-        return { cssContent, jsContent };
+        return { 
+            cssContent: cssContent + "\n" + externalCssContent.join("\n"), 
+            jsContent: inlineJsContent + "\n" + externalJsContent.join("\n") 
+        };
     };
-
-    const { cssContent: M_PRELOAD_CSS, jsContent: M_PRELOAD_JS } = extractCssAndJs(M_PRELOAD_CONTENT);
-    const { cssContent: PRELOAD_CSS, jsContent: PRELOAD_JS } = extractCssAndJs(PRELOAD_CONTENT);
-    const { cssContent: M_POST_LOAD_CSS, jsContent: M_POST_LOAD_JS } = extractCssAndJs(M_POST_LOAD_CONTENT);
-    const { cssContent: POST_LOAD_CSS, jsContent: POST_LOAD_JS } = extractCssAndJs(POST_LOAD_CONTENT);
 
     // 生成 HTML 响应
     const responseBody = `
