@@ -6,6 +6,11 @@ export async function onRequest(context) {
     const POST_LOAD = env.POST_LOAD || "";
     const PRELOAD = env.PRELOAD || "";
   
+    console.log("M_POST_LOAD:", M_POST_LOAD);
+    console.log("M_PRELOAD:", M_PRELOAD);
+    console.log("POST_LOAD:", POST_LOAD);
+    console.log("PRELOAD:", PRELOAD);
+  
     // 验证 URL 是否有效
     const isValidUrl = (url) => {
       try {
@@ -32,30 +37,29 @@ export async function onRequest(context) {
   
     // 处理环境变量中的 URL 和内联内容
     const processUrls = async (input) => {
-      try {
-        // 使用正则表达式匹配所有 URL，排除掉 <script> 标签中的 src 属性以及内联代码片段中的 URL
-        const urls = input.match(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g) || [];
-        // 移除所有 URL，剩下的就是内联内容
-        const inlineContent = input.replace(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g, "").trim();
-        const fetchedContent = await Promise.all(
-          urls.map(async (url) => {
-            if (isValidUrl(url)) {
-              // 如果 URL 是 GitHub URL，则转换为 jsDelivr URL
-              if (isGithubUrl(url)) {
-                url = convertToJsdelivrUrl(url);
-              }
-              return await fetchResource(url);
-            } else {
-              console.error(`Invalid URL: ${url}`);
-              return "";
+      console.log("Processing input:", input);
+      // 使用正则表达式匹配所有 URL，排除掉 <script> 标签中的 src 属性以及内联代码片段中的 URL
+      const urls = input.match(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g) || [];
+      console.log("Extracted URLs:", urls);
+      // 移除所有 URL，剩下的就是内联内容
+      const inlineContent = input.replace(/(https?:\/\/[^\s,;:]+)(?![^<]*<\/script>)(?![^`]*\`)/g, "").trim();
+      console.log("Inline content:", inlineContent);
+      const fetchedContent = await Promise.all(
+        urls.map(async (url) => {
+          if (isValidUrl(url)) {
+            // 如果 URL 是 GitHub URL，则转换为 jsDelivr URL
+            if (isGithubUrl(url)) {
+              url = convertToJsdelivrUrl(url);
             }
-          })
-        );
-        return [inlineContent, ...fetchedContent].join("\n");
-      } catch (error) {
-        console.error(`Error processing URLs: ${error.message}`);
-        return "";
-      }
+            return await fetchResource(url);
+          } else {
+            console.error(`Invalid URL: ${url}`);
+            return "";
+          }
+        })
+      );
+      console.log("Fetched content:", fetchedContent);
+      return [inlineContent, ...fetchedContent].join("\n");
     };
   
     // 并行处理所有环境变量
@@ -74,18 +78,16 @@ export async function onRequest(context) {
   
     // 分离 CSS 和 JS 内容
     const extractCssAndJs = (content) => {
-      try {
-        const cssRegex = /<style>([\s\S]*?)<\/style>/g;
-        const jsRegex = /<script>([\s\S]*?)<\/script>/g;
-        const cssMatches = content.match(cssRegex) || [];
-        const jsMatches = content.match(jsRegex) || [];
-        const cssContent = cssMatches.map(match => match.replace(/<\/?style>/g, '')).join("\n");
-        const jsContent = jsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n");
-        return { cssContent, jsContent };
-      } catch (error) {
-        console.error(`Error extracting CSS and JS content: ${error.message}`);
-        return { cssContent: "", jsContent: "" };
-      }
+      console.log("Extracting CSS and JS from content:", content);
+      const cssRegex = /<style>([\s\S]*?)<\/style>/g;
+      const jsRegex = /<script>([\s\S]*?)<\/script>/g;
+      const cssMatches = content.match(cssRegex) || [];
+      const jsMatches = content.match(jsRegex) || [];
+      const cssContent = cssMatches.map(match => match.replace(/<\/?style>/g, '')).join("\n");
+      const jsContent = jsMatches.map(match => match.replace(/<\/?script>/g, '')).join("\n");
+      console.log("Extracted CSS content:", cssContent);
+      console.log("Extracted JS content:", jsContent);
+      return { cssContent, jsContent };
     };
   
     const { cssContent: M_PRELOAD_CSS, jsContent: M_PRELOAD_JS } = extractCssAndJs(M_PRELOAD_CONTENT);
