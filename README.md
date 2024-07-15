@@ -12,37 +12,65 @@
 在 Cloudflare Pages 设置中，配置以下环境变量：
 
 ```
+|—— 日志等级 (可选)
+     |
+     |—— LOG_LEVEL
+          |
+          |—— off
+          |—— fatal
+          |—— error
+          |—— warn
+          |—— info (默认值)
+          |—— debug
+          |—— trace
+
 |—— 基本配置
      |—— IFRAME_URL
+          |
           |—— 描述: iframe 要加载的 URL，支持多个 URL，服务名称用作站点标题。
           |—— 格式:
-          |    ```
-          |    URL1;服务名称1,
-          |    URL2;Service_Name2,
-          |    ```
+          |      ```
+          |      URL1;服务名称1,
+          |      URL2;Service_Name2,
+          |      ```
           |
           |—— FAVICON_URL
-          |    |—— 描述: 站点图标，填写 URL。
-          |    |—— 格式:
-          |    |    ```
-          |    |    服务名称1;Favicon_URL1,
-          |    |    Service_Name2;Favicon_URL2,
-          |    |    ```
+               |
+               |—— 描述: 站点图标，填写 URL。
+               |—— 格式:
+               |    ```
+               |    服务名称1;Favicon_URL1,
+               |    Service_Name2;Favicon_URL2,
+               |    ```
 
 |—— 人机验证
      |—— TURNSTILE_ENABLED
+          |
           |—— 描述: Turnstile 人机验证的开关，true / false。
           |—— 默认值: `false`
           |
           |—— TURNSTILE_SITE_KEY
+          |    |
           |    |—— 描述: Cloudflare Turnstile 人机验证的站点密钥。
           |
           |—— TURNSTILE_SECRET_KEY
+          |    |
           |    |—— 描述: Cloudflare Turnstile 人机验证的密钥。
           |
           |—— TURNSTILE_TIME
-          |    |—— 描述: Cloudflare Turnstile 人机验证通过后的有效时间，单位为秒。
-          |    |—— 默认值: `14400`
+               |
+               |—— 描述: Cloudflare Turnstile 人机验证通过后的有效时间，单位为秒。
+               |—— 默认值: `14400`
+
+|—— 自定义 CSS/JS (可选)(试验性功能)
+     |
+     |——M_POST_LOAD  (移动端后加载)
+     |
+     |——M_PRELOAD    (移动端预加载)
+     |
+     |——POST_LOAD    (桌面端后加载)
+     |
+     |——PRELOAD      (桌面端预加载)
 ```
 
 ### 数据库配置
