@@ -25,7 +25,7 @@ const LOG_LEVEL_MAP = {
   
   async function fetchCustomScripts() {
     try {
-      const response = await fetch('/custom');
+      const response = await fetch('/custom'); 
       const data = await response.json();
   
       const logLevel = getLogLevel(data.LOG_LEVEL);
