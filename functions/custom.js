@@ -137,32 +137,49 @@ function separateJsCss(parts) {
 
     // 修复 JS 和 CSS 的语法错误
     const fixJsSyntax = (jsCode) => {
-        // 修复缺少分号
-        jsCode = jsCode.replace(/([^;}])\s*$/g, '$1;');
+        // 去除多余的 ;
+        jsCode = jsCode.replace(/;(\s*})/g, '}');
         // 修复括号不匹配
         jsCode = jsCode.replace(/\s*([{}])\s*/g, ' $1 ');
         // 修复引号不匹配
         jsCode = jsCode.replace(/(['"])(\s*[^'"]*)\1/g, '$1$2$1');
+        // 修复缺少分号
+        jsCode = jsCode.replace(/([^;}])\s*$/g, '$1;');
+        // 修复 = 两边没有空格的问题
+        jsCode = jsCode.replace(/(\w+)\s*=\s*([^\s]+)/g, '$1 = $2');
+        // 修复缺少逗号
+        jsCode = jsCode.replace(/(\w+)(\s*})/g, '$1, $2');
+        // 修复缺少关键字
+        jsCode = jsCode.replace(/if\s*\(([^)]*)\)\s*\{/g, 'if ($1) { } else {');
+        jsCode = jsCode.replace(/for\s*\(([^)]*)\)\s*\{/g, 'for ($1 in/of {');
+        // 修复缺少函数体
+        jsCode = jsCode.replace(/function\s*\(([^)]*)\)\s*\{/g, 'function ($1) { }');
+        // 修复缺少变量声明
+        jsCode = jsCode.replace(/(\w+)\s*=/g, 'var $1 =');
         return jsCode;
     };
 
     const fixCssSyntax = (cssCode) => {
-        // 修复缺少分号
-        cssCode = cssCode.replace(/([^;}])\s*$/g, '$1;');
+        // 去除多余的 ;
+        cssCode = cssCode.replace(/;(\s*})/g, '}');
         // 修复括号不匹配
         cssCode = cssCode.replace(/\s*([{}])\s*/g, ' $1 ');
         // 修复引号不匹配
         cssCode = cssCode.replace(/(['"])(\s*[^'"]*)\1/g, '$1$2$1');
+        // 修复缺少分号
+        cssCode = cssCode.replace(/([^;}])\s*$/g, '$1;');
+        // 修复 : 两边没有空格的问题
+        cssCode = cssCode.replace(/(\w+)\s*:\s*([^\s]+)/g, '$1: $2');
+        // 修复缺少逗号
+        cssCode = cssCode.replace(/(\w+)(\s*})/g, '$1, $2');
+        // 修复缺少单位
+        cssCode = cssCode.replace(/(\d+)(\s*[;}])/g, '$1px$2');
         return cssCode;
     };
 
-    const fixedJs = js.map(fixJsSyntax).join('\n');
-    const fixedCss = css.map(fixCssSyntax).join('\n');
-
-    // 返回分类后的资源
     return {
-        js: fixedJs,
-        css: fixedCss,
-        other: other.join('\n')
+        js: js.map(fixJsSyntax),
+        css: css.map(fixCssSyntax),
+        other
     };
 }
