@@ -31,15 +31,19 @@ export async function onRequest(context) {
 
     // 从环境变量中获取 Turnstile 的密钥
     const TURNSTILE_SECRET_KEY = context.env.TURNSTILE_SECRET_KEY;
+    log('debug', `Turnstile secret key retrieved: ${TURNSTILE_SECRET_KEY}`, context);
 
     // 从环境变量中获取 Turnstile 的有效时间，默认为 4 小时（以秒为单位）
     const TURNSTILE_TIME = context.env.TURNSTILE_TIME || 14400;
+    log('debug', `Turnstile time retrieved: ${TURNSTILE_TIME}`, context);
 
     // 从环境变量中获取 LOG_LEVEL
     const LOG_LEVEL = context.env.LOG_LEVEL || 'info';
+    log('debug', `Log level retrieved: ${LOG_LEVEL}`, context);
 
     // 解析请求体中的 JSON 数据
     const body = await context.request.json();
+    log('debug', `Request body parsed: ${JSON.stringify(body)}`, context);
 
     // 从请求体中提取 token、uuid 和 ip
     const token = body.token;
@@ -57,6 +61,7 @@ export async function onRequest(context) {
 
     // 使用 Cloudflare D1 数据库
     const db = context.env.D1;
+    log('debug', 'Database connection established', context);
 
     // 检查是否存在 uuid_store 表，若不存在则创建
     const tableCheck = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="uuid_store"').first();
@@ -97,6 +102,7 @@ export async function onRequest(context) {
 
     // 解析验证结果
     const verificationResult = await verificationResponse.json();
+    log('debug', `Verification result: ${JSON.stringify(verificationResult)}`, context);
 
     // 如果验证成功，存储 UUID 和当前时间以及IP地址
     if (verificationResult.success) {
