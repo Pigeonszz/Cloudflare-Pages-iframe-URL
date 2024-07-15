@@ -40,10 +40,16 @@ async function loadResources() {
   // 预先加载资源
   loadResourceGroup(deviceResources.preload, document.head);
 
-  // 页面加载完成后加载后加载的资源
-  document.addEventListener('DOMContentLoaded', () => {
+  // 检查 DOMContentLoaded 事件是否已经触发
+  if (document.readyState === 'loading') {
+    // 如果 DOM 仍在加载，等待 DOMContentLoaded 事件
+    document.addEventListener('DOMContentLoaded', () => {
+      loadResourceGroup(deviceResources.postload, document.body);
+    });
+  } else {
+    // 如果 DOM 已经加载完成，直接加载后加载的资源
     loadResourceGroup(deviceResources.postload, document.body);
-  });
+  }
 }
 
 // 加载资源组的函数
@@ -86,4 +92,4 @@ function loadResourceGroup(resourceGroup, targetElement) {
 }
 
 // 页面加载完成后执行
-document.addEventListener('DOMContentLoaded', loadResources);
+loadResources();
