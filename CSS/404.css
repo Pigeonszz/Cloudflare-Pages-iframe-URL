@@ -1,0 +1,42 @@
+/* 404.css */
+
+:root {
+    --text-color: #333; /* 默认文本颜色 */
+    --background-color: #f0f0f0; /* 默认背景颜色 */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: var(--background-color); /* 使用变量 */
+    color: var(--text-color); /* 使用变量 */
+}
+
+.container {
+    text-align: center;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+h1 {
+    color: var(--text-color); /* 使用变量 */
+}
+
+p {
+    color: var(--text-color); /* 使用变量 */
+}
+
+/* 暗黑模式 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color: #ccc; /* 暗黑模式下的文本颜色 */
+        --background-color: #222; /* 暗黑模式下的背景颜色 */
+    }
+}
