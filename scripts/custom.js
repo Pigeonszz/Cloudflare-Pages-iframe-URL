@@ -50,7 +50,6 @@ async function loadResources() {
 function loadResourceGroup(resourceGroup, targetElement) {
   // 预先加载 CSS 资源
   if (resourceGroup.css) {
-    console.log('Postload CSS:', resourceGroup.css); // 调试输出
     const preloadStyle = document.createElement('style');
     preloadStyle.textContent = resourceGroup.css;
     targetElement.appendChild(preloadStyle);
@@ -58,7 +57,6 @@ function loadResourceGroup(resourceGroup, targetElement) {
 
   // 预先加载 JS 资源
   if (resourceGroup.js) {
-    console.log('Postload JS:', resourceGroup.js); // 调试输出
     const scriptParts = resourceGroup.js.match(/<script[^>]*>([\s\S]*?)<\/script>/gi) || [];
     scriptParts.forEach(scriptPart => {
       const scriptElement = document.createElement('script');
@@ -81,7 +79,6 @@ function loadResourceGroup(resourceGroup, targetElement) {
 
   // 预先加载其他资源
   if (resourceGroup.other) {
-    console.log('Postload Other:', resourceGroup.other); // 调试输出
     const preloadOther = document.createElement('div');
     preloadOther.innerHTML = resourceGroup.other; // 使用 innerHTML
     targetElement.appendChild(preloadOther);
