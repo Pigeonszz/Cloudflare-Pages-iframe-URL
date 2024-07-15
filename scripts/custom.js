@@ -23,11 +23,11 @@ function injectMultipleCSS(cssArray, position) {
 }
 
 // 注入多个JS的函数
-function injectMultipleJS(jsArray, position, isAsync = false) {
+function injectMultipleJS(jsArray, position) {
   jsArray.forEach(jsCode => {
-      const script = document.createElement('script');
-      script.textContent = jsCode;
-      script.async = isAsync;
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = jsCode;
+      const script = tempDiv.firstChild;
       if (position === 'head') {
           document.head.appendChild(script);
       } else {
@@ -49,10 +49,10 @@ function injectMultipleJS(jsArray, position, isAsync = false) {
       // 预加载的CSS和JS（立即注入页头）
       if (deviceType === 'mobile') {
           if (data.M_PRELOAD.css) injectMultipleCSS(data.M_PRELOAD.css, 'head');
-          if (data.M_PRELOAD.js) injectMultipleJS(data.M_PRELOAD.js, 'head', true);
+          if (data.M_PRELOAD.js) injectMultipleJS(data.M_PRELOAD.js, 'head');
       } else {
           if (data.PRELOAD.css) injectMultipleCSS(data.PRELOAD.css, 'head');
-          if (data.PRELOAD.js) injectMultipleJS(data.PRELOAD.js, 'head', true);
+          if (data.PRELOAD.js) injectMultipleJS(data.PRELOAD.js, 'head');
       }
 
       // 在页面加载完之后注入后加载的CSS和JS（注入页脚）
