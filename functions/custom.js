@@ -45,8 +45,8 @@ async function handleCustomRequest(context) {
 function processEnvVariable(variable) {
     if (!variable) return []; // 如果环境变量为空，返回空数组
 
-    // 使用正则表达式分割包含 URL 的字符串
-    const parts = variable.split(/(?=https?:\/\/)|(?=<script)|(?=<style)|(?=<link)|(?=<!--)|(?=-->)|(?=\/\*)|(?=\*\/)|(?={)|(?=})|(?=\()|(?=\))|(?=\[)|(?=\])|(?=\|)|(?=;)|(?=,)|(?=:)|(?=\s)|(?=\n)/).filter(Boolean);
+    // 使用正则表达式分割包含 URL 和代码片段的字符串
+    const parts = variable.split(/(?=https?:\/\/)|(?=<script)|(?=<style)|(?=<link)|(?=<!--)|(?=\/\*)|(?=\{)|(?=\()|(?=\[)|(?=\|)|(?=;)|(?=,)|(?=:)|(?=\s)|(?=\n)|(?=-->)|(?=\*\/)|(?=})|(?=\))|(?=\])|(?=\|)/).filter(Boolean);
     return parts;
 }
 
@@ -71,47 +71,15 @@ function separateJsCss(parts) {
             inScript = false;
         } else if (inScript) {
             scriptBuffer += part;
-        } else if (part.startsWith('<style')) {
-            // 处理内联 CSS
-            css.push(part);
-        } else if (part.startsWith('<link')) {
-            // 处理 link 标签
+        } else if (part.startsWith('<style') || part.startsWith('<link') || part.startsWith('/*') || part.match(/^\s*\{.*\}\s*$/)) {
             css.push(part);
         } else if (part.startsWith('<!--') && part.endsWith('-->')) {
-            // 处理注释
             other.push(part);
-        } else if (part.startsWith('/*') && part.endsWith('*/')) {
-            // 处理 CSS 注释
-            css.push(part);
-        } else if (part.match(/^\s*\{.*\}\s*$/)) {
-            // 处理 CSS 规则
-            css.push(part);
-        } else if (part.match(/^\s*\(.*\)\s*$/)) {
-            // 处理 JS 函数
-            js.push(part);
-        } else if (part.match(/^\s*\[.*\]\s*$/)) {
-            // 处理 JS 数组
-            js.push(part);
-        } else if (part.match(/^\s*\|.*\|\s*$/)) {
-            // 处理 JS 模板字符串
-            js.push(part);
-        } else if (part.match(/^\s*;.*;\s*$/)) {
-            // 处理 JS 语句
-            js.push(part);
-        } else if (part.match(/^\s*,.*,\s*$/)) {
-            // 处理 JS 逗号分隔的值
+        } else if (part.match(/^\s*\(.*\)\s*$/) || part.match(/^\s*\[.*\]\s*$/) || part.match(/^\s*\|.*\|\s*$/) || part.match(/^\s*;.*;\s*$/) || part.match(/^\s*,.*,\s*$/)) {
             js.push(part);
         } else if (part.match(/^\s*:.*:\s*$/)) {
-            // 处理 CSS 属性
             css.push(part);
-        } else if (part.match(/^\s*\n.*\n\s*$/)) {
-            // 处理换行符
-            other.push(part);
-        } else if (part.match(/^\s*\s.*\s\s*$/)) {
-            // 处理空格
-            other.push(part);
         } else {
-            // 处理其他代码片段
             other.push(part);
         }
     });
