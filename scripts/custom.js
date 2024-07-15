@@ -1,56 +1,62 @@
-// /scripts/custom.js
+// scripts/custom.js
 
-document.addEventListener('DOMContentLoaded', async () => {
+// 获取响应并更新页面内容
+async function fetchAndUpdateContent() {
   try {
-      const response = await fetch('/custom');
+      const response = await fetch('/custom'); // 发起请求获取自定义响应
       if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error('Failed to fetch custom content');
       }
-      const data = await response.json();
 
-      const deviceType = detectDeviceType();
-      const preload = data[`M_PRELOAD`] || {};
-      const postload = data[`M_POST_LOAD`] || {};
+      const data = await response.json(); // 解析 JSON 响应数据
 
-      // Preload: Inject immediately into the head
-      preload.js.forEach(script => injectScript(script, 'head'));
-      preload.css.forEach(style => injectStyle(style, 'head'));
+      // 更新页面内容
+      updateContent('M_POST_LOAD', data.M_POST_LOAD);
+      updateContent('M_PRELOAD', data.M_PRELOAD);
+      updateContent('POST_LOAD', data.POST_LOAD);
+      updateContent('PRELOAD', data.PRELOAD);
+  } catch (error) {
+      console.error('Error fetching or updating content:', error);
+      // 处理错误，例如显示错误信息或者重试逻辑
+  }
+}
 
-      // Postload: Inject after the page has loaded into the footer
-      window.addEventListener('load', () => {
-          postload.js.forEach(script => injectScript(script, 'body'));
-          postload.css.forEach(style => injectStyle(style, 'body'));
+// 更新特定部分的内容
+function updateContent(sectionId, content) {
+  try {
+      const jsContainer = document.getElementById(`${sectionId}_js`);
+      const cssContainer = document.getElementById(`${sectionId}_css`);
+
+      // 清空现有内容
+      jsContainer.innerHTML = '';
+      cssContainer.innerHTML = '';
+
+      // 更新 JS 内容
+      content.js.forEach(jsCode => {
+          const script = document.createElement('script');
+          script.textContent = jsCode;
+          jsContainer.appendChild(script);
       });
+
+      // 更新 CSS 内容
+      content.css.forEach(cssCode => {
+          const style = document.createElement('style');
+          style.textContent = cssCode;
+          cssContainer.appendChild(style);
+      });
+
+      // 可选：更新其他内容
+      // const otherContainer = document.getElementById(`${sectionId}_other`);
+      // otherContainer.innerHTML = '';
+      // content.other.forEach(otherContent => {
+      //     otherContainer.innerHTML += otherContent;
+      // });
   } catch (error) {
-      console.error('Error fetching /custom:', error);
+      console.error('Error updating content:', error);
   }
+}
+
+// 初始化页面加载时获取并更新内容
+document.addEventListener('DOMContentLoaded', () => {
+  fetchAndUpdateContent(); // 页面加载完成后获取并更新内容
 });
-
-// 检测设备类型的函数
-function detectDeviceType() {
-  const ua = navigator.userAgent;
-  if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
-      return 'mobile';
-  }
-  return 'desktop';
-}
-
-function injectScript(scriptContent, target) {
-  try {
-      const script = document.createElement('script');
-      script.textContent = scriptContent.replace(/;\s*$/, ''); // Remove trailing semicolon
-      document[target].appendChild(script);
-  } catch (error) {
-      console.error('Error injecting script:', error);
-  }
-}
-
-function injectStyle(styleContent, target) {
-  try {
-      const style = document.createElement('style');
-      style.textContent = styleContent.replace(/;\s*$/, ''); // Remove trailing semicolon
-      document[target].appendChild(style);
-  } catch (error) {
-      console.error('Error injecting style:', error);
-  }
-}

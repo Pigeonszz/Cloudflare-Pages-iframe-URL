@@ -91,68 +91,6 @@ function separateJsCss(parts) {
         let styleBuffer = ''; // 用于缓存不完整的 <style> 标签
         let inStyle = false; // 标记是否在处理 <style> 标签
 
-        // 遍历并分类每个部分
-        parts.forEach(part => {
-            if (part.startsWith('<script')) {
-                if (inScript) {
-                    // 如果已经在处理 <script> 标签，说明之前的部分不完整，补全并添加到 js 数组
-                    js.push(scriptBuffer + '</script>');
-                    scriptBuffer = '';
-                }
-                inScript = true;
-                scriptBuffer += part;
-            } else if (inScript && part.endsWith('</script>')) {
-                scriptBuffer += part;
-                js.push(scriptBuffer);
-                scriptBuffer = '';
-                inScript = false;
-            } else if (inScript) {
-                scriptBuffer += part;
-            } else if (part.startsWith('<style')) {
-                if (inStyle) {
-                    // 如果已经在处理 <style> 标签，说明之前的部分不完整，补全并添加到 css 数组
-                    css.push(styleBuffer + '</style>');
-                    styleBuffer = '';
-                }
-                inStyle = true;
-                styleBuffer += part;
-            } else if (inStyle && part.endsWith('</style>')) {
-                styleBuffer += part;
-                css.push(styleBuffer);
-                styleBuffer = '';
-                inStyle = false;
-            } else if (inStyle) {
-                styleBuffer += part;
-            } else if (part.startsWith('<!--') && part.endsWith('-->')) {
-                other.push(part);
-            } else if (part.match(/^\s*\(.*\)\s*$/) || part.match(/^\s*\[.*\]\s*$/) || part.match(/^\s*\|.*\|\s*$/) || part.match(/^\s*;.*;\s*$/) || part.match(/^\s*,.*,\s*$/)) {
-                js.push(part);
-            } else if (part.match(/^\s*:.*:\s*$/)) {
-                css.push(part);
-            } else if (part.match(/^https?:\/\/[^\s]+$/)) {
-                // 如果部分是一个独立的URL，生成相应的标签
-                if (part.match(/\.js$/)) {
-                    js.push(`<script src="${part}"></script>`);
-                } else if (part.match(/\.css$/)) {
-                    css.push(`<link rel="stylesheet" href="${part}">`);
-                } else {
-                    other.push(part);
-                }
-            } else {
-                other.push(part);
-            }
-        });
-
-        // 检查是否有未完成的 <script> 标签
-        if (scriptBuffer) {
-            js.push(scriptBuffer + '</script>'); // 自动补齐 </script> 标签
-        }
-
-        // 检查是否有未完成的 <style> 标签
-        if (styleBuffer) {
-            css.push(styleBuffer + '</style>'); // 自动补齐 </style> 标签
-        }
-
         // 修复 JS 和 CSS 的语法错误
         const fixJsSyntax = (jsCode) => {
             try {
@@ -205,9 +143,71 @@ function separateJsCss(parts) {
             }
         };
 
+        // 遍历并分类每个部分
+        parts.forEach(part => {
+            if (part.startsWith('<script')) {
+                if (inScript) {
+                    // 如果已经在处理 <script> 标签，说明之前的部分不完整，补全并添加到 js 数组
+                    js.push(fixJsSyntax(scriptBuffer + '</script>'));
+                    scriptBuffer = '';
+                }
+                inScript = true;
+                scriptBuffer += part;
+            } else if (inScript && part.endsWith('</script>')) {
+                scriptBuffer += part;
+                js.push(fixJsSyntax(scriptBuffer));
+                scriptBuffer = '';
+                inScript = false;
+            } else if (inScript) {
+                scriptBuffer += part;
+            } else if (part.startsWith('<style')) {
+                if (inStyle) {
+                    // 如果已经在处理 <style> 标签，说明之前的部分不完整，补全并添加到 css 数组
+                    css.push(fixCssSyntax(styleBuffer + '</style>'));
+                    styleBuffer = '';
+                }
+                inStyle = true;
+                styleBuffer += part;
+            } else if (inStyle && part.endsWith('</style>')) {
+                styleBuffer += part;
+                css.push(fixCssSyntax(styleBuffer));
+                styleBuffer = '';
+                inStyle = false;
+            } else if (inStyle) {
+                styleBuffer += part;
+            } else if (part.startsWith('<!--') && part.endsWith('-->')) {
+                other.push(part);
+            } else if (part.match(/^\s*\(.*\)\s*$/) || part.match(/^\s*\[.*\]\s*$/) || part.match(/^\s*\|.*\|\s*$/) || part.match(/^\s*;.*;\s*$/) || part.match(/^\s*,.*,\s*$/)) {
+                js.push(fixJsSyntax(part));
+            } else if (part.match(/^\s*:.*:\s*$/)) {
+                css.push(fixCssSyntax(part));
+            } else if (part.match(/^https?:\/\/[^\s]+$/)) {
+                // 如果部分是一个独立的URL，生成相应的标签
+                if (part.match(/\.js$/)) {
+                    js.push(`<script src="${part}"></script>`);
+                } else if (part.match(/\.css$/)) {
+                    css.push(`<link rel="stylesheet" href="${part}">`);
+                } else {
+                    other.push(part);
+                }
+            } else {
+                other.push(part);
+            }
+        });
+
+        // 检查是否有未完成的 <script> 标签
+        if (scriptBuffer) {
+            js.push(fixJsSyntax(scriptBuffer + '</script>')); // 自动补齐 </script> 标签
+        }
+
+        // 检查是否有未完成的 <style> 标签
+        if (styleBuffer) {
+            css.push(fixCssSyntax(styleBuffer + '</style>')); // 自动补齐 </style> 标签
+        }
+
         return {
-            js: js.map(fixJsSyntax),
-            css: css.map(fixCssSyntax),
+            js,
+            css,
             other
         };
     } catch (error) {
