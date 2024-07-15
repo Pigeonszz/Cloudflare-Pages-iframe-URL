@@ -47,7 +47,18 @@ function processEnvVariable(variable) {
 
     // 使用正则表达式分割包含 URL 和代码片段的字符串
     const parts = variable.split(/(?=https?:\/\/)|(?=<script)|(?=<style)|(?=<link)|(?=<!--)|(?=\/\*)|(?=\{)|(?=\()|(?=\[)|(?=\|)|(?=;)|(?=,)|(?=:)|(?=\s)|(?=\n)|(?=-->)|(?=\*\/)|(?=})|(?=\))|(?=\])|(?=\|)/).filter(Boolean);
-    return parts;
+
+    // 检测重复项并合并
+    const uniqueParts = [];
+    const seen = new Set();
+    for (const part of parts) {
+        if (!seen.has(part)) {
+            seen.add(part);
+            uniqueParts.push(part);
+        }
+    }
+
+    return uniqueParts;
 }
 
 // 分离 JS、CSS 和其他资源的函数
@@ -107,8 +118,8 @@ function separateJsCss(parts) {
 
     // 返回分类后的资源
     return {
-        js: js.join(''),
-        css: css.join(''),
-        other: other.join('')
+        js: js.join('\n'),
+        css: css.join('\n'),
+        other: other.join('\n')
     };
 }
