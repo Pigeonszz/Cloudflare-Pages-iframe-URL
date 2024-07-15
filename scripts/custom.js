@@ -25,7 +25,7 @@ function log(level, message, logLevel) {
 
 async function fetchCustomScripts() {
     try {
-        const response = await fetch('/functions/custom');
+        const response = await fetch('/custom');
         const data = await response.json();
 
         // 确保 logLevel 在这里定义
