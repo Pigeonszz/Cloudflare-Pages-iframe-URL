@@ -47,12 +47,14 @@ async function loadResources() {
 
 // 加载资源组的函数
 function loadResourceGroup(resourceGroup, targetElement) {
+  // 预先加载 CSS 资源
   if (resourceGroup.css) {
     const preloadStyle = document.createElement('style');
-    preloadStyle.innerHTML = resourceGroup.css;
+    preloadStyle.innerHTML = resourceGroup.css; // 使用 innerHTML 替代 textContent
     targetElement.appendChild(preloadStyle);
   }
 
+  // 预先加载 JS 资源
   if (resourceGroup.js) {
     const scriptParts = resourceGroup.js.match(/<script[^>]*>[\s\S]*?<\/script>/gi) || [];
     scriptParts.forEach(scriptPart => {
@@ -81,9 +83,10 @@ function loadResourceGroup(resourceGroup, targetElement) {
     });
   }
 
+  // 预先加载其他资源
   if (resourceGroup.other) {
     const preloadOther = document.createElement('div');
-    preloadOther.innerHTML = resourceGroup.other;
+    preloadOther.innerHTML = resourceGroup.other; // 使用 innerHTML
     targetElement.appendChild(preloadOther);
   }
 }
