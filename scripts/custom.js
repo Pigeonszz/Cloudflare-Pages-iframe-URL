@@ -46,16 +46,6 @@ async function loadResources() {
     console.log('DOMContentLoaded event fired'); // 调试输出
     loadResourceGroup(deviceResources.postload, document.body);
   });
-
-  const deviceResources = resources[deviceType] || resources.desktop; // 获取设备对应的资源，如果没有则使用桌面资源
-
-  // 预先加载资源
-  loadResourceGroup(deviceResources.preload, document.head);
-
-  // 页面加载完成后加载后加载的资源
-  document.addEventListener('DOMContentLoaded', () => {
-    loadResourceGroup(deviceResources.postload, document.body);
-  });
 }
 
 // 加载资源组的函数
