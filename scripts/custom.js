@@ -38,7 +38,7 @@ function detectDeviceType() {
 function injectScript(scriptContent, target) {
   try {
       const script = document.createElement('script');
-      script.textContent = scriptContent.replace(/;/g, ''); // Remove extra semicolons
+      script.textContent = scriptContent.replace(/;\s*$/, ''); // Remove trailing semicolon
       document[target].appendChild(script);
   } catch (error) {
       console.error('Error injecting script:', error);
@@ -48,7 +48,7 @@ function injectScript(scriptContent, target) {
 function injectStyle(styleContent, target) {
   try {
       const style = document.createElement('style');
-      style.textContent = styleContent.replace(/;/g, ''); // Remove extra semicolons
+      style.textContent = styleContent.replace(/;\s*$/, ''); // Remove trailing semicolon
       document[target].appendChild(style);
   } catch (error) {
       console.error('Error injecting style:', error);
