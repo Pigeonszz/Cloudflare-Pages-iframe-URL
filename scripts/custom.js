@@ -14,7 +14,7 @@ function detectDeviceType() {
 async function loadResources() {
   const deviceType = detectDeviceType(); // 检测设备类型
   const response = await fetch('/custom'); // 从 /custom 端点获取资源信息
-  
+
   // 检查响应是否成功
   if (!response.ok) {
     console.error('Failed to fetch resources from /custom');
@@ -58,9 +58,24 @@ function loadResourceGroup(resourceGroup, targetElement) {
   // 预先加载 JS 资源
   if (resourceGroup.js) {
     console.log('Preload JS:', resourceGroup.js); // 调试输出
-    const preloadScript = document.createElement('script');
-    preloadScript.innerHTML = resourceGroup.js; // 使用 innerHTML
-    targetElement.appendChild(preloadScript);
+    const scriptParts = resourceGroup.js.match(/<script[^>]*>([\s\S]*?)<\/script>/gi) || [];
+    scriptParts.forEach(scriptPart => {
+      const scriptElement = document.createElement('script');
+      scriptElement.async = /async/.test(scriptPart);
+      scriptElement.defer = /defer/.test(scriptPart);
+
+      const srcMatch = scriptPart.match(/src="([^"]+)"/);
+      if (srcMatch) {
+        scriptElement.src = srcMatch[1];
+      } else {
+        const contentMatch = scriptPart.match(/<script[^>]*>([\s\S]*?)<\/script>/);
+        if (contentMatch) {
+          scriptElement.textContent = contentMatch[1];
+        }
+      }
+
+      targetElement.appendChild(scriptElement);
+    });
   }
 
   // 预先加载其他资源
