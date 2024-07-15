@@ -57,16 +57,20 @@ function separateJsCss(parts) {
     const other = []; // 存储其他资源
 
     let scriptBuffer = ''; // 用于缓存不完整的 <script> 标签
+    let inScript = false; // 标记是否在处理 <script> 标签
 
     // 遍历并分类每个部分
     parts.forEach(part => {
         if (part.startsWith('<script')) {
-            // 处理内联 JS
-            if (part.endsWith('</script>')) {
-                js.push(part);
-            } else {
-                scriptBuffer += part;
-            }
+            inScript = true;
+            scriptBuffer += part;
+        } else if (inScript && part.endsWith('</script>')) {
+            scriptBuffer += part;
+            js.push(scriptBuffer);
+            scriptBuffer = '';
+            inScript = false;
+        } else if (inScript) {
+            scriptBuffer += part;
         } else if (part.startsWith('<style')) {
             // 处理内联 CSS
             css.push(part);
