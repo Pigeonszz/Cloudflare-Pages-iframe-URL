@@ -33,7 +33,7 @@ async function handleCustomRequest(context) {
         M_PRELOAD: separateJsCss(processedEnv.M_PRELOAD),
         POST_LOAD: separateJsCss(processedEnv.POST_LOAD),
         PRELOAD: separateJsCss(processedEnv.PRELOAD)
-    }, null, 2);
+      }, null, 2);
 
     // 返回 JSON 响应
     return new Response(responseBody, {
@@ -55,44 +55,60 @@ function separateJsCss(parts) {
     const js = []; // 存储 JS 资源
     const css = []; // 存储 CSS 资源
     const other = []; // 存储其他资源
-
+  
     let scriptBuffer = ''; // 用于缓存不完整的 <script> 标签
     let inScript = false; // 标记是否在处理 <script> 标签
-
+  
+    let styleBuffer = ''; // 用于缓存不完整的 <style> 标签
+    let inStyle = false; // 标记是否在处理 <style> 标签
+  
     // 遍历并分类每个部分
     parts.forEach(part => {
-        if (part.startsWith('<script')) {
-            inScript = true;
-            scriptBuffer += part;
-        } else if (inScript && part.endsWith('</script>')) {
-            scriptBuffer += part;
-            js.push(scriptBuffer);
-            scriptBuffer = '';
-            inScript = false;
-        } else if (inScript) {
-            scriptBuffer += part;
-        } else if (part.startsWith('<style') || part.startsWith('<link') || part.startsWith('/*') || part.match(/^\s*\{.*\}\s*$/)) {
-            css.push(part);
-        } else if (part.startsWith('<!--') && part.endsWith('-->')) {
-            other.push(part);
-        } else if (part.match(/^\s*\(.*\)\s*$/) || part.match(/^\s*\[.*\]\s*$/) || part.match(/^\s*\|.*\|\s*$/) || part.match(/^\s*;.*;\s*$/) || part.match(/^\s*,.*,\s*$/)) {
-            js.push(part);
-        } else if (part.match(/^\s*:.*:\s*$/)) {
-            css.push(part);
-        } else {
-            other.push(part);
-        }
+      if (part.startsWith('<script')) {
+        inScript = true;
+        scriptBuffer += part;
+      } else if (inScript && part.endsWith('</script>')) {
+        scriptBuffer += part;
+        js.push(scriptBuffer);
+        scriptBuffer = '';
+        inScript = false;
+      } else if (inScript) {
+        scriptBuffer += part;
+      } else if (part.startsWith('<style')) {
+        inStyle = true;
+        styleBuffer += part;
+      } else if (inStyle && part.endsWith('</style>')) {
+        styleBuffer += part;
+        css.push(styleBuffer);
+        styleBuffer = '';
+        inStyle = false;
+      } else if (inStyle) {
+        styleBuffer += part;
+      } else if (part.startsWith('<!--') && part.endsWith('-->')) {
+        other.push(part);
+      } else if (part.match(/^\s*\(.*\)\s*$/) || part.match(/^\s*\[.*\]\s*$/) || part.match(/^\s*\|.*\|\s*$/) || part.match(/^\s*;.*;\s*$/) || part.match(/^\s*,.*,\s*$/)) {
+        js.push(part);
+      } else if (part.match(/^\s*:.*:\s*$/)) {
+        css.push(part);
+      } else {
+        other.push(part);
+      }
     });
-
+  
     // 检查是否有未完成的 <script> 标签
     if (scriptBuffer) {
-        js.push(scriptBuffer);
+      js.push(scriptBuffer);
     }
-
+  
+    // 检查是否有未完成的 <style> 标签
+    if (styleBuffer) {
+      css.push(styleBuffer);
+    }
+  
     // 返回分类后的资源
     return {
-        js: js.join(''),
-        css: css.join(''),
-        other: other.join('')
+      js: js.join(''),
+      css: css.join(''),
+      other: other.join('')
     };
-}
+  }
