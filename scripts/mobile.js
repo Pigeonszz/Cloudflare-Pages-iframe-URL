@@ -9,7 +9,8 @@ if (isDesktopDevice()) {
 
 // 获取 IP 地址
 function getClientIP() {
-  return fetch('https://www.cloudflare.com/cdn-cgi/trace')
+  const currentDomain = window.location.hostname;
+  return fetch(`https://${currentDomain}/cdn-cgi/trace`)
     .then(response => response.text())
     .then(data => {
       const ipMatch = data.match(/ip=([0-9a-fA-F:\.]+)/);
