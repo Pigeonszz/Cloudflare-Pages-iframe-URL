@@ -3,7 +3,6 @@
 // 检测设备类型的函数
 function detectDeviceType() {
   const ua = navigator.userAgent; // 获取用户代理字符串
-  // 通过用户代理字符串检测设备类型
   if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
     return 'mobile'; // 返回移动设备类型
   }
@@ -57,7 +56,7 @@ function loadResourceGroup(resourceGroup, targetElement) {
   // 预先加载 CSS 资源
   if (resourceGroup.css) {
     const preloadStyle = document.createElement('style');
-    preloadStyle.textContent = resourceGroup.css;
+    preloadStyle.innerHTML = resourceGroup.css;
     targetElement.appendChild(preloadStyle);
   }
 
@@ -86,7 +85,7 @@ function loadResourceGroup(resourceGroup, targetElement) {
   // 预先加载其他资源
   if (resourceGroup.other) {
     const preloadOther = document.createElement('div');
-    preloadOther.innerHTML = resourceGroup.other; // 使用 innerHTML
+    preloadOther.innerHTML = resourceGroup.other;
     targetElement.appendChild(preloadOther);
   }
 }
