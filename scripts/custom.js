@@ -11,37 +11,42 @@ function detectDeviceType() {
 
 // 根据设备类型和顺序加载资源的函数
 async function loadResources() {
-  const deviceType = detectDeviceType();
-  const response = await fetch('/custom');
-  
-  if (!response.ok) {
-    console.error('Failed to fetch resources from /custom');
-    return;
-  }
-
-  const jsonResponse = await response.json();
-
-  const resources = {
-    mobile: {
-      preload: jsonResponse.M_PRELOAD,
-      postload: jsonResponse.M_POST_LOAD
-    },
-    desktop: {
-      preload: jsonResponse.PRELOAD,
-      postload: jsonResponse.POST_LOAD
+  try {
+    const deviceType = detectDeviceType();
+    const response = await fetch('/custom');
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch resources from /custom');
     }
-  };
 
-  const deviceResources = resources[deviceType] || resources.desktop;
+    const jsonResponse = await response.json();
 
-  loadResourceGroup(deviceResources.preload, document.head);
+    const resources = {
+      mobile: {
+        preload: jsonResponse.M_PRELOAD,
+        postload: jsonResponse.M_POST_LOAD
+      },
+      desktop: {
+        preload: jsonResponse.PRELOAD,
+        postload: jsonResponse.POST_LOAD
+      }
+    };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+    const deviceResources = resources[deviceType] || resources.desktop;
+
+    // 预加载资源
+    loadResourceGroup(deviceResources.preload, document.head);
+
+    // 检查 DOMContentLoaded 事件是否已经触发
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        loadResourceGroup(deviceResources.postload, document.body);
+      });
+    } else {
       loadResourceGroup(deviceResources.postload, document.body);
-    });
-  } else {
-    loadResourceGroup(deviceResources.postload, document.body);
+    }
+  } catch (error) {
+    console.error(error);
   }
 }
 
