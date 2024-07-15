@@ -12,9 +12,8 @@ function detectDeviceType() {
 // 注入多个CSS的函数
 function injectMultipleCSS(cssArray, position) {
   cssArray.forEach(cssCode => {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = cssCode;
-      const style = tempDiv.firstChild;
+      const style = document.createElement('style');
+      style.innerHTML = cssCode;
       if (position === 'head') {
           document.head.appendChild(style);
       } else {
@@ -24,14 +23,24 @@ function injectMultipleCSS(cssArray, position) {
 }
 
 // 注入多个JS的函数
-function injectMultipleJS(jsArray, position, isAsync = false) {
+function injectMultipleJS(jsArray, position) {
   jsArray.forEach(jsCode => {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = jsCode;
-      const script = tempDiv.firstChild;
-      if (isAsync) {
-          script.async = true;
+      const script = document.createElement('script');
+      script.innerHTML = jsCode;
+      if (position === 'head') {
+          document.head.appendChild(script);
+      } else {
+          document.body.appendChild(script);
       }
+  });
+}
+
+// 异步加载外部脚本的函数
+function injectExternalJS(jsArray, position) {
+  jsArray.forEach(jsUrl => {
+      const script = document.createElement('script');
+      script.src = jsUrl;
+      script.async = true;
       if (position === 'head') {
           document.head.appendChild(script);
       } else {
@@ -53,10 +62,10 @@ function injectMultipleJS(jsArray, position, isAsync = false) {
       // 预加载的CSS和JS（立即注入页头）
       if (deviceType === 'mobile') {
           if (data.M_PRELOAD.css) injectMultipleCSS(data.M_PRELOAD.css, 'head');
-          if (data.M_PRELOAD.js) injectMultipleJS(data.M_PRELOAD.js, 'head', true);
+          if (data.M_PRELOAD.js) injectExternalJS(data.M_PRELOAD.js, 'head');
       } else {
           if (data.PRELOAD.css) injectMultipleCSS(data.PRELOAD.css, 'head');
-          if (data.PRELOAD.js) injectMultipleJS(data.PRELOAD.js, 'head', true);
+          if (data.PRELOAD.js) injectExternalJS(data.PRELOAD.js, 'head');
       }
 
       // 在页面加载完之后注入后加载的CSS和JS（注入页脚）
