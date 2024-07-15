@@ -58,13 +58,7 @@ function separateJsCss(parts) {
 
     // 遍历并分类每个部分
     parts.forEach(part => {
-        if (part.startsWith('http') || part.match(/\.js$/)) {
-            // 处理 URL 和 JS 文件
-            js.push(part.match(/^https?:\/\//) ? `<script src="${part}"></script>` : `<script src="${part}"></script>`);
-        } else if (part.match(/\.css$/)) {
-            // 处理 CSS 文件
-            css.push(`<link rel="stylesheet" href="${part}">`);
-        } else if (part.startsWith('<script')) {
+        if (part.startsWith('<script')) {
             // 处理内联 JS
             js.push(part);
         } else if (part.startsWith('<style')) {
