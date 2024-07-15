@@ -28,6 +28,7 @@ const LOG_LEVEL_MAP = {
       const response = await fetch('/functions/custom');
       const data = await response.json();
   
+      // 确保 logLevel 在这里定义
       const logLevel = getLogLevel(data.LOG_LEVEL);
   
       log('info', 'Fetching custom scripts', logLevel);
@@ -42,6 +43,8 @@ const LOG_LEVEL_MAP = {
         loadScripts(data.POST_LOAD, 'postload', logLevel);
       }
     } catch (error) {
+      // 确保 logLevel 在这里定义
+      const logLevel = getLogLevel(localStorage.getItem('LOG_LEVEL') || 'info');
       log('error', `Error fetching custom scripts: ${error}`, logLevel);
     }
   }
