@@ -3,34 +3,36 @@
 // 处理请求的主函数
 export async function onRequest(context) {
     try {
-        const request = context.request; // 获取请求对象
-        const url = new URL(request.url); // 解析请求的URL
+        const request = context.request;
+        const url = new URL(request.url);
 
         // 检查请求路径是否为 /custom
         if (url.pathname === '/custom') {
-            return handleCustomRequest(context); // 处理自定义请求
+            return handleCustomRequest(context);
         }
 
         // 如果不是 /custom 路径，返回 404 响应
         return new Response('Not Found', { status: 404 });
     } catch (error) {
         console.error('Error in onRequest:', error);
-        return new Response('Internal Server Error', { status: 500 });
+        return new Response('Invalid URL or Internal Server Error', { status: 400 });
     }
 }
 
 // 处理自定义请求的函数
 async function handleCustomRequest(context) {
     try {
-        const env = context.env; // 获取环境变量对象
+        const env = context.env;
 
         // 定义需要处理的环境变量名称
         const envVariables = ['M_POST_LOAD', 'M_PRELOAD', 'POST_LOAD', 'PRELOAD'];
-        const processedEnv = {}; // 存储处理后的环境变量
+        const processedEnv = {};
 
         // 遍历并处理每个环境变量
         for (const variable of envVariables) {
-            processedEnv[variable] = processEnvVariable(env[variable]);
+            if (env && env[variable]) {
+                processedEnv[variable] = processEnvVariable(env[variable]);
+            }
         }
 
         // 构建 JSON 响应
