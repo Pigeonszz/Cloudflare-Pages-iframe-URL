@@ -33,16 +33,20 @@ export async function onRequest(context) {
   const keys = {
     siteKey: context.env.TURNSTILE_SITE_KEY,
   };
-  
+
   // 从环境变量中获取 Turnstile 是否启用的标志，默认为 'false'
   const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED || 'false';
+
+  // 从环境变量中获取 LOG_LEVEL
+  const LOG_LEVEL = context.env.LOG_LEVEL || 'info';
 
   // 记录日志
   log('debug', `Turnstile enabled: ${TURNSTILE_ENABLED}`, context);
   log('debug', `Site key: ${keys.siteKey}`, context);
+  log('debug', `Log level: ${LOG_LEVEL}`, context);
 
-  // 返回一个 JSON 响应，包含站点密钥和 Turnstile 启用状态
-  return new Response(JSON.stringify({ ...keys, TURNSTILE_ENABLED }), {
+  // 返回一个 JSON 响应，包含站点密钥、Turnstile 启用状态和日志级别
+  return new Response(JSON.stringify({ ...keys, TURNSTILE_ENABLED, LOG_LEVEL }), {
     headers: { 'Content-Type': 'application/json' }, // 设置响应头为 JSON 类型
   });
 }

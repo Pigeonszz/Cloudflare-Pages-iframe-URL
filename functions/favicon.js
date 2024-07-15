@@ -26,13 +26,14 @@ function log(level, message, context) {
 }
 
 export async function onRequest(context) {
+  // 记录日志
+  log('info', 'Processing request', context);
+
   // 从环境变量中获取 IFRAME_URL、FAVICON_URL 和 TURNSTILE_ENABLED
   const IFRAME_URL = context.env.IFRAME_URL;
   const FAVICON_URL = context.env.FAVICON_URL;
   const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED === 'true';
-
-  // 记录日志
-  log('info', 'Processing request', context);
+  const LOG_LEVEL = context.env.LOG_LEVEL || 'info';
 
   // 如果 TURNSTILE_ENABLED 为 false，直接返回 FAVICON_URL
   if (!TURNSTILE_ENABLED) {
@@ -73,12 +74,12 @@ export async function onRequest(context) {
         }
       }));
 
-      return new Response(JSON.stringify(faviconUrls), {
+      return new Response(JSON.stringify({ faviconUrls, LOG_LEVEL }), {
         headers: { 'Content-Type': 'application/json' }
       });
     } else {
       log('error', 'FAVICON_URL environment variable not found.', context);
-      return new Response(JSON.stringify({ error: 'FAVICON_URL environment variable not found.' }), {
+      return new Response(JSON.stringify({ error: 'FAVICON_URL environment variable not found.', LOG_LEVEL }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -97,7 +98,7 @@ export async function onRequest(context) {
   // 检查 token、uuid 和 ip 是否存在
   if (!token || !uuid || !ip) {
     log('warn', 'Token, UUID, or IP missing.', context);
-    return new Response(JSON.stringify({ error: 'Token, UUID, or IP missing.' }), {
+    return new Response(JSON.stringify({ error: 'Token, UUID, or IP missing.', LOG_LEVEL }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -120,7 +121,7 @@ export async function onRequest(context) {
   // 如果验证失败，返回错误信息
   if (!verificationResult.success) {
     log('error', `Verification failed: ${verificationResult.error}`, context);
-    return new Response(JSON.stringify({ error: verificationResult.error }), {
+    return new Response(JSON.stringify({ error: verificationResult.error, LOG_LEVEL }), {
       status: 403,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -178,13 +179,13 @@ export async function onRequest(context) {
       }
     }));
 
-    return new Response(JSON.stringify(faviconUrls), {
+    return new Response(JSON.stringify({ faviconUrls, LOG_LEVEL }), {
       headers: { 'Content-Type': 'application/json' }
     });
   } else {
     // 如果 IFRAME_URL 或 FAVICON_URL 环境变量不存在，返回错误信息
     log('error', 'Environment variables IFRAME_URL or FAVICON_URL not found.', context);
-    return new Response(JSON.stringify({ error: 'Environment variables IFRAME_URL or FAVICON_URL not found.' }), {
+    return new Response(JSON.stringify({ error: 'Environment variables IFRAME_URL or FAVICON_URL not found.', LOG_LEVEL }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
