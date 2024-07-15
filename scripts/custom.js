@@ -22,6 +22,7 @@ async function loadResources() {
   }
 
   const jsonResponse = await response.json(); // 解析 JSON 响应
+  console.log('Fetched resources:', jsonResponse); // 调试输出
 
   // 根据设备类型获取相应的资源
   const resources = {
@@ -42,6 +43,17 @@ async function loadResources() {
 
   // 页面加载完成后加载后加载的资源
   document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded event fired'); // 调试输出
+    loadResourceGroup(deviceResources.postload, document.body);
+  });
+
+  const deviceResources = resources[deviceType] || resources.desktop; // 获取设备对应的资源，如果没有则使用桌面资源
+
+  // 预先加载资源
+  loadResourceGroup(deviceResources.preload, document.head);
+
+  // 页面加载完成后加载后加载的资源
+  document.addEventListener('DOMContentLoaded', () => {
     loadResourceGroup(deviceResources.postload, document.body);
   });
 }
@@ -50,6 +62,7 @@ async function loadResources() {
 function loadResourceGroup(resourceGroup, targetElement) {
   // 预先加载 CSS 资源
   if (resourceGroup.css) {
+    console.log('Postload CSS:', resourceGroup.css); // 调试输出
     const preloadStyle = document.createElement('style');
     preloadStyle.textContent = resourceGroup.css;
     targetElement.appendChild(preloadStyle);
@@ -57,6 +70,7 @@ function loadResourceGroup(resourceGroup, targetElement) {
 
   // 预先加载 JS 资源
   if (resourceGroup.js) {
+    console.log('Postload JS:', resourceGroup.js); // 调试输出
     const scriptParts = resourceGroup.js.match(/<script[^>]*>([\s\S]*?)<\/script>/gi) || [];
     scriptParts.forEach(scriptPart => {
       const scriptElement = document.createElement('script');
@@ -79,6 +93,7 @@ function loadResourceGroup(resourceGroup, targetElement) {
 
   // 预先加载其他资源
   if (resourceGroup.other) {
+    console.log('Postload Other:', resourceGroup.other); // 调试输出
     const preloadOther = document.createElement('div');
     preloadOther.innerHTML = resourceGroup.other; // 使用 innerHTML
     targetElement.appendChild(preloadOther);
