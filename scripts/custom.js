@@ -1,5 +1,5 @@
 // custom.js
-import i18n from './i18n.js';
+import { i18n, getLocale, translate } from './i18n.js';
 
 // 定义日志级别映射
 const LOG_LEVEL_MAP = {

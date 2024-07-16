@@ -1,5 +1,5 @@
 // index.js
-import i18n from './i18n.js';
+import { i18n, getLocale, translate } from './i18n.js';
 
 function getLocale() {
   const userLang = navigator.language || navigator.userLanguage;
