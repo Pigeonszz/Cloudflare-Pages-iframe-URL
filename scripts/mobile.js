@@ -1,5 +1,5 @@
 // mobile.js
-import { i18n, getLocale, translate } from './i18n.js';
+import { translate } from './i18n.js';
 
 // 检测桌面端 UA 并重定向到 index.html
 function isDesktopDevice() {

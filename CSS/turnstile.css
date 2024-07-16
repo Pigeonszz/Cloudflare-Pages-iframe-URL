@@ -1,0 +1,32 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  #turnstile-container {
+    margin-top: 20px;
+  }
+  
+  #noscript-message {
+    display: none;
+    color: white;
+    background-color: red;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  noscript #noscript-message {
+    display: block;
+  }
+  
+  noscript #turnstile-container,
+  noscript h1 {
+    display: none;
+  }

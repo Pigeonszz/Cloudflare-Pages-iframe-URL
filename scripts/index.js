@@ -1,5 +1,5 @@
 // index.js
-import { i18n, getLocale, translate } from './i18n.js';
+import { translate } from './i18n.js';
 
 // 检查用户代理是否为移动设备，如果是则重定向到移动版页面
 function isMobileDevice() {
