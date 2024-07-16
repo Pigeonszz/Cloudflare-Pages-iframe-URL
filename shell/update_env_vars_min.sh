@@ -1,15 +1,55 @@
 #!/bin/bash
 
+# Default language
+LANG="en"
+
+# Language messages
+declare -A MESSAGES
+
+# English messages
+MESSAGES["en_MSG_ERROR_DEPENDENCY"]="Error: cURL is not installed. Please install it using:"
+MESSAGES["en_MSG_ERROR_UNSUPPORTED_PKG"]="Error: Unsupported package manager. Please install cURL manually."
+MESSAGES["en_MSG_ERROR_CONFIG"]="Error: Failed to update config (HTTP status code: "
+MESSAGES["en_MSG_ERROR_DEPLOY"]="Error: Failed to deploy project (HTTP status code: "
+MESSAGES["en_MSG_DEPLOY_SUCCESS"]="Deployment triggered successfully."
+
+# Chinese (Simplified) messages
+MESSAGES["zh-cn_MSG_ERROR_DEPENDENCY"]="错误：未安装 cURL。请使用以下命令安装："
+MESSAGES["zh-cn_MSG_ERROR_UNSUPPORTED_PKG"]="错误：不支持的包管理器。请手动安装 cURL。"
+MESSAGES["zh-cn_MSG_ERROR_CONFIG"]="错误：更新配置失败（HTTP 状态码："
+MESSAGES["zh-cn_MSG_ERROR_DEPLOY"]="错误：部署项目失败（HTTP 状态码："
+MESSAGES["zh-cn_MSG_DEPLOY_SUCCESS"]="部署成功触发。"
+
+# Chinese (Traditional) messages
+MESSAGES["zh-tw_MSG_ERROR_DEPENDENCY"]="錯誤：未安裝 cURL。請使用以下命令安裝："
+MESSAGES["zh-tw_MSG_ERROR_UNSUPPORTED_PKG"]="錯誤：不支持的包管理器。請手動安裝 cURL。"
+MESSAGES["zh-tw_MSG_ERROR_CONFIG"]="錯誤：更新配置失敗（HTTP 狀態碼："
+MESSAGES["zh-tw_MSG_ERROR_DEPLOY"]="錯誤：部署項目失敗（HTTP 狀態碼："
+MESSAGES["zh-tw_MSG_DEPLOY_SUCCESS"]="部署成功觸發。"
+
+# Japanese messages
+MESSAGES["jp_MSG_ERROR_DEPENDENCY"]="エラー: cURLがインストールされていません。以下のコマンドを使用してインストールしてください:"
+MESSAGES["jp_MSG_ERROR_UNSUPPORTED_PKG"]="エラー: サポートされていないパッケージマネージャーです。cURLを手動でインストールしてください。"
+MESSAGES["jp_MSG_ERROR_CONFIG"]="エラー: 設定の更新に失敗しました（HTTPステータスコード: "
+MESSAGES["jp_MSG_ERROR_DEPLOY"]="エラー: プロジェクトのデプロイに失敗しました（HTTPステータスコード: "
+MESSAGES["jp_MSG_DEPLOY_SUCCESS"]="デプロイが正常にトリガーされました。"
+
+# Function to get message by key
+get_message() {
+  local key="$LANG"_"$1"
+  echo "${MESSAGES[$key]}"
+}
+
 TOKEN=""
 ACCOUNT_ID=""
 PROJECT_ID=""
 IFRAME_URL=""
 
-MSG_ERROR_DEPENDENCY="Error: cURL is not installed. Please install it using:"
-MSG_ERROR_UNSUPPORTED_PKG="Error: Unsupported package manager. Please install cURL manually."
-MSG_ERROR_CONFIG="Error: Failed to update config (HTTP status code: "
-MSG_ERROR_DEPLOY="Error: Failed to deploy project (HTTP status code: "
-MSG_DEPLOY_SUCCESS="Deployment triggered successfully."
+MSG_ERROR_DEPENDENCY=$(get_message "MSG_ERROR_DEPENDENCY")
+MSG_ERROR_UNSUPPORTED_PKG=$(get_message "MSG_ERROR_UNSUPPORTED_PKG")
+MSG_ERROR_CONFIG=$(get_message "MSG_ERROR_CONFIG")
+MSG_ERROR_DEPLOY=$(get_message "MSG_ERROR_DEPLOY")
+MSG_DEPLOY_SUCCESS=$(get_message "MSG_DEPLOY_SUCCESS")
 
 check_dependencies() {
   if command -v apt-get > /dev/null; then

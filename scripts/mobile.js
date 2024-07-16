@@ -1,5 +1,82 @@
+// mobile.js
+
+// 国际化支持
+const i18n = {
+  'zh-cn': {
+    'redirect_desktop': '检测到桌面端，正在重定向到桌面版页面',
+    'fetching_ip': '正在获取 IP 地址',
+    'error_fetching_ip': '获取 IP 地址时出错',
+    'fetching_turnstile_status': '正在获取 Turnstile 状态',
+    'error_fetching_turnstile_status': '获取 Turnstile 状态时出错',
+    'turnstile_redirect': 'Turnstile 验证失败，正在重定向',
+    'showing_iframe': '正在显示 iframe 内容',
+    'error_fetching_iframe_favicon': '获取 iframe 或 favicon URL 时出错',
+    'setting_title': '设置页面标题',
+    'setting_favicon': '设置 favicon'
+  },
+  'zh-tw': {
+    'redirect_desktop': '檢測到桌面端，正在重定向到桌面版頁面',
+    'fetching_ip': '正在獲取 IP 地址',
+    'error_fetching_ip': '獲取 IP 地址時出錯',
+    'fetching_turnstile_status': '正在獲取 Turnstile 狀態',
+    'error_fetching_turnstile_status': '獲取 Turnstile 狀態時出錯',
+    'turnstile_redirect': 'Turnstile 驗證失敗，正在重定向',
+    'showing_iframe': '正在顯示 iframe 內容',
+    'error_fetching_iframe_favicon': '獲取 iframe 或 favicon URL 時出錯',
+    'setting_title': '設置頁面標題',
+    'setting_favicon': '設置 favicon'
+  },
+  'en-us': {
+    'redirect_desktop': 'Detected desktop device, redirecting to desktop version',
+    'fetching_ip': 'Fetching IP address',
+    'error_fetching_ip': 'Error fetching IP address',
+    'fetching_turnstile_status': 'Fetching Turnstile status',
+    'error_fetching_turnstile_status': 'Error fetching Turnstile status',
+    'turnstile_redirect': 'Turnstile verification failed, redirecting',
+    'showing_iframe': 'Showing iframe content',
+    'error_fetching_iframe_favicon': 'Error fetching iframe or favicon URL',
+    'setting_title': 'Setting page title',
+    'setting_favicon': 'Setting favicon'
+  },
+  'jp': {
+    'redirect_desktop': 'デスクトップデバイスを検出しました、デスクトップバージョンにリダイレクトしています',
+    'fetching_ip': 'IPアドレスを取得中',
+    'error_fetching_ip': 'IPアドレスの取得中にエラーが発生しました',
+    'fetching_turnstile_status': 'Turnstileのステータスを取得中',
+    'error_fetching_turnstile_status': 'Turnstileのステータスの取得中にエラーが発生しました',
+    'turnstile_redirect': 'Turnstileの検証に失敗しました、リダイレクト中',
+    'showing_iframe': 'iframeの内容を表示中',
+    'error_fetching_iframe_favicon': 'iframeまたはfaviconのURLの取得中にエラーが発生しました',
+    'setting_title': 'ページタイトルを設定中',
+    'setting_favicon': 'faviconを設定中'
+  },
+  'kr': {
+    'redirect_desktop': '데스크톱 장치를 감지했습니다, 데스크톱 버전으로 리디렉션 중',
+    'fetching_ip': 'IP 주소 가져오는 중',
+    'error_fetching_ip': 'IP 주소 가져오는 중 오류 발생',
+    'fetching_turnstile_status': 'Turnstile 상태 가져오는 중',
+    'error_fetching_turnstile_status': 'Turnstile 상태 가져오는 중 오류 발생',
+    'turnstile_redirect': 'Turnstile 검증 실패, 리디렉션 중',
+    'showing_iframe': 'iframe 내용 표시 중',
+    'error_fetching_iframe_favicon': 'iframe 또는 favicon URL 가져오는 중 오류 발생',
+    'setting_title': '페이지 제목 설정 중',
+    'setting_favicon': 'favicon 설정 중'
+  }
+};
+
+function getLocale() {
+  const userLang = navigator.language || navigator.userLanguage;
+  return i18n[userLang] ? userLang : 'en-us';
+}
+
+function translate(key) {
+  const locale = getLocale();
+  return i18n[locale][key] || i18n['en-us'][key];
+}
+
 // 检测桌面端 UA 并重定向到 index.html
 function isDesktopDevice() {
+  console.log(translate('redirect_desktop'));
   return !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
 }
 
@@ -9,6 +86,7 @@ if (isDesktopDevice()) {
 
 // 获取 IP 地址
 async function getClientIP() {
+  console.log(translate('fetching_ip'));
   const currentDomain = window.location.hostname;
   try {
     const response = await fetch(`https://${currentDomain}/cdn-cgi/trace`);
@@ -16,13 +94,13 @@ async function getClientIP() {
     const ipMatch = data.match(/ip=([0-9a-fA-F:\.]+)/);
     return ipMatch ? ipMatch[1] : null;
   } catch (error) {
-    console.error('Error fetching IP address via /cdn-cgi/trace:', error);
+    console.error(`${translate('error_fetching_ip')}:`, error);
     try {
       const response = await fetch(`https://${currentDomain}/IP`);
       const ip = await response.text();
       return ip;
     } catch (fallbackError) {
-      console.error('Error fetching IP address via /IP:', fallbackError);
+      console.error(`${translate('error_fetching_ip')}:`, fallbackError);
       return null;
     }
   }
@@ -36,6 +114,7 @@ fetch('/Turnstile', {
 })
   .then(response => response.json())
   .then(env => {
+    console.log(translate('fetching_turnstile_status'));
     if (env.TURNSTILE_ENABLED === 'true') {
       const turnstileToken = localStorage.getItem('turnstileToken');
       const turnstileUUID = localStorage.getItem('turnstileUUID');
@@ -45,21 +124,24 @@ fetch('/Turnstile', {
             if (isValid) {
               showIframe(turnstileToken, turnstileUUID, ip);
             } else {
+              console.log(translate('turnstile_redirect'));
               window.location.href = 'turnstile.html';
             }
           });
         });
       } else {
+        console.log(translate('turnstile_redirect'));
         window.location.href = 'turnstile.html';
       }
     } else {
       showIframe();
     }
   })
-  .catch(error => console.error('Error fetching Turnstile status:', error));
+  .catch(error => console.error(`${translate('error_fetching_turnstile_status')}:`, error));
 
 // 显示 iframe 内容
 function showIframe(token, uuid, ip) {
+  console.log(translate('showing_iframe'));
   const fetchOptions = {
     method: 'POST',
     headers: {
@@ -159,16 +241,18 @@ function showIframe(token, uuid, ip) {
         }, 5000);
       });
     })
-    .catch(error => console.error('Error fetching iframe or favicon URL:', error));
+    .catch(error => console.error(`${translate('error_fetching_iframe_favicon')}:`, error));
 }
 
 // 设置页面标题
 function setTitle(title) {
+  console.log(translate('setting_title'));
   document.title = title || '主内容';
 }
 
 // 设置 favicon
 function setFavicon(selectedOption, faviconMap) {
+  console.log(translate('setting_favicon'));
   const favicon = document.getElementById('dynamic-favicon');
   const faviconData = faviconMap[selectedOption] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
   favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;

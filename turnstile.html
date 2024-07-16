@@ -33,7 +33,7 @@
   </style>
 </head>
 <body>
-  <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
+  <h1 id="verification-message" style="color: white;">在继续前，需要验证你是否为人类</h1>
   <div id="turnstile-container"></div>
   <div id="noscript-message">
     您的浏览器禁用了 JavaScript，请启用 JavaScript 以继续。
@@ -51,6 +51,43 @@
   </noscript>
 
   <script>
+    // 国际化支持
+    const i18n = {
+      'zh-cn': {
+        'verification_message': '在继续前，需要验证你是否为人类',
+        'noscript_message': '您的浏览器禁用了 JavaScript，请启用 JavaScript 以继续。'
+      },
+      'zh-tw': {
+        'verification_message': '在繼續前，需要驗證你是否為人類',
+        'noscript_message': '您的瀏覽器禁用了 JavaScript，請啟用 JavaScript 以繼續。'
+      },
+      'en-us': {
+        'verification_message': 'Before proceeding, please verify that you are human',
+        'noscript_message': 'Your browser has JavaScript disabled, please enable it to continue.'
+      },
+      'jp': {
+        'verification_message': '続行する前に、あなたが人間であることを確認してください',
+        'noscript_message': 'あなたのブラウザではJavaScriptが無効になっています。続行するには有効にしてください。'
+      },
+      'kr': {
+        'verification_message': '계속하기 전에 당신이 인간인지 확인하십시오',
+        'noscript_message': '브라우저에서 JavaScript가 비활성화되어 있습니다. 계속하려면 활성화하십시오.'
+      }
+    };
+
+    function getLocale() {
+      const userLang = navigator.language || navigator.userLanguage;
+      return i18n[userLang] ? userLang : 'en-us';
+    }
+
+    function translate(key) {
+      const locale = getLocale();
+      return i18n[locale][key] || i18n['en-us'][key];
+    }
+
+    document.getElementById('verification-message').innerText = translate('verification_message');
+    document.getElementById('noscript-message').innerText = translate('noscript_message');
+
     // 获取人机验证开关状态
     fetch('/Turnstile')
       .then(response => response.json())
