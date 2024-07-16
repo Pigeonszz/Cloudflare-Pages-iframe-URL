@@ -8,18 +8,24 @@ if (isMobileDevice()) {
 }
 
 // 获取 IP 地址
-function getClientIP() {
+async function getClientIP() {
   const currentDomain = window.location.hostname;
-  return fetch(`https://${currentDomain}/cdn-cgi/trace`)
-    .then(response => response.text())
-    .then(data => {
-      const ipMatch = data.match(/ip=([0-9a-fA-F:\.]+)/);
-      return ipMatch ? ipMatch[1] : null;
-    })
-    .catch(error => {
-      console.error('Error fetching IP address:', error);
+  try {
+    const response = await fetch(`https://${currentDomain}/cdn-cgi/trace`);
+    const data = await response.text();
+    const ipMatch = data.match(/ip=([0-9a-fA-F:\.]+)/);
+    return ipMatch ? ipMatch[1] : null;
+  } catch (error) {
+    console.error('Error fetching IP address via /cdn-cgi/trace:', error);
+    try {
+      const response = await fetch(`https://${currentDomain}/IP`);
+      const ip = await response.text();
+      return ip;
+    } catch (fallbackError) {
+      console.error('Error fetching IP address via /IP:', fallbackError);
       return null;
-    });
+    }
+  }
 }
 
 // 获取 Turnstile 状态
