@@ -114,6 +114,7 @@ async function verifyToken(token, uuid, ip) {
   const result = await response.json();
   if (result.LOG_LEVEL) {
     console.log('Current log level:', result.LOG_LEVEL);
+    localStorage.setItem('LOG_LEVEL', result.LOG_LEVEL);
   }
   return result.success;
 }
