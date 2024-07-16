@@ -1,4 +1,5 @@
-// /scripts/custom.js
+// custom.js
+import i18n from './i18n.js';
 
 // 定义日志级别映射
 const LOG_LEVEL_MAP = {
@@ -22,35 +23,6 @@ const LOG_LEVEL_MAP = {
         console[level](message);
     }
   }
-  
-  // 国际化支持
-  const i18n = {
-    'zh-cn': {
-      'fetching_scripts': '正在获取自定义脚本',
-      'error_fetching_scripts': '获取自定义脚本时出错',
-      'loaded_scripts': '已加载{loadType}脚本和样式'
-    },
-    'zh-tw': {
-      'fetching_scripts': '正在獲取自定義腳本',
-      'error_fetching_scripts': '獲取自定義腳本時出錯',
-      'loaded_scripts': '已加載{loadType}腳本和樣式'
-    },
-    'en-us': {
-      'fetching_scripts': 'Fetching custom scripts',
-      'error_fetching_scripts': 'Error fetching custom scripts',
-      'loaded_scripts': 'Loaded {loadType} scripts and styles'
-    },
-    'jp': {
-      'fetching_scripts': 'カスタムスクリプトを取得中',
-      'error_fetching_scripts': 'カスタムスクリプトの取得中にエラーが発生しました',
-      'loaded_scripts': '{loadType}スクリプトとスタイルが読み込まれました'
-    },
-    'kr': {
-      'fetching_scripts': '사용자 정의 스크립트 가져오는 중',
-      'error_fetching_scripts': '사용자 정의 스크립트를 가져오는 중 오류 발생',
-      'loaded_scripts': '{loadType} 스크립트 및 스타일이 로드되었습니다'
-    }
-  };
   
   function getLocale() {
     const userLang = navigator.language || navigator.userLanguage;

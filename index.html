@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-cn">
 
@@ -7,8 +8,9 @@
   <title id="page-title">加载中...</title>
   <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
   <link rel="stylesheet" href="/CSS/index.css">
-  <script src="/scripts/custom.js" async></script>
-  <script src="/scripts/index.js" async></script>
+  <script type="module" src="/scripts/custom.js" async></script>
+  <script type="module" src="/scripts/index.js" async></script>
+  <script type="module" src="/scripts/i18n.js"></script>
 </head>
 
 <body>
@@ -17,40 +19,8 @@
   </select>
   <iframe id="dynamic-iframe"></iframe>
 
-  <script>
-    // 国际化支持
-    const i18n = {
-      'zh-cn': {
-        'loading': '加载中...',
-        'select_site': '选择一个站点...'
-      },
-      'zh-tw': {
-        'loading': '載入中...',
-        'select_site': '選擇一個站點...'
-      },
-      'en-us': {
-        'loading': 'Loading...',
-        'select_site': 'Select a site...'
-      },
-      'jp': {
-        'loading': '読み込み中...',
-        'select_site': 'サイトを選択...'
-      },
-      'kr': {
-        'loading': '로딩 중...',
-        'select_site': '사이트 선택...'
-      }
-    };
-
-    function getLocale() {
-      const userLang = navigator.language || navigator.userLanguage;
-      return i18n[userLang] ? userLang : 'en-us';
-    }
-
-    function translate(key) {
-      const locale = getLocale();
-      return i18n[locale][key] || i18n['en-us'][key];
-    }
+  <script type="module">
+    import { translate } from '/scripts/i18n.js';
 
     document.getElementById('page-title').innerText = translate('loading');
     document.querySelector('#siteSelection option[value=""]').innerText = translate('select_site');
