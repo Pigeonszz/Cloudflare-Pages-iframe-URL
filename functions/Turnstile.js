@@ -53,6 +53,6 @@ export async function onRequest(context) {
 
   // 返回一个 JSON 响应，包含站点密钥、Turnstile 启用状态和日志级别
   return new Response(JSON.stringify({ ...keys, TURNSTILE_ENABLED, LOG_LEVEL }), {
-    headers: { 'Content-Type': 'application/json' }, // 设置响应头为 JSON 类型
+    headers: { 'Content-Type': 'application/json;charset=UTF-8' }, // 设置响应头为 JSON 类型
   });
 }
