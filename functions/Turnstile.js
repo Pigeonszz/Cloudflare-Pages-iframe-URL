@@ -45,6 +45,12 @@ export async function onRequest(context) {
   log('debug', `Site key: ${keys.siteKey}`, context);
   log('debug', `Log level: ${LOG_LEVEL}`, context);
 
+  // 记录请求头信息
+  log('trace', `Request headers: ${JSON.stringify(context.request.headers)}`, context);
+
+  // 记录请求方法和URL
+  log('trace', `Request method and URL: ${context.request.method} ${context.request.url}`, context);
+
   // 返回一个 JSON 响应，包含站点密钥、Turnstile 启用状态和日志级别
   return new Response(JSON.stringify({ ...keys, TURNSTILE_ENABLED, LOG_LEVEL }), {
     headers: { 'Content-Type': 'application/json' }, // 设置响应头为 JSON 类型
