@@ -1,5 +1,3 @@
-// /functions/verify-turnstile.js
-
 // 定义日志级别映射
 const LOG_LEVEL_MAP = {
     'off': 0,
@@ -55,7 +53,7 @@ export async function onRequest(context) {
         log('warn', 'Token, UUID, or IP missing.', context);
         return new Response(JSON.stringify({ error: 'Token, UUID, or IP missing.', cat: 'https://http.cat/400', LOG_LEVEL }), {
             status: 400,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json;charset=UTF-8' }
         });
     }
 
@@ -85,7 +83,7 @@ export async function onRequest(context) {
         if (storedIp === ip && currentTime - storedTime < TURNSTILE_TIME) {
             log('debug', 'UUID and IP match and are not expired', context);
             return new Response(JSON.stringify({ success: true, LOG_LEVEL }), {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json;charset=UTF-8' }
             });
         }
     }
@@ -111,14 +109,14 @@ export async function onRequest(context) {
         await db.prepare('INSERT OR REPLACE INTO uuid_store (uuid, timestamp, ip) VALUES (?, ?, ?)').bind(uuid, currentTime, ip).run();
 
         return new Response(JSON.stringify({ success: true, LOG_LEVEL }), {
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json;charset=UTF-8' }
         });
     } else {
         // 如果验证失败，返回错误信息
         log('error', `Verification failed: ${verificationResult['error-codes']}`, context);
         return new Response(JSON.stringify({ success: false, error: verificationResult['error-codes'], cat: 'https://http.cat/403', LOG_LEVEL }), {
             status: 403,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json;charset=UTF-8' }
         });
     }
 }

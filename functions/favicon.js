@@ -75,13 +75,13 @@ export async function onRequest(context) {
       }));
 
       return new Response(JSON.stringify({ faviconUrls, LOG_LEVEL }), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' }
       });
     } else {
       log('error', 'FAVICON_URL environment variable not found.', context);
       return new Response(JSON.stringify({ error: 'FAVICON_URL environment variable not found.', LOG_LEVEL }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' }
       });
     }
   }
@@ -100,7 +100,7 @@ export async function onRequest(context) {
     log('warn', 'Token, UUID, or IP missing.', context);
     return new Response(JSON.stringify({ error: 'Token, UUID, or IP missing.', LOG_LEVEL }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' }
     });
   }
 
@@ -123,7 +123,7 @@ export async function onRequest(context) {
     log('error', `Verification failed: ${verificationResult.error}`, context);
     return new Response(JSON.stringify({ error: verificationResult.error, LOG_LEVEL }), {
       status: 403,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' }
     });
   }
 
@@ -180,14 +180,14 @@ export async function onRequest(context) {
     }));
 
     return new Response(JSON.stringify({ faviconUrls, LOG_LEVEL }), {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' }
     });
   } else {
     // 如果 IFRAME_URL 或 FAVICON_URL 环境变量不存在，返回错误信息
     log('error', 'Environment variables IFRAME_URL or FAVICON_URL not found.', context);
     return new Response(JSON.stringify({ error: 'Environment variables IFRAME_URL or FAVICON_URL not found.', LOG_LEVEL }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' }
     });
   }
 }

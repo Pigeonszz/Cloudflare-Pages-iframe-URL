@@ -52,6 +52,6 @@ export async function onRequest(context) {
   log('trace', `Request method and URL: ${context.request.method} ${context.request.url}`, context);
 
   return new Response(JSON.stringify(response), {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' }
   });
 }

@@ -29,7 +29,11 @@ async function getClientIP() {
 }
 
 // 获取 Turnstile 状态
-fetch('/Turnstile')
+fetch('/Turnstile', {
+  headers: {
+    'Accept': 'application/json;charset=UTF-8'
+  }
+})
   .then(response => response.json())
   .then(env => {
     if (env.TURNSTILE_ENABLED === 'true') {
@@ -59,7 +63,8 @@ function showIframe(token, uuid, ip) {
   const fetchOptions = {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json;charset=UTF-8'
     },
     body: JSON.stringify({ token, uuid, ip })
   };
@@ -174,7 +179,8 @@ async function verifyToken(token, uuid, ip) {
   const response = await fetch('/verify-turnstile', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json;charset=UTF-8'
     },
     body: JSON.stringify({ token, uuid, ip })
   });
