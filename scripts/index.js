@@ -1,16 +1,6 @@
 // index.js
 import { i18n, getLocale, translate } from './i18n.js';
 
-function getLocale() {
-  const userLang = navigator.language || navigator.userLanguage;
-  return i18n[userLang] ? userLang : 'en-us';
-}
-
-function translate(key) {
-  const locale = getLocale();
-  return i18n[locale][key] || i18n['en-us'][key];
-}
-
 // 检查用户代理是否为移动设备，如果是则重定向到移动版页面
 function isMobileDevice() {
   console.log(translate('redirect_mobile'));

@@ -24,20 +24,6 @@ const LOG_LEVEL_MAP = {
     }
   }
   
-  function getLocale() {
-    const userLang = navigator.language || navigator.userLanguage;
-    return i18n[userLang] ? userLang : 'en-us';
-  }
-  
-  function translate(key, params = {}) {
-    const locale = getLocale();
-    let translation = i18n[locale][key] || i18n['en-us'][key];
-    for (const [param, value] of Object.entries(params)) {
-      translation = translation.replace(`{${param}}`, value);
-    }
-    return translation;
-  }
-  
   async function fetchCustomScripts() {
     try {
         const response = await fetch('/custom', {
