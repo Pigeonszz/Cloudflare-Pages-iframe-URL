@@ -10,14 +10,14 @@ async function loadTranslations(language) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const text = await response.text();
-        return yaml.load(text);
+        return jsYaml.load(text);
     } catch (error) {
         console.error('Error loading translations:', error);
         return null;
     }
 }
 
-function getTranslation(translations, key) {
+export function getTranslation(translations, key) {
     if (translations && translations[key]) {
         return translations[key];
     } else {
