@@ -1,7 +1,7 @@
 // /scripts/i18n.js
 'use strict';
 
-import yaml from 'js-yaml';
+import yaml from 'https://cdn.jsdelivr.net/npm/js-yaml@latest/dist/js-yaml.min.js';
 
 async function loadTranslations(language) {
     try {
