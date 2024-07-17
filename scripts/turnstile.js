@@ -11,7 +11,7 @@ fetch('/api/Turnstile')
     }
     return response.json();
   })
-  .then(env => {
+  .then(async env => {
     const turnstileEnabled = env.TURNSTILE_ENABLED === 'true';
     const siteKey = env.siteKey;
 
@@ -20,19 +20,25 @@ fetch('/api/Turnstile')
     const turnstileUUID = localStorage.getItem('turnstileUUID');
 
     if (turnstileToken && turnstileUUID) {
-      // 验证 turnstileToken 和 turnstileUUID
-      verifyToken(turnstileToken, turnstileUUID).then(isValid => {
-        if (isValid) {
-          window.location.href = 'index.html';
-        } else {
-          // 生成新的 turnstileUUID
-          const newTurnstileUUID = generateUUID();
-          localStorage.setItem('turnstileUUID', newTurnstileUUID);
-          loadTurnstileScript();
-          initializeTurnstile(siteKey);
-          checkTurnstileStatus(20000);
-        }
-      }).catch(error => console.error(getTranslation('error_verifying_turnstile_token'), error));
+      // 获取客户端 IP 地址
+      const ip = await getClientIP();
+      if (ip) {
+        // 验证 turnstileToken 和 turnstileUUID
+        verifyToken(turnstileToken, turnstileUUID, ip).then(isValid => {
+          if (isValid) {
+            window.location.href = 'index.html';
+          } else {
+            // 生成新的 turnstileUUID
+            const newTurnstileUUID = generateUUID();
+            localStorage.setItem('turnstileUUID', newTurnstileUUID);
+            loadTurnstileScript();
+            initializeTurnstile(siteKey);
+            checkTurnstileStatus(20000);
+          }
+        }).catch(error => console.error(getTranslation('error_verifying_turnstile_token'), error));
+      } else {
+        console.error(getTranslation('error_fetching_ip'));
+      }
     } else {
       // 生成新的 turnstileUUID
       const newTurnstileUUID = generateUUID();
@@ -99,20 +105,21 @@ function clearCacheAndRefresh() {
 }
 
 // 验证 token 和 UUID 的函数
-async function verifyToken(token, uuid) {
+async function verifyToken(token, uuid, ip) {
   const response = await fetch('/api/verify-turnstile', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json;charset=UTF-8'
     },
-    body: JSON.stringify({ token, uuid })
+    body: JSON.stringify({ token, uuid, ip })
   });
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
   const result = await response.json();
+  if (result.LOG_LEVEL) {
+    localStorage.setItem('LOG_LEVEL', result.LOG_LEVEL);
+    console.log(getTranslation('current_log_level'), result.LOG_LEVEL);
+  }
   return result.success;
 }
 
@@ -122,4 +129,34 @@ function generateUUID() {
     const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
+}
+
+// 获取 IP 地址
+async function getClientIP() {
+  const currentDomain = window.location.hostname;
+  try {
+    const response = await fetch(`https://${currentDomain}/api/IP`);
+    if (!response.ok) {
+      throw new Error(getTranslation('http_error', { status: response.status }));
+    }
+    const data = await response.text();
+    const ipInfo = parseIPInfo(data);
+    return ipInfo.IP;
+  } catch (error) {
+    console.error(getTranslation('error_fetching_ip'), error);
+    return null;
+  }
+}
+
+// 解析纯文本响应
+function parseIPInfo(text) {
+  const lines = text.split('\n');
+  const ipInfo = {};
+  lines.forEach(line => {
+    const [key, value] = line.split(': ');
+    if (key && value) {
+      ipInfo[key] = value;
+    }
+  });
+  return ipInfo;
 }
