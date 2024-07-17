@@ -38,10 +38,10 @@ export async function onRequest(context) {
   log('info', 'Processing request', context);
 
   // 从环境变量中获取 IFRAME_URL、FAVICON_URL 和 TURNSTILE_ENABLED
-  const IFRAME_URL = env.IFRAME_URL;
-  const FAVICON_URL = env.FAVICON_URL;
-  const TURNSTILE_ENABLED = env.TURNSTILE_ENABLED === 'true';
-  const LOG_LEVEL = env.LOG_LEVEL || 'info';
+  const IFRAME_URL = context.env.IFRAME_URL;
+  const FAVICON_URL = context.env.FAVICON_URL;
+  const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED === 'true';
+  const LOG_LEVEL = context.env.LOG_LEVEL || 'info';
 
   // 如果 TURNSTILE_ENABLED 为 false，直接返回 FAVICON_URL
   if (!TURNSTILE_ENABLED) {
@@ -96,7 +96,7 @@ export async function onRequest(context) {
 
   // 解析请求体中的 JSON 数据
   log('debug', 'Parsing request body', context);
-  const body = await request.json();
+  const body = await context.request.json();
 
   // 从请求体中提取 token、uuid 和 ip
   const token = body.token;
