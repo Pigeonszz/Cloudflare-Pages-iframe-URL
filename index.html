@@ -1,16 +1,14 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-cn">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="page-title">加载中...</title>
+  <title>加载中...</title>
   <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
   <link rel="stylesheet" href="/CSS/index.css">
-  <script type="module" src="/scripts/i18n.ts"></script>
-  <script type="module" src="/scripts/index.ts" ></script>
-  <script type="module" src="/scripts/custom.ts" ></script>
+  <script src="/scripts/custom.js" async></script>
+  <script src="/scripts/index.js" async></script>
 </head>
 
 <body>
@@ -18,13 +16,6 @@
     <option value="">选择一个站点...</option>
   </select>
   <iframe id="dynamic-iframe"></iframe>
-
-  <script type="module">
-    import { translate } from '/scripts/i18n.ts';
-
-    document.getElementById('page-title').innerText = translate('loading');
-    document.querySelector('#siteSelection option[value=""]').innerText = translate('select_site');
-  </script>
 </body>
 
 </html>

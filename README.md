@@ -1,53 +1,96 @@
 # Cloudflare Pages Iframe URL
 
-Render embedded iframe content using Cloudflare Pages.
+基于 Cloudflare Pages 渲染嵌入的 iframe 内容
 
-## Other Languages
+## 如何使用
 
-- [简体中文](/README_zh-cn.md)
-- [繁體中文](/README_zh-tw.md)
+1. **Fork 此项目**到您自己的 GitHub 仓库。
+2. **登录 Cloudflare 控制面板**并部署项目。
 
-## How to Use
+### 设置环境变量
 
-1. **Fork this project** to your own GitHub repository.
-2. **Login to the Cloudflare dashboard** and deploy the project.
+在 Cloudflare Pages 设置中，配置以下环境变量：
 
-### Environment Variables
+```
+|—— 日志等级 (可选)
+     |
+     |—— LOG_LEVEL
+          |
+          |—— off
+          |—— fatal
+          |—— error
+          |—— warn
+          |—— info (默认值)
+          |—— debug
+          |—— trace
 
-Configure the following environment variables in the Cloudflare Pages settings:
+|—— 基本配置
+     |—— IFRAME_URL
+          |
+          |—— 描述: iframe 要加载的 URL，支持多个 URL，服务名称用作站点标题。
+          |—— 格式:
+          |      ```
+          |      URL1;服务名称1,
+          |      URL2;Service_Name2,
+          |      ```
+          |
+          |—— FAVICON_URL
+               |
+               |—— 描述: 站点图标，填写 URL。
+               |—— 格式:
+               |    ```
+               |    服务名称1;Favicon_URL1,
+               |    Service_Name2;Favicon_URL2,
+               |    ```
 
-| Name | Description | Format | Default Value |
-|------|-------------|--------|---------------|
-| LOG_LEVEL | Logging level (optional) | off, fatal, error, warn, info, debug, trace | info |
-| IFRAME_URL | URL to load in the iframe, supports multiple URLs, service name used as site title | URL1;Service_Name1, URL2;Service_Name2, ... | N/A |
-| FAVICON_URL | URL of the site favicon | Service_Name1;Favicon_URL1, Service_Name2;Favicon_URL2, ... | N/A |
-| TURNSTILE_ENABLED | Enable Turnstile CAPTCHA | true / false | false |
-| TURNSTILE_SITE_KEY | Site key for Cloudflare Turnstile CAPTCHA | N/A | N/A |
-| TURNSTILE_SECRET_KEY | Secret key for Cloudflare Turnstile CAPTCHA | N/A | N/A |
-| TURNSTILE_TIME | Validity time for Turnstile CAPTCHA in seconds | N/A | 14400 |
-| M_POST_LOAD | Mobile post-load custom CSS/JS (experimental) | N/A | N/A |
-| M_PRELOAD | Mobile preload custom CSS/JS (experimental) | N/A | N/A |
-| POST_LOAD | Desktop post-load custom CSS/JS (experimental) | N/A | N/A |
-| PRELOAD | Desktop preload custom CSS/JS (experimental) | N/A | N/A |
+|—— 人机验证
+     |—— TURNSTILE_ENABLED
+          |
+          |—— 描述: Turnstile 人机验证的开关，true / false。
+          |—— 默认值: `false`
+          |
+          |—— TURNSTILE_SITE_KEY
+          |    |
+          |    |—— 描述: Cloudflare Turnstile 人机验证的站点密钥。
+          |
+          |—— TURNSTILE_SECRET_KEY
+          |    |
+          |    |—— 描述: Cloudflare Turnstile 人机验证的密钥。
+          |
+          |—— TURNSTILE_TIME
+               |
+               |—— 描述: Cloudflare Turnstile 人机验证通过后的有效时间，单位为秒。
+               |—— 默认值: `14400`
 
-### Database Configuration
+|—— 自定义 CSS/JS (可选)(试验性功能)
+     |
+     |——M_POST_LOAD  (移动端后加载)
+     |
+     |——M_PRELOAD    (移动端预加载)
+     |
+     |——POST_LOAD    (桌面端后加载)
+     |
+     |——PRELOAD      (桌面端预加载)
+```
 
-#### D1 Database
+### 数据库配置
 
-- Go to **Settings** -> **Functions** and bind a D1 database with the variable name **D1**.
+#### D1 数据库
 
-### Deployment
+- 前往**设置** —— **函数** 绑定一个 D1 数据库，变量名称为 **D1**。
 
-### Enjoy
+### 部署
 
-## Notes
+### 享受
 
-Some sites may refuse to be embedded in an iframe.
+## 注意事项
 
-## Disclaimer
+部分站点可能拒绝被嵌入进 iframe。
 
-This project is for educational and research purposes only. There is no guarantee that all embedded websites will work properly. Ensure you comply with the terms of use and legal regulations of the websites you embed. The author and contributors of this project are not responsible for any issues arising from the use of this project.
+## 免责声明
+
+本项目仅供学习和研究使用，不保证所有嵌入的网站都能正常工作。使用本项目时，请确保遵守相关网站的使用条款和法律法规。对于因使用本项目而导致的任何问题，本项目作者和贡献者不承担任何责任。
 
 ---
 
-Powered by ChatGPT, DeepSeek, and Cloudflare Pages.
+Powered by ChatGPT, DeepSeek, and Cloudflare Pages
