@@ -1,5 +1,5 @@
 // /functions/iframe-url.js
-
+'use strict';
 import { onRequest as verifyTurnstile } from './verify-turnstile.js';
 
 // 定义日志级别映射

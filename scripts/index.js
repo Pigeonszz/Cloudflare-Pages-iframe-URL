@@ -1,3 +1,6 @@
+// /scripts/index.js
+'use strict';
+
 // 检查用户代理是否为移动设备，如果是则重定向到移动版页面
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
@@ -170,6 +173,7 @@ async function verifyToken(token, uuid, ip) {
 
   const result = await response.json();
   if (result.LOG_LEVEL) {
+    localStorage.setItem('LOG_LEVEL', result.LOG_LEVEL);
     console.log('Current log level:', result.LOG_LEVEL);
   }
   return result.success;

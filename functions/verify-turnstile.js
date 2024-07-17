@@ -1,3 +1,5 @@
+// functions\verify-turnstile.js
+'use strict';
 // 定义日志级别映射
 const LOG_LEVEL_MAP = {
     'off': 0,
