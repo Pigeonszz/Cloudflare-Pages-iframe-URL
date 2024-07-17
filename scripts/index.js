@@ -1,6 +1,9 @@
 // /scripts/index.js
 "use strict";
 
+// 导入i18n.js中的translate函数
+import { translate } from './i18n.js';
+
 // 检查用户代理是否为移动设备，如果是则重定向到移动版页面
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
@@ -18,7 +21,7 @@ async function getClientIP() {
     const data = await response.json();
     return data.IP.IP; // 直接返回 IP 地址
   } catch (error) {
-    console.error('Error fetching IP address via /api/IP:', error);
+    console.error(translate('err_ip'), error);
     return null;
   }
 }
@@ -51,7 +54,7 @@ fetch('/api/Turnstile', {
       showIframe();
     }
   })
-  .catch(error => console.error('Error fetching Turnstile status:', error));
+  .catch(error => console.error(translate('err_turnstile'), error));
 
 // 显示 iframe 内容
 function showIframe(token, uuid, ip) {
@@ -83,11 +86,11 @@ function showIframe(token, uuid, ip) {
           if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64') && favUrl.hasOwnProperty('contentType')) {
             faviconMap[favUrl.service] = { base64: favUrl.base64, contentType: favUrl.contentType };
           } else {
-            console.error('Invalid favUrl:', favUrl);
+            console.error(translate('invalid_favUrl'), favUrl);
           }
         });
       } else {
-        console.error('Invalid favUrls format:', favUrls);
+        console.error(translate('invalid_favUrls'), favUrls);
       }
 
       if (Array.isArray(urls)) {
@@ -98,14 +101,14 @@ function showIframe(token, uuid, ip) {
             const faviconData = faviconMap[service] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
             const option = document.createElement('option');
             option.value = iframeUrl;
-            option.textContent = service;
+            option.textContent = translate(service); // 使用translate函数进行翻译
             select.appendChild(option);
           } else {
-            console.error('Invalid urlObj:', urlObj);
+            console.error(translate('invalid_urlObj'), urlObj);
           }
         });
       } else {
-        console.error('Invalid urls format:', urls);
+        console.error(translate('invalid_urls'), urls);
       }
 
       select.addEventListener('change', function () {
@@ -132,12 +135,12 @@ function showIframe(token, uuid, ip) {
         favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
       }
     })
-    .catch(error => console.error('Error fetching iframe or favicon URL:', error));
+    .catch(error => console.error(translate('err_iframe_favicon'), error));
 }
 
 // 设置页面标题
 function setTitle(title) {
-  document.title = title || '主内容';
+  document.title = translate(title) || translate('main_content'); // 使用translate函数进行翻译
 }
 
 // 将选择框移动到顶部

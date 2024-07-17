@@ -30,7 +30,7 @@ export async function setLanguage(lang) {
   }
 }
 
-export function t(key) {
+export function translate(key) {
   return translations[currentLang] && translations[currentLang][key] || key;
 }
 
