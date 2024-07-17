@@ -1,8 +1,9 @@
-// custom.js
-import { translate } from './i18n.js';
+// custom.ts
+"use strict";
+import { translate } from './i18n.ts';
 
 // 定义日志级别映射
-const LOG_LEVEL_MAP = {
+const LOG_LEVEL_MAP: { [key: string]: number } = {
     'off': 0,
     'fatal': 1,
     'error': 2,
@@ -13,18 +14,18 @@ const LOG_LEVEL_MAP = {
 };
 
 // 获取日志级别
-function getLogLevel(logLevel) {
-    return LOG_LEVEL_MAP[logLevel] || LOG_LEVEL_MAP['info'];
+function getLogLevel(logLevel: string | null): number {
+    return LOG_LEVEL_MAP[logLevel || 'info'];
 }
 
 // 日志记录函数
-function log(level, message, logLevel) {
+function log(level: string, message: string, logLevel: number): void {
     if (LOG_LEVEL_MAP[level] <= logLevel) {
         console[level](message);
     }
 }
 
-async function fetchCustomScripts() {
+async function fetchCustomScripts(): Promise<void> {
     try {
         const response = await fetch('/custom', {
             headers: {
@@ -57,20 +58,20 @@ async function fetchCustomScripts() {
     }
 }
 
-function loadScripts(scripts, loadType, logLevel) {
+function loadScripts(scripts: string | null, loadType: string, logLevel: number): void {
     if (!scripts) return;
 
     // 解析环境变量中的URL和内联代码片段
-    const scriptUrls = [];
-    const inlineScripts = [];
-    const styleUrls = [];
-    const inlineStyles = [];
+    const scriptUrls: string[] = [];
+    const inlineScripts: string[] = [];
+    const styleUrls: string[] = [];
+    const inlineStyles: string[] = [];
 
     const scriptRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi;
     const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
     const urlRegex = /<script[^>]*src=["']([^"']+)["'][^>]*><\/script>|<link[^>]*href=["']([^"']+)["'][^>]*>/gi;
 
-    let match;
+    let match: RegExpExecArray | null;
 
     // 提取内联脚本和样式
     while ((match = scriptRegex.exec(scripts)) !== null) {

@@ -1,8 +1,10 @@
-// index.js
-import { translate } from './i18n.js';
+// index.ts
+"use strict";
+
+import { translate } from './i18n.ts';
 
 // 检查用户代理是否为移动设备，如果是则重定向到移动版页面
-function isMobileDevice() {
+function isMobileDevice(): boolean {
   console.log(translate('redirect_mobile'));
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
 }
@@ -12,7 +14,7 @@ if (isMobileDevice()) {
 }
 
 // 获取 IP 地址
-async function getClientIP() {
+async function getClientIP(): Promise<string | null> {
   console.log(translate('fetching_ip'));
   const currentDomain = window.location.hostname;
   try {
@@ -67,7 +69,7 @@ fetch('/Turnstile', {
   .catch(error => console.error(`${translate('error_fetching_turnstile_status')}:`, error));
 
 // 显示 iframe 内容
-function showIframe(token, uuid, ip) {
+function showIframe(token?: string, uuid?: string, ip?: string): void {
   console.log(translate('showing_iframe'));
   const fetchOptions = {
     method: 'POST',
@@ -87,10 +89,10 @@ function showIframe(token, uuid, ip) {
       const urls = data[0].urls;
       const favUrls = data[1].faviconUrls;
 
-      const select = document.getElementById('siteSelection');
-      const iframe = document.getElementById('dynamic-iframe');
-      const favicon = document.getElementById('dynamic-favicon');
-      const faviconMap = {};
+      const select = document.getElementById('siteSelection') as HTMLSelectElement;
+      const iframe = document.getElementById('dynamic-iframe') as HTMLIFrameElement;
+      const favicon = document.getElementById('dynamic-favicon') as HTMLLinkElement;
+      const faviconMap: { [key: string]: { base64: string, contentType: string } } = {};
 
       if (Array.isArray(favUrls)) {
         favUrls.forEach(favUrl => {
@@ -150,15 +152,15 @@ function showIframe(token, uuid, ip) {
 }
 
 // 设置页面标题
-function setTitle(title) {
+function setTitle(title?: string): void {
   console.log(translate('setting_title'));
   document.title = title || '主内容';
 }
 
 // 将选择框移动到顶部
-function moveSelectToTop() {
+function moveSelectToTop(): void {
   console.log(translate('moving_select_to_top'));
-  const select = document.getElementById('siteSelection');
+  const select = document.getElementById('siteSelection') as HTMLSelectElement;
   select.classList.add('top');
   select.addEventListener('mouseenter', function () {
     select.classList.add('expanded');
@@ -169,7 +171,7 @@ function moveSelectToTop() {
 }
 
 // 验证 Turnstile 令牌
-async function verifyToken(token, uuid, ip) {
+async function verifyToken(token: string, uuid: string, ip: string | null): Promise<boolean> {
   const response = await fetch('/verify-turnstile', {
     method: 'POST',
     headers: {

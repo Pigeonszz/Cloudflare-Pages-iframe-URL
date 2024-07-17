@@ -8,9 +8,9 @@
   <title id="page-title">加载中...</title>
   <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
   <link rel="stylesheet" href="/CSS/index.css">
-  <script type="module" src="/scripts/i18n.js"></script>
-  <script type="module" src="/scripts/index.js" ></script>
-  <script type="module" src="/scripts/custom.js" ></script>
+  <script type="module" src="/scripts/i18n.ts"></script>
+  <script type="module" src="/scripts/index.ts" ></script>
+  <script type="module" src="/scripts/custom.ts" ></script>
 </head>
 
 <body>
@@ -20,7 +20,7 @@
   <iframe id="dynamic-iframe"></iframe>
 
   <script type="module">
-    import { translate } from '/scripts/i18n.js';
+    import { translate } from '/scripts/i18n.ts';
 
     document.getElementById('page-title').innerText = translate('loading');
     document.querySelector('#siteSelection option[value=""]').innerText = translate('select_site');

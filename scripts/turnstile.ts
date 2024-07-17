@@ -1,4 +1,7 @@
-import { translate } from './i18n.js';
+// turnstile.ts
+"use strict";
+
+import { translate } from './i18n.ts';
 
 document.getElementById('verification-message').innerText = translate('verification_message');
 document.getElementById('noscript-message').innerText = translate('noscript_message');
@@ -47,7 +50,7 @@ fetch('/Turnstile')
   .catch(error => console.error('Error fetching Turnstile status:', error));
 
 // 动态加载 Turnstile 脚本
-function loadTurnstileScript() {
+function loadTurnstileScript(): void {
   const script = document.createElement('script');
   script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?_=${new Date().getTime()}`;
   script.async = true;
@@ -56,7 +59,7 @@ function loadTurnstileScript() {
 }
 
 // 初始化 Turnstile 验证组件
-function initializeTurnstile(siteKey) {
+function initializeTurnstile(siteKey: string): void {
   const container = document.getElementById('turnstile-container');
   if (container) {
     container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
@@ -66,7 +69,7 @@ function initializeTurnstile(siteKey) {
 }
 
 // Turnstile 验证成功的回调函数
-function onTurnstileSuccess(token) {
+function onTurnstileSuccess(token: string): void {
   const turnstileUUID = localStorage.getItem('turnstileUUID');
   localStorage.setItem('turnstileToken', token);
   localStorage.setItem('turnstileUUID', turnstileUUID);
@@ -74,7 +77,7 @@ function onTurnstileSuccess(token) {
 }
 
 // 检测 Turnstile 状态的函数，超时为 20 秒
-function checkTurnstileStatus(timeout) {
+function checkTurnstileStatus(timeout: number): void {
   const startTime = Date.now();
   const interval = setInterval(() => {
     const container = document.querySelector('.cf-turnstile iframe');
@@ -89,7 +92,7 @@ function checkTurnstileStatus(timeout) {
 }
 
 // 清除缓存并硬性刷新页面
-function clearCacheAndRefresh() {
+function clearCacheAndRefresh(): void {
   if ('caches' in window) {
     caches.keys().then(names => {
       for (let name of names) caches.delete(name);
@@ -101,7 +104,7 @@ function clearCacheAndRefresh() {
 }
 
 // 验证 token 和 UUID 的函数
-async function verifyToken(token, uuid, ip) {
+async function verifyToken(token: string, uuid: string, ip: string): Promise<boolean> {
   const response = await fetch('/verify-turnstile', {
     method: 'POST',
     headers: {
@@ -120,15 +123,15 @@ async function verifyToken(token, uuid, ip) {
 }
 
 // 生成 UUID 的函数
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
 }
 
 // 获取 IP 地址
-async function getClientIP() {
+async function getClientIP(): Promise<string | null> {
   console.log(translate('fetching_ip'));
   const currentDomain = window.location.hostname;
   try {
