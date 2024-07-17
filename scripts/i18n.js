@@ -17,11 +17,11 @@ async function fetchTranslations(lang) {
   }
 }
 
-function parseYaml(yamlText) {
-  // 使用jsDelivr导入js-yaml库
-  const yaml = await import('https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js');
-  return yaml.load(yamlText);
-}
+async function parseYaml(yamlText) {
+    // 使用jsDelivr导入js-yaml库
+    const yaml = await import('https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js');
+    return yaml.load(yamlText);
+  }
 
 export async function setLanguage(lang) {
   currentLang = lang;
