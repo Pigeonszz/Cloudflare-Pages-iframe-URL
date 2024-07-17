@@ -28,12 +28,12 @@ function log(level, message, context) {
 }
 
 export async function onRequest(context) {
-  const { request, env } = context;
-
   // 检查请求路径是否为 /api/iframe-urls
-  if (new URL(request.url).pathname !== '/api/iframe-urls') {
+  const requestPath = new URL(context.request.url).pathname;
+  if (requestPath !== '/api/iframe-urls') {
     return new Response('Not Found', { status: 404 });
   }
+
 
   // 记录日志
   log('info', 'Processing request', context);

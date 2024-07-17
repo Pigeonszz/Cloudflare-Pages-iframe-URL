@@ -27,10 +27,9 @@ function log(level, message, context) {
 }
 
 export async function onRequest(context) {
-  const { env, request } = context;
-
   // 检查请求路径是否为 /api/custom
-  if (new URL(request.url).pathname !== '/api/custom') {
+  const requestPath = new URL(context.request.url).pathname;
+  if (requestPath !== '/api/custom') {
     return new Response('Not Found', { status: 404 });
   }
 

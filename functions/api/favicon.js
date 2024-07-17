@@ -28,10 +28,9 @@ function log(level, message, context) {
 }
 
 export async function onRequest(context) {
-  const { request, env } = context;
-
-  // 检查请求路径是否为 /api/favicon
-  if (new URL(request.url).pathname !== '/api/favicons') {
+  // 检查请求路径是否为 /api/favicons
+  const requestPath = new URL(context.request.url).pathname;
+  if (requestPath !== '/api/favicons') {
     return new Response('Not Found', { status: 404 });
   }
 

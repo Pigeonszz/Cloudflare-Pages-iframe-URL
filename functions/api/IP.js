@@ -1,18 +1,14 @@
 // /functions/IP.js
 "use strict";
-export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    const path = url.pathname;
+export async function onRequest(context) {
+  // 检查请求路径是否为 /api/IP
+  const requestPath = new URL(context.request.url).pathname;
+  if (requestPath !== '/api/IP') {
+    return new Response('Not Found', { status: 404 });
+  }
 
-    if (path !== '/api/IP') {
-      return new Response('Invalid path', {
-        headers: { "Content-Type": "text/plain;charset=UTF-8" },
-        status: 404
-      });
-    }
 
-    const data = `Method: ${request.method}
+  const data = `Method: ${request.method}
 Url: ${request.url}
 IP: ${request.headers.get('CF-Connecting-IP')}
 Continent: ${request.cf.continent}
@@ -27,8 +23,7 @@ ASN: ${request.cf.asn}
 ASOrganization: ${request.cf.asOrganization}
 Timezone: ${request.cf.timezone}`;
 
-    return new Response(data, {
-      headers: { "Content-Type": "text/plain;charset=UTF-8" }
-    });
-  }
-};
+  return new Response(data, {
+    headers: { "Content-Type": "text/plain;charset=UTF-8" }
+  });
+}
