@@ -17,12 +17,6 @@ async function fetchTranslations(lang) {
   }
 }
 
-import { load } from 'https://cdn.jsdelivr.net/npm/js-yaml@latest/dist/js-yaml.min.js';
-
-function parseYaml(yamlText) {
-  return load(yamlText);
-}
-
 export async function setLanguage(lang) {
   currentLang = lang;
   if (!translations[lang]) {
