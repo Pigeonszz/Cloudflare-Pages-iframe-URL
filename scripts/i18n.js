@@ -18,11 +18,12 @@ async function loadTranslations(language) {
     }
 }
 
-export function getTranslation(translations, key) {
-    if (translations && translations[key]) {
+export function getTranslation(translations, key, defaultValue = '') {
+    if (translations && translations[key] !== undefined) {
         return translations[key];
     } else {
-        throw new Error(`Translation key ${key} not found.`);
+        console.warn(`Translation key ${key} not found.`);
+        return defaultValue;
     }
 }
 
