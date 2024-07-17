@@ -1,3 +1,8 @@
+// /scripts/turnstile.js
+'use strict';
+
+import { getTranslation } from './i18n.js';
+
 // 获取人机验证开关状态
 fetch('/api/Turnstile')
   .then(response => response.json())
@@ -32,7 +37,7 @@ fetch('/api/Turnstile')
       checkTurnstileStatus(20000);
     }
   })
-  .catch(error => console.error('Error fetching Turnstile status:', error));
+  .catch(error => console.error(getTranslation('error_fetching_turnstile_status'), error));
 
 // 动态加载 Turnstile 脚本
 function loadTurnstileScript() {
@@ -49,7 +54,7 @@ function initializeTurnstile(siteKey) {
   if (container) {
     container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
   } else {
-    console.error('Turnstile container element not found.');
+    console.error(getTranslation('turnstile_container_not_found'));
   }
 }
 
@@ -70,7 +75,7 @@ function checkTurnstileStatus(timeout) {
       clearInterval(interval);
     } else if (Date.now() - startTime >= timeout) {
       clearInterval(interval);
-      console.error('Turnstile component not loaded, clearing cache and refreshing the page.');
+      console.error(getTranslation('turnstile_component_not_loaded'));
       clearCacheAndRefresh();
     }
   }, 100);

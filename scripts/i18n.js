@@ -6,6 +6,9 @@ import yaml from 'js-yaml';
 async function loadTranslations(language) {
     try {
         const response = await fetch(`/i18n/${language}.yaml`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const text = await response.text();
         return yaml.load(text);
     } catch (error) {

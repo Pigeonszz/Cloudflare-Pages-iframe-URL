@@ -1,6 +1,8 @@
 // /scripts/mobile.js
 'use strict';
 
+import { getTranslation } from './i18n.js';
+
 // 检测桌面端 UA 并重定向到 index.html
 function isDesktopDevice() {
   return !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
@@ -16,13 +18,13 @@ async function getClientIP() {
   try {
     const response = await fetch(`https://${currentDomain}/api/IP`);
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(getTranslation('http_error', { status: response.status }));
     }
     const data = await response.text();
     const ipInfo = parseIPInfo(data);
     return ipInfo.IP;
   } catch (error) {
-    console.error('Error fetching IP address:', error);
+    console.error(getTranslation('error_fetching_ip'), error);
     return null;
   }
 }
@@ -68,7 +70,7 @@ fetch('/api/Turnstile', {
       showIframe();
     }
   })
-  .catch(error => console.error('Error fetching Turnstile status:', error));
+  .catch(error => console.error(getTranslation('error_fetching_turnstile_status'), error));
 
 // 显示 iframe 内容
 function showIframe(token, uuid, ip) {
@@ -82,8 +84,8 @@ function showIframe(token, uuid, ip) {
   };
 
   Promise.all([
-    fetch('/api/iframe-urls', fetchOptions), // 修改了Fetch路径
-    fetch('/api/favicons', fetchOptions) // 修改了Fetch路径
+    fetch('/api/iframe-urls', fetchOptions), 
+    fetch('/api/favicons', fetchOptions) 
   ])
     .then(responses => Promise.all(responses.map(response => response.json())))
     .then(data => {
@@ -100,11 +102,11 @@ function showIframe(token, uuid, ip) {
           if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64') && favUrl.hasOwnProperty('contentType')) {
             faviconMap[favUrl.service] = { base64: favUrl.base64, contentType: favUrl.contentType };
           } else {
-            console.error('Invalid favUrl:', favUrl);
+            console.error(getTranslation('invalid_favUrl'), favUrl);
           }
         });
       } else {
-        console.error('Invalid favUrls format:', favUrls);
+        console.error(getTranslation('invalid_favUrls_format'), favUrls);
       }
 
       if (Array.isArray(urls)) {
@@ -118,11 +120,11 @@ function showIframe(token, uuid, ip) {
             option.textContent = service;
             select.appendChild(option);
           } else {
-            console.error('Invalid urlObj:', urlObj);
+            console.error(getTranslation('invalid_urlObj'), urlObj);
           }
         });
       } else {
-        console.error('Invalid urls format:', urls);
+        console.error(getTranslation('invalid_urls_format'), urls);
       }
 
       select.addEventListener('change', function () {
@@ -171,12 +173,12 @@ function showIframe(token, uuid, ip) {
         }, 5000);
       });
     })
-    .catch(error => console.error('Error fetching iframe or favicon URL:', error));
+    .catch(error => console.error(getTranslation('error_fetching_iframe_or_favicon_url'), error));
 }
 
 // 设置页面标题
 function setTitle(title) {
-  document.title = title || '主内容';
+  document.title = title || getTranslation('title_loading');
 }
 
 // 设置 favicon
@@ -200,7 +202,7 @@ async function verifyToken(token, uuid, ip) {
   const result = await response.json();
   if (result.LOG_LEVEL) {
     localStorage.setItem('LOG_LEVEL', result.LOG_LEVEL);
-    console.log('Current log level:', result.LOG_LEVEL);
+    console.log(getTranslation('current_log_level'), result.LOG_LEVEL);
   }
   return result.success;
 }
