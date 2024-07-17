@@ -3,18 +3,6 @@
 
 export default {
   async fetch(request) {
-    const url = new URL(request.url); // 获取请求的URL
-    const path = url.pathname; // 获取请求的路径
-
-    if (path !== '/api/IP') { // 如果路径不是'/api/IP'
-      return new Response(JSON.stringify({ error: 'Not Found' }), {
-        headers: {
-          "Content-Type": "application/json;charset=UTF-8" // 设置响应头的Content-Type为application/json
-        },
-        status: 404 // 设置响应状态为404 (Not Found)
-      });
-    }
-
     // 构建响应数据对象
     const data = {
       Method: request.method, // 请求方法
