@@ -26,26 +26,20 @@ fetch('/api/Turnstile')
         // 验证 turnstileToken 和 turnstileUUID
         verifyToken(turnstileToken, turnstileUUID, ip).then(isValid => {
           if (isValid) {
-            window.location.href = 'index.html';
+            // 验证成功后将新的UUID和Token保存到localStorage
+            localStorage.setItem('turnstileToken', turnstileToken);
+            localStorage.setItem('turnstileUUID', turnstileUUID);
           } else {
-            // 生成新的 turnstileUUID
-            const newTurnstileUUID = generateUUID();
-            localStorage.setItem('turnstileUUID', newTurnstileUUID);
-            loadTurnstileScript();
+            // 验证失败或不存在，初始化Turnstile
             initializeTurnstile(siteKey);
-            checkTurnstileStatus(20000);
           }
         }).catch(error => console.error(getTranslation('error_verifying_turnstile_token'), error));
       } else {
         console.error(getTranslation('error_fetching_ip'));
       }
     } else {
-      // 生成新的 turnstileUUID
-      const newTurnstileUUID = generateUUID();
-      localStorage.setItem('turnstileUUID', newTurnstileUUID);
-      loadTurnstileScript();
+      // 不存在UUID和Token，初始化Turnstile
       initializeTurnstile(siteKey);
-      checkTurnstileStatus(20000);
     }
   })
   .catch(error => console.error(getTranslation('error_fetching_turnstile_status'), error));
@@ -61,6 +55,9 @@ function loadTurnstileScript() {
 
 // 初始化 Turnstile 验证组件
 function initializeTurnstile(siteKey) {
+  const newTurnstileUUID = generateUUID();
+  localStorage.setItem('turnstileUUID', newTurnstileUUID);
+  loadTurnstileScript();
   const container = document.getElementById('turnstile-container');
   if (container) {
     container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
@@ -74,34 +71,6 @@ function onTurnstileSuccess(token) {
   const turnstileUUID = localStorage.getItem('turnstileUUID');
   localStorage.setItem('turnstileToken', token);
   localStorage.setItem('turnstileUUID', turnstileUUID);
-  window.location.href = 'index.html';
-}
-
-// 检测 Turnstile 状态的函数，超时为 20 秒
-function checkTurnstileStatus(timeout) {
-  const startTime = Date.now();
-  const interval = setInterval(() => {
-    const container = document.querySelector('.cf-turnstile iframe');
-    if (container) {
-      clearInterval(interval);
-    } else if (Date.now() - startTime >= timeout) {
-      clearInterval(interval);
-      console.error(getTranslation('turnstile_component_not_loaded'));
-      clearCacheAndRefresh();
-    }
-  }, 100);
-}
-
-// 清除缓存并硬性刷新页面
-function clearCacheAndRefresh() {
-  if ('caches' in window) {
-    caches.keys().then(names => {
-      for (let name of names) caches.delete(name);
-    });
-  }
-  sessionStorage.clear();
-  localStorage.clear();
-  window.location.reload(true);
 }
 
 // 验证 token 和 UUID 的函数
