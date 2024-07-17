@@ -1,4 +1,4 @@
-// /functions/verify-turnstile.js
+// /functions/api/verify-turnstile.js
 "use strict";
 
 // 定义日志级别映射

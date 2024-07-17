@@ -1,4 +1,4 @@
-// /functions/custom.js
+// /functions/api/custom.js
 "use strict";
 
 // 定义日志级别映射

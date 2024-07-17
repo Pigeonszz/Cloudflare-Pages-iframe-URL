@@ -1,4 +1,4 @@
-// /functions/favicon.js
+// /functions/api/favicon.js
 "use strict";
 
 import { onRequest as verifyTurnstile } from './verify-turnstile.js';
