@@ -1,8 +1,3 @@
-// /scripts/mobile.js
-'use strict';
-
-import { getTranslation } from './i18n.js';
-
 // 检测桌面端 UA 并重定向到 index.html
 function isDesktopDevice() {
   return !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
@@ -16,34 +11,25 @@ if (isDesktopDevice()) {
 async function getClientIP() {
   const currentDomain = window.location.hostname;
   try {
-    const response = await fetch(`https://${currentDomain}/api/IP`);
-    if (!response.ok) {
-      throw new Error(getTranslation('http_error', { status: response.status }));
-    }
+    const response = await fetch(`https://${currentDomain}/cdn-cgi/trace`);
     const data = await response.text();
-    const ipInfo = parseIPInfo(data);
-    return ipInfo.IP;
+    const ipMatch = data.match(/ip=([0-9a-fA-F:\.]+)/);
+    return ipMatch ? ipMatch[1] : null;
   } catch (error) {
-    console.error(getTranslation('error_fetching_ip'), error);
-    return null;
+    console.error('Error fetching IP address via /cdn-cgi/trace:', error);
+    try {
+      const response = await fetch(`https://${currentDomain}/IP`);
+      const ip = await response.text();
+      return ip;
+    } catch (fallbackError) {
+      console.error('Error fetching IP address via /IP:', fallbackError);
+      return null;
+    }
   }
 }
 
-// 解析纯文本响应
-function parseIPInfo(text) {
-  const lines = text.split('\n');
-  const ipInfo = {};
-  lines.forEach(line => {
-    const [key, value] = line.split(': ');
-    if (key && value) {
-      ipInfo[key] = value;
-    }
-  });
-  return ipInfo;
-}
-
 // 获取 Turnstile 状态
-fetch('/api/Turnstile', {
+fetch('/Turnstile', {
   headers: {
     'Accept': 'application/json;charset=UTF-8'
   }
@@ -70,7 +56,7 @@ fetch('/api/Turnstile', {
       showIframe();
     }
   })
-  .catch(error => console.error(getTranslation('error_fetching_turnstile_status'), error));
+  .catch(error => console.error('Error fetching Turnstile status:', error));
 
 // 显示 iframe 内容
 function showIframe(token, uuid, ip) {
@@ -84,8 +70,8 @@ function showIframe(token, uuid, ip) {
   };
 
   Promise.all([
-    fetch('/api/iframe-urls', fetchOptions), 
-    fetch('/api/favicons', fetchOptions) 
+    fetch('/iframe-url', fetchOptions),
+    fetch('/favicon', fetchOptions)
   ])
     .then(responses => Promise.all(responses.map(response => response.json())))
     .then(data => {
@@ -102,11 +88,11 @@ function showIframe(token, uuid, ip) {
           if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64') && favUrl.hasOwnProperty('contentType')) {
             faviconMap[favUrl.service] = { base64: favUrl.base64, contentType: favUrl.contentType };
           } else {
-            console.error(getTranslation('invalid_favUrl'), favUrl);
+            console.error('Invalid favUrl:', favUrl);
           }
         });
       } else {
-        console.error(getTranslation('invalid_favUrls_format'), favUrls);
+        console.error('Invalid favUrls format:', favUrls);
       }
 
       if (Array.isArray(urls)) {
@@ -120,11 +106,11 @@ function showIframe(token, uuid, ip) {
             option.textContent = service;
             select.appendChild(option);
           } else {
-            console.error(getTranslation('invalid_urlObj'), urlObj);
+            console.error('Invalid urlObj:', urlObj);
           }
         });
       } else {
-        console.error(getTranslation('invalid_urls_format'), urls);
+        console.error('Invalid urls format:', urls);
       }
 
       select.addEventListener('change', function () {
@@ -173,12 +159,12 @@ function showIframe(token, uuid, ip) {
         }, 5000);
       });
     })
-    .catch(error => console.error(getTranslation('error_fetching_iframe_or_favicon_url'), error));
+    .catch(error => console.error('Error fetching iframe or favicon URL:', error));
 }
 
 // 设置页面标题
 function setTitle(title) {
-  document.title = title || getTranslation('title_loading');
+  document.title = title || '主内容';
 }
 
 // 设置 favicon
@@ -190,7 +176,7 @@ function setFavicon(selectedOption, faviconMap) {
 
 // 验证 Turnstile 令牌
 async function verifyToken(token, uuid, ip) {
-  const response = await fetch('/api/verify-turnstile', {
+  const response = await fetch('/verify-turnstile', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -201,8 +187,7 @@ async function verifyToken(token, uuid, ip) {
 
   const result = await response.json();
   if (result.LOG_LEVEL) {
-    localStorage.setItem('LOG_LEVEL', result.LOG_LEVEL);
-    console.log(getTranslation('current_log_level'), result.LOG_LEVEL);
+    console.log('Current log level:', result.LOG_LEVEL);
   }
   return result.success;
 }

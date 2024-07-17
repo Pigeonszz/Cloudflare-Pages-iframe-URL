@@ -1,5 +1,4 @@
 // /functions/Turnstile.js
-'use strict';
 
 // 定义日志级别映射
 const LOG_LEVEL_MAP = {
@@ -27,12 +26,12 @@ function log(level, message, context) {
 }
 
 export async function onRequest(context) {
-  // 检查请求路径是否为 /api/Turnstile
+  // 检查请求路径是否为 /Turnstile
   const requestPath = new URL(context.request.url).pathname;
-  if (requestPath !== '/api/Turnstile') {
+  if (requestPath.toLowerCase() !== '/turnstile') {
     return new Response('Not Found', { status: 404 });
   }
-  
+
   // 记录日志
   log('info', 'Processing request', context);
 

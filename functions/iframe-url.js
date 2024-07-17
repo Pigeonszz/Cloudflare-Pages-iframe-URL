@@ -1,5 +1,5 @@
 // /functions/iframe-url.js
-'use strict';
+
 import { onRequest as verifyTurnstile } from './verify-turnstile.js';
 
 // 定义日志级别映射
@@ -28,12 +28,6 @@ function log(level, message, context) {
 }
 
 export async function onRequest(context) {
-  // 检查请求路径是否为 /api/iframe-urls
-  const requestPath = new URL(context.request.url).pathname;
-  if (requestPath !== '/api/iframe-urls') {
-    return new Response('Not Found', { status: 404 });
-  }
-
   // 记录日志
   log('info', 'Processing request', context);
 
@@ -125,3 +119,4 @@ export async function onRequest(context) {
     });
   }
 }
+
