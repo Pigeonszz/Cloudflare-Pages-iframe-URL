@@ -20,6 +20,13 @@ async function fetchTranslations(lang) {
 async function parseYaml(yamlText) {
     // 使用jsDelivr导入js-yaml库
     const yaml = await import('https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js');
+    
+    // 确认 yaml 对象包含 load 方法
+    if (typeof yaml.load !== 'function') {
+      console.error('yaml.load is not a function');
+      return null;
+    }
+    
     return yaml.load(yamlText);
   }
 
