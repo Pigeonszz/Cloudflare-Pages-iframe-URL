@@ -32,7 +32,7 @@ async function getClientIP() {
 }
 
 // 获取 Turnstile 状态
-fetch('/Turnstile', {
+fetch('/api/Turnstile', {
   headers: {
     'Accept': 'application/json;charset=UTF-8'
   }
@@ -73,8 +73,8 @@ function showIframe(token, uuid, ip) {
   };
 
   Promise.all([
-    fetch('/iframe-url', fetchOptions),
-    fetch('/favicon', fetchOptions)
+    fetch('/api/iframe-urls', fetchOptions),
+    fetch('/api/favicons', fetchOptions)
   ])
     .then(responses => Promise.all(responses.map(response => response.json())))
     .then(data => {
@@ -162,7 +162,7 @@ function moveSelectToTop() {
 
 // 验证 Turnstile 令牌
 async function verifyToken(token, uuid, ip) {
-  const response = await fetch('/verify-turnstile', {
+  const response = await fetch('/api/verify-turnstile', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

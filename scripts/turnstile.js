@@ -2,7 +2,7 @@
 "use strict";
 
 // 获取人机验证开关状态
-fetch('/Turnstile')
+fetch('/api/Turnstile')
   .then(response => response.json())
   .then(env => {
     const turnstileEnabled = env.TURNSTILE_ENABLED === 'true';
@@ -93,7 +93,7 @@ function clearCacheAndRefresh() {
 
 // 验证 token 和 UUID 的函数
 async function verifyToken(token, uuid) {
-  const response = await fetch('/verify-turnstile', {
+  const response = await fetch('/api/verify-turnstile', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
