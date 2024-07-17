@@ -1,43 +1,51 @@
 // /scripts/i18n.js
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const yaml = require('js-yaml');
+import yaml from 'js-yaml';
 
-const i18nDirectory = path.join(__dirname, 'i18n');
-
-function loadTranslations(language) {
-    const filePath = path.join(i18nDirectory, `${language}.yaml`);
-    if (fs.existsSync(filePath)) {
-        const fileContents = fs.readFileSync(filePath, 'utf8');
-        return yaml.load(fileContents);
-    } else {
-        throw new Error(`Translation file for language ${language} not found.`);
+async function loadTranslations(language) {
+    try {
+        const response = await fetch(`/i18n/${language}.yaml`);
+        const text = await response.text();
+        return yaml.load(text);
+    } catch (error) {
+        console.error('Error loading translations:', error);
+        return null;
     }
 }
 
-function getTranslation(language, key) {
-    const translations = loadTranslations(language);
+function getTranslation(translations, key) {
     if (translations && translations[key]) {
         return translations[key];
     } else {
-        throw new Error(`Translation key ${key} not found for language ${language}.`);
+        throw new Error(`Translation key ${key} not found.`);
     }
 }
 
-function log(level, message) {
-    const logLevel = localStorage.getItem('LOG_LEVEL') || 'info';
-    const logLevels = ['off', 'fatal', 'error', 'warn', 'info', 'debug', 'trace'];
-    const currentLevelIndex = logLevels.indexOf(logLevel);
-    const messageLevelIndex = logLevels.indexOf(level);
-
-    if (messageLevelIndex <= currentLevelIndex && currentLevelIndex !== 0) {
-        console[level === 'fatal' ? 'error' : level](message);
+function updateUI(translations) {
+    document.title = translations.title;
+    const selectOption = document.querySelector('#siteSelection option');
+    if (selectOption) {
+        selectOption.textContent = translations.select_option;
     }
 }
 
-module.exports = {
-    loadTranslations,
-    getTranslation
-};
+async function initI18n() {
+    const languages = navigator.languages || [navigator.language || 'en']; // 默认语言为 'en'
+    let translations = null;
+
+    for (const lang of languages) {
+        translations = await loadTranslations(lang);
+        if (translations) {
+            break;
+        }
+    }
+
+    if (translations) {
+        updateUI(translations);
+    } else {
+        console.error('No translations found for any preferred language.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initI18n);
