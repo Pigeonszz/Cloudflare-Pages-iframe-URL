@@ -1,16 +1,23 @@
 // /scripts/i18n.js
 'use strict';
 
+async function loadJsYaml() {
+    if (!window.jsYaml) {
+        await import('https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js');
+    }
+    return window.jsYaml;
+}
+
 async function loadTranslations(language) {
     try {
-        const jsYaml = await import('https://cdn.jsdelivr.net/npm/js-yaml@latest/dist/js-yaml.min.js');
+        const jsYaml = await loadJsYaml();
         const lowerCaseLanguage = language.toLowerCase(); // 将语言代码转换为小写
         const response = await fetch(`/i18n/${lowerCaseLanguage}.yaml`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const text = await response.text();
-        return jsYaml.default.load(text); // 使用 js-yaml 解析 YAML 文件
+        return jsYaml.load(text); // 使用 js-yaml 解析 YAML 文件
     } catch (error) {
         console.error('Error loading translations:', error);
         return null;
@@ -53,3 +60,4 @@ async function initI18n() {
 }
 
 document.addEventListener('DOMContentLoaded', initI18n); // 在 DOM 加载完成后初始化国际化功能
+
