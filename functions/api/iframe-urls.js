@@ -1,4 +1,5 @@
-// /functions/iframe-url.js
+// /functions/api/iframe-url.js
+"use strict";
 
 import { onRequest as verifyTurnstile } from './verify-turnstile.js';
 
@@ -28,6 +29,11 @@ function log(level, message, context) {
 }
 
 export async function onRequest(context) {
+  // 检查请求方法是否为 POST
+  if (context.request.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 });
+  }
+
   // 记录日志
   log('info', 'Processing request', context);
 
@@ -119,4 +125,3 @@ export async function onRequest(context) {
     });
   }
 }
-

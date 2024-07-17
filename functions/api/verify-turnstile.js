@@ -1,3 +1,6 @@
+// /functions/api/verify-turnstile.js
+"use strict";
+
 // 定义日志级别映射
 const LOG_LEVEL_MAP = {
     'off': 0,
@@ -24,6 +27,11 @@ function log(level, message, context) {
 }
 
 export async function onRequest(context) {
+    // 检查请求方法是否为 POST
+    if (context.request.method !== 'POST') {
+        return new Response('Method Not Allowed', { status: 405 });
+    }
+
     // 记录日志
     log('info', 'Processing request', context);
 

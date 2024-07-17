@@ -1,3 +1,6 @@
+// /scripts/index.js
+"use strict";
+
 // 检查用户代理是否为移动设备，如果是则重定向到移动版页面
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
@@ -11,25 +14,17 @@ if (isMobileDevice()) {
 async function getClientIP() {
   const currentDomain = window.location.hostname;
   try {
-    const response = await fetch(`https://${currentDomain}/cdn-cgi/trace`);
-    const data = await response.text();
-    const ipMatch = data.match(/ip=([0-9a-fA-F:\.]+)/);
-    return ipMatch ? ipMatch[1] : null;
+    const response = await fetch(`https://${currentDomain}/api/IP`);
+    const data = await response.json();
+    return data.IP.IP; // 直接返回 IP 地址
   } catch (error) {
-    console.error('Error fetching IP address via /cdn-cgi/trace:', error);
-    try {
-      const response = await fetch(`https://${currentDomain}/IP`);
-      const ip = await response.text();
-      return ip;
-    } catch (fallbackError) {
-      console.error('Error fetching IP address via /IP:', fallbackError);
-      return null;
-    }
+    console.error('Error fetching IP address via /api/IP:', error);
+    return null;
   }
 }
 
 // 获取 Turnstile 状态
-fetch('/Turnstile', {
+fetch('/api/Turnstile', {
   headers: {
     'Accept': 'application/json;charset=UTF-8'
   }
@@ -70,8 +65,8 @@ function showIframe(token, uuid, ip) {
   };
 
   Promise.all([
-    fetch('/iframe-url', fetchOptions),
-    fetch('/favicon', fetchOptions)
+    fetch('/api/iframe-urls', fetchOptions),
+    fetch('/api/favicons', fetchOptions)
   ])
     .then(responses => Promise.all(responses.map(response => response.json())))
     .then(data => {
@@ -159,7 +154,7 @@ function moveSelectToTop() {
 
 // 验证 Turnstile 令牌
 async function verifyToken(token, uuid, ip) {
-  const response = await fetch('/verify-turnstile', {
+  const response = await fetch('/api/verify-turnstile', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

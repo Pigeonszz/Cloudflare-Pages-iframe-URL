@@ -1,4 +1,5 @@
-// /functions/custom.js
+// /functions/api/custom.js
+"use strict";
 
 // 定义日志级别映射
 const LOG_LEVEL_MAP = {
@@ -21,7 +22,7 @@ function getLogLevel(env) {
 function log(level, message, context) {
   const logLevel = getLogLevel(context.env);
   if (LOG_LEVEL_MAP[level] <= logLevel) {
-      console[level](message);
+    console[level](message);
   }
 }
 
@@ -32,11 +33,11 @@ export async function onRequest(context) {
   log('info', 'Processing request for custom scripts', context);
 
   const response = {
-      M_POST_LOAD: env.M_POST_LOAD || '',
-      M_PRELOAD: env.M_PRELOAD || '',
-      POST_LOAD: env.POST_LOAD || '',
-      PRELOAD: env.PRELOAD || '',
-      LOG_LEVEL: env.LOG_LEVEL || 'info'
+    M_POST_LOAD: env.M_POST_LOAD || '',
+    M_PRELOAD: env.M_PRELOAD || '',
+    POST_LOAD: env.POST_LOAD || '',
+    PRELOAD: env.PRELOAD || '',
+    LOG_LEVEL: env.LOG_LEVEL || 'info'
   };
 
   // 记录响应信息
@@ -52,6 +53,6 @@ export async function onRequest(context) {
   log('trace', `Request method and URL: ${context.request.method} ${context.request.url}`, context);
 
   return new Response(JSON.stringify(response), {
-      headers: { 'Content-Type': 'application/json;charset=UTF-8' }
+    headers: { 'Content-Type': 'application/json;charset=UTF-8' }
   });
 }
