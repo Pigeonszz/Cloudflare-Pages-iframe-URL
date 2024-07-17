@@ -29,6 +29,8 @@ fetch('/api/Turnstile')
             // 验证成功后将新的UUID和Token保存到localStorage
             localStorage.setItem('turnstileToken', turnstileToken);
             localStorage.setItem('turnstileUUID', turnstileUUID);
+            // 重定向回原来的页面
+            window.location.href = document.referrer || 'index.html';
           } else {
             // 验证失败或不存在，初始化Turnstile
             initializeTurnstile(siteKey);
@@ -71,6 +73,8 @@ function onTurnstileSuccess(token) {
   const turnstileUUID = localStorage.getItem('turnstileUUID');
   localStorage.setItem('turnstileToken', token);
   localStorage.setItem('turnstileUUID', turnstileUUID);
+  // 重定向回原来的页面
+  window.location.href = document.referrer || 'index.html';
 }
 
 // 验证 token 和 UUID 的函数
