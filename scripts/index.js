@@ -14,25 +14,34 @@ if (isMobileDevice()) {
 async function getClientIP() {
   const currentDomain = window.location.hostname;
   try {
-    const response = await fetch(`https://${currentDomain}/cdn-cgi/trace`);
-    const data = await response.text();
-    const ipMatch = data.match(/ip=([0-9a-fA-F:\.]+)/);
-    return ipMatch ? ipMatch[1] : null;
-  } catch (error) {
-    console.error('Error fetching IP address via /cdn-cgi/trace:', error);
-    try {
-      const response = await fetch(`https://${currentDomain}/IP`);
-      const ip = await response.text();
-      return ip;
-    } catch (fallbackError) {
-      console.error('Error fetching IP address via /IP:', fallbackError);
-      return null;
+    const response = await fetch(`https://${currentDomain}/api/IP`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    const data = await response.text();
+    const ipInfo = parseIPInfo(data);
+    return ipInfo.IP;
+  } catch (error) {
+    console.error('Error fetching IP address:', error);
+    return null;
   }
 }
 
+// 解析纯文本响应
+function parseIPInfo(text) {
+  const lines = text.split('\n');
+  const ipInfo = {};
+  lines.forEach(line => {
+    const [key, value] = line.split(': ');
+    if (key && value) {
+      ipInfo[key] = value;
+    }
+  });
+  return ipInfo;
+}
+
 // 获取 Turnstile 状态
-fetch('/Turnstile', {
+fetch('/api/Turnstile', {
   headers: {
     'Accept': 'application/json;charset=UTF-8'
   }
@@ -73,8 +82,8 @@ function showIframe(token, uuid, ip) {
   };
 
   Promise.all([
-    fetch('/iframe-url', fetchOptions),
-    fetch('/favicon', fetchOptions)
+    fetch('/api/iframe-urls', fetchOptions), 
+    fetch('/api/favicons', fetchOptions) 
   ])
     .then(responses => Promise.all(responses.map(response => response.json())))
     .then(data => {
@@ -162,7 +171,7 @@ function moveSelectToTop() {
 
 // 验证 Turnstile 令牌
 async function verifyToken(token, uuid, ip) {
-  const response = await fetch('/verify-turnstile', {
+  const response = await fetch('/api/verify-turnstile', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -25,7 +25,7 @@ function log(level, message, logLevel) {
 
 async function fetchCustomScripts() {
     try {
-        const response = await fetch('/custom', {
+        const response = await fetch('/api/custom', { 
             headers: {
                 'Accept': 'application/json;charset=UTF-8'
             }

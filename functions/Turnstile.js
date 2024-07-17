@@ -26,9 +26,9 @@ function log(level, message, context) {
 }
 
 export async function onRequest(context) {
-  // 检查请求路径是否为 /Turnstile
+  // 检查请求路径是否为 /api/Turnstile
   const requestPath = new URL(context.request.url).pathname;
-  if (requestPath.toLowerCase() !== '/turnstile') {
+  if (requestPath.toLowerCase() !== '/api/Turnstile') {
     return new Response('Not Found', { status: 404 });
   }
 
