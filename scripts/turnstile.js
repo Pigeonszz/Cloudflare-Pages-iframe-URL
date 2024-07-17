@@ -5,7 +5,12 @@ import { getTranslation } from './i18n.js';
 
 // 获取人机验证开关状态
 fetch('/api/Turnstile')
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
   .then(env => {
     const turnstileEnabled = env.TURNSTILE_ENABLED === 'true';
     const siteKey = env.siteKey;
@@ -27,7 +32,7 @@ fetch('/api/Turnstile')
           initializeTurnstile(siteKey);
           checkTurnstileStatus(20000);
         }
-      });
+      }).catch(error => console.error(getTranslation('error_verifying_turnstile_token'), error));
     } else {
       // 生成新的 turnstileUUID
       const newTurnstileUUID = generateUUID();
@@ -42,7 +47,7 @@ fetch('/api/Turnstile')
 // 动态加载 Turnstile 脚本
 function loadTurnstileScript() {
   const script = document.createElement('script');
-  script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?_=${new Date().getTime()}`;
+  script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback`;
   script.async = true;
   script.defer = true;
   document.head.appendChild(script);
@@ -102,6 +107,10 @@ async function verifyToken(token, uuid) {
     },
     body: JSON.stringify({ token, uuid })
   });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
 
   const result = await response.json();
   return result.success;
