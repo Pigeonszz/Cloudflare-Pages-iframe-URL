@@ -13,17 +13,24 @@ fetch('/api/Turnstile')
     const turnstileUUID = localStorage.getItem('turnstileUUID');
 
     if (turnstileToken && turnstileUUID) {
-      // 验证 turnstileToken 和 turnstileUUID
-      verifyToken(turnstileToken, turnstileUUID).then(isValid => {
-        if (isValid) {
-          window.location.href = 'index.html';
+      // 获取客户端 IP 地址
+      getClientIP().then(clientIP => {
+        if (clientIP) {
+          // 验证 turnstileToken、turnstileUUID 和 clientIP
+          verifyToken(turnstileToken, turnstileUUID, clientIP).then(isValid => {
+            if (isValid) {
+              window.location.href = 'index.html';
+            } else {
+              // 生成新的 turnstileUUID
+              const newTurnstileUUID = generateUUID();
+              localStorage.setItem('turnstileUUID', newTurnstileUUID);
+              loadTurnstileScript();
+              initializeTurnstile(siteKey);
+              checkTurnstileStatus(20000);
+            }
+          });
         } else {
-          // 生成新的 turnstileUUID
-          const newTurnstileUUID = generateUUID();
-          localStorage.setItem('turnstileUUID', newTurnstileUUID);
-          loadTurnstileScript();
-          initializeTurnstile(siteKey);
-          checkTurnstileStatus(20000);
+          console.error('Failed to fetch client IP address.');
         }
       });
     } else {
@@ -91,14 +98,14 @@ function clearCacheAndRefresh() {
   window.location.reload(true);
 }
 
-// 验证 token 和 UUID 的函数
-async function verifyToken(token, uuid) {
+// 验证 token、UUID 和 IP 的函数
+async function verifyToken(token, uuid, ip) {
   const response = await fetch('/api/verify-turnstile', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ token, uuid })
+    body: JSON.stringify({ token, uuid, ip })
   });
 
   const result = await response.json();
@@ -107,8 +114,21 @@ async function verifyToken(token, uuid) {
 
 // 生成 UUID 的函数
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
+}
+
+// 获取 IP 地址
+async function getClientIP() {
+  const currentDomain = window.location.hostname;
+  try {
+    const response = await fetch(`https://${currentDomain}/api/IP`);
+    const data = await response.json();
+    return data.IP.IP; // 直接返回 IP 地址
+  } catch (error) {
+    console.error('Error fetching IP address via /api/IP:', error);
+    return null;
+  }
 }
