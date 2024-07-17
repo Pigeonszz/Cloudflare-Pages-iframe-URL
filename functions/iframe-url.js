@@ -1,4 +1,5 @@
 // /functions/iframe-url.js
+"use strict";
 
 import { onRequest as verifyTurnstile } from './verify-turnstile.js';
 

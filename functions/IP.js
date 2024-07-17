@@ -1,4 +1,5 @@
 // /functions/IP.js
+"use strict";
 
 export async function onRequest(context) {
     const clientIP = context.request.headers.get('CF-Connecting-IP');

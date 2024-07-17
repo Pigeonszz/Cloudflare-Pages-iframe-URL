@@ -1,3 +1,6 @@
+// /scripts/mobile.js
+"use strict";
+
 // 检测桌面端 UA 并重定向到 index.html
 function isDesktopDevice() {
   return !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
