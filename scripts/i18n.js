@@ -5,7 +5,8 @@ import * as jsYaml from 'https://cdn.jsdelivr.net/npm/js-yaml@latest/dist/js-yam
 
 async function loadTranslations(language) {
     try {
-        const response = await fetch(`/i18n/${language}.yaml`);
+        const lowerCaseLanguage = language.toLowerCase(); // 将语言代码转换为小写
+        const response = await fetch(`/i18n/${lowerCaseLanguage}.yaml`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
