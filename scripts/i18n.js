@@ -3,11 +3,6 @@
 
 import * as jsYaml from 'https://cdn.jsdelivr.net/npm/js-yaml@latest/dist/js-yaml.min.js';
 
-/**
- * 加载指定语言的翻译文件
- * @param {string} language - 语言代码，如 'en', 'zh'
- * @returns {Promise<Object|null>} - 返回翻译对象或 null（如果加载失败）
- */
 async function loadTranslations(language) {
     try {
         const lowerCaseLanguage = language.toLowerCase(); // 将语言代码转换为小写
@@ -23,13 +18,6 @@ async function loadTranslations(language) {
     }
 }
 
-/**
- * 获取翻译对象中的指定键的值
- * @param {Object} translations - 翻译对象
- * @param {string} key - 要查找的键
- * @param {string} defaultValue - 默认值（可选）
- * @returns {string} - 返回键对应的值或默认值
- */
 export function getTranslation(translations, key, defaultValue = '') {
     if (translations && translations[key] !== undefined) {
         return translations[key];
@@ -39,10 +27,6 @@ export function getTranslation(translations, key, defaultValue = '') {
     }
 }
 
-/**
- * 更新用户界面中的文本内容
- * @param {Object} translations - 翻译对象
- */
 function updateUI(translations) {
     document.title = translations.title; // 更新文档标题
     const selectOption = document.querySelector('#siteSelection option');
@@ -51,9 +35,6 @@ function updateUI(translations) {
     }
 }
 
-/**
- * 初始化国际化功能
- */
 async function initI18n() {
     const languages = navigator.languages || [navigator.language || 'en']; // 获取用户首选语言，默认语言为 'en'
     let translations = null;
