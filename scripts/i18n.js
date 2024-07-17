@@ -1,17 +1,16 @@
 // /scripts/i18n.js
 'use strict';
 
-import { load as yamlLoad } from 'https://cdn.jsdelivr.net/npm/js-yaml@latest/dist/js-yaml.min.js';
-
 async function loadTranslations(language) {
     try {
+        const jsYaml = await import('https://cdn.jsdelivr.net/npm/js-yaml@latest/dist/js-yaml.min.js');
         const lowerCaseLanguage = language.toLowerCase(); // 将语言代码转换为小写
         const response = await fetch(`/i18n/${lowerCaseLanguage}.yaml`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const text = await response.text();
-        return yamlLoad(text); // 使用命名导入的方法解析 YAML 文件
+        return jsYaml.default.load(text); // 使用 js-yaml 解析 YAML 文件
     } catch (error) {
         console.error('Error loading translations:', error);
         return null;
