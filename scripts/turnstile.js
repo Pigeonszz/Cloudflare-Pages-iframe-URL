@@ -1,7 +1,7 @@
 // /scripts/turnstile.js
 "use strict";
 
-import { getMsg, translate } from './i18n.js';
+// import { getMsg, translate } from './i18n.js';
 
 // 获取人机验证开关状态
 fetch('/api/Turnstile')
