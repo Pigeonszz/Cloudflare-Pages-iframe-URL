@@ -1,8 +1,6 @@
 // /scripts/turnstile.js
 "use strict";
 
-import { getMsg, translate } from './i18n.js';
-
 // 获取人机验证开关状态
 fetch('/api/Turnstile')
   .then(response => response.json())
@@ -16,7 +14,7 @@ fetch('/api/Turnstile')
       window.location.href = 'index.html';
     }
   })
-  .catch(error => console.error(translate('error_fetching_turnstile_status', { error: error.message })));
+  .catch(error => console.error('Error fetching Turnstile status:', error));
 
 // 处理 Turnstile 验证
 async function handleTurnstile(siteKey) {
@@ -28,12 +26,13 @@ async function handleTurnstile(siteKey) {
     if (clientIP) {
       const isValid = await verifyToken(turnstileToken, turnstileUUID, clientIP);
       if (isValid) {
+        console.log('Token verification successful, redirecting to index.html');
         window.location.href = 'index.html';
       } else {
         setupTurnstile(siteKey);
       }
     } else {
-      console.error(translate('failed_to_fetch_client_ip_address'));
+      console.error('Failed to fetch client IP address.');
     }
   } else {
     setupTurnstile(siteKey);
@@ -44,6 +43,7 @@ async function handleTurnstile(siteKey) {
 function setupTurnstile(siteKey) {
   const newTurnstileUUID = generateUUID();
   localStorage.setItem('turnstileUUID', newTurnstileUUID);
+  console.log('New UUID generated and stored:', newTurnstileUUID);
   loadTurnstileScript();
   initializeTurnstile(siteKey);
   checkTurnstileStatus(20000);
@@ -64,7 +64,7 @@ function initializeTurnstile(siteKey) {
   if (container) {
     container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
   } else {
-    console.error(translate('turnstile_container_element_not_found'));
+    console.error('Turnstile container element not found.');
   }
 }
 
@@ -73,6 +73,7 @@ function onTurnstileSuccess(token) {
   const turnstileUUID = localStorage.getItem('turnstileUUID');
   localStorage.setItem('turnstileToken', token);
   localStorage.setItem('turnstileUUID', turnstileUUID);
+  console.log('Turnstile token and UUID stored:', token, turnstileUUID);
   window.location.href = 'index.html';
 }
 
@@ -84,7 +85,7 @@ function checkTurnstileStatus(timeout) {
     if (container) {
       return;
     } else if (Date.now() - startTime >= timeout) {
-      console.error(translate('turnstile_component_not_loaded_clearing_cache_and_refreshing'));
+      console.error('Turnstile component not loaded, clearing cache and refreshing the page.');
       clearCacheAndRefresh();
     } else {
       requestAnimationFrame(check);
@@ -115,7 +116,13 @@ async function verifyToken(token, uuid, ip) {
     body: JSON.stringify({ token, uuid, ip })
   });
 
+  if (!response.ok) {
+    console.error('Error verifying token:', response.status, response.statusText);
+    return false;
+  }
+
   const result = await response.json();
+  console.log('Token verification result:', result);
   return result.success;
 }
 
@@ -133,9 +140,10 @@ async function getClientIP() {
   try {
     const response = await fetch(`https://${currentDomain}/api/IP`);
     const data = await response.json();
+    console.log('Client IP fetched:', data.IP.IP);
     return data.IP.IP; // 直接返回 IP 地址
   } catch (error) {
-    console.error(translate('error_fetching_ip_address_via_api_ip', { error: error.message }));
+    console.error('Error fetching IP address via /api/IP:', error);
     return null;
   }
 }
