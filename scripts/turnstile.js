@@ -1,6 +1,8 @@
 // /scripts/turnstile.js
 "use strict";
 
+import { getMsg, translate } from './i18n.js';
+
 // 获取人机验证开关状态
 fetch('/api/Turnstile')
   .then(response => response.json())
@@ -30,7 +32,7 @@ fetch('/api/Turnstile')
             }
           });
         } else {
-          console.error('Failed to fetch client IP address.');
+          console.error(translate('failed_to_fetch_client_ip_address'));
         }
       });
     } else {
@@ -42,7 +44,7 @@ fetch('/api/Turnstile')
       checkTurnstileStatus(20000);
     }
   })
-  .catch(error => console.error('Error fetching Turnstile status:', error));
+  .catch(error => console.error(translate('error_fetching_turnstile_status', { error: error.message })));
 
 // 动态加载 Turnstile 脚本
 function loadTurnstileScript() {
@@ -59,7 +61,7 @@ function initializeTurnstile(siteKey) {
   if (container) {
     container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
   } else {
-    console.error('Turnstile container element not found.');
+    console.error(translate('turnstile_container_element_not_found'));
   }
 }
 
@@ -80,7 +82,7 @@ function checkTurnstileStatus(timeout) {
       clearInterval(interval);
     } else if (Date.now() - startTime >= timeout) {
       clearInterval(interval);
-      console.error('Turnstile component not loaded, clearing cache and refreshing the page.');
+      console.error(translate('turnstile_component_not_loaded_clearing_cache_and_refreshing'));
       clearCacheAndRefresh();
     }
   }, 100);
@@ -128,7 +130,7 @@ async function getClientIP() {
     const data = await response.json();
     return data.IP.IP; // 直接返回 IP 地址
   } catch (error) {
-    console.error('Error fetching IP address via /api/IP:', error);
+    console.error(translate('error_fetching_ip_address_via_api_ip', { error: error.message }));
     return null;
   }
 }

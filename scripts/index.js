@@ -1,6 +1,8 @@
 // /scripts/index.js
 "use strict";
 
+import { getMsg, translate } from './i18n.js';
+
 // 检查用户代理是否为移动设备，如果是则重定向到移动版页面
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
@@ -18,7 +20,7 @@ async function getClientIP() {
     const data = await response.json();
     return data.IP.IP; // 直接返回 IP 地址
   } catch (error) {
-    console.error('Error fetching IP address via /api/IP:', error);
+    console.error(translate('error_fetching_ip_address', { error: error.message }));
     return null;
   }
 }
@@ -51,7 +53,7 @@ fetch('/api/Turnstile', {
       showIframe();
     }
   })
-  .catch(error => console.error('Error fetching Turnstile status:', error));
+  .catch(error => console.error(translate('error_fetching_turnstile_status', { error: error.message })));
 
 // 显示 iframe 内容
 function showIframe(token, uuid, ip) {
@@ -83,11 +85,11 @@ function showIframe(token, uuid, ip) {
           if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64') && favUrl.hasOwnProperty('contentType')) {
             faviconMap[favUrl.service] = { base64: favUrl.base64, contentType: favUrl.contentType };
           } else {
-            console.error('Invalid favUrl:', favUrl);
+            console.error(translate('invalid_favurl', { favUrl: JSON.stringify(favUrl) }));
           }
         });
       } else {
-        console.error('Invalid favUrls format:', favUrls);
+        console.error(translate('invalid_favurls_format', { favUrls: JSON.stringify(favUrls) }));
       }
 
       if (Array.isArray(urls)) {
@@ -101,11 +103,11 @@ function showIframe(token, uuid, ip) {
             option.textContent = service;
             select.appendChild(option);
           } else {
-            console.error('Invalid urlObj:', urlObj);
+            console.error(translate('invalid_urlobj', { urlObj: JSON.stringify(urlObj) }));
           }
         });
       } else {
-        console.error('Invalid urls format:', urls);
+        console.error(translate('invalid_urls_format', { urls: JSON.stringify(urls) }));
       }
 
       select.addEventListener('change', function () {
@@ -132,7 +134,7 @@ function showIframe(token, uuid, ip) {
         favicon.href = `data:${faviconData.contentType};base64,${faviconData.base64}`;
       }
     })
-    .catch(error => console.error('Error fetching iframe or favicon URL:', error));
+    .catch(error => console.error(translate('error_fetching_iframe_or_favicon_url', { error: error.message })));
 }
 
 // 设置页面标题
@@ -165,7 +167,7 @@ async function verifyToken(token, uuid, ip) {
 
   const result = await response.json();
   if (result.LOG_LEVEL) {
-    console.log('Current log level:', result.LOG_LEVEL);
+    console.log(translate('current_log_level', { logLevel: result.LOG_LEVEL }));
   }
   return result.success;
 }

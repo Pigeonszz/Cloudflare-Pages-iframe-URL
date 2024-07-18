@@ -1,2 +1,19 @@
-welcome_message: "Welcome to our site!"
-intro_text: "This is a test of internationalization."
+#en.yaml
+#custom.js
+fetching_custom_scripts: "Fetching custom scripts"
+error_fetching_custom_scripts: "Error fetching custom scripts: {{error}}"
+loaded_scripts_and_styles: "Loaded {{loadType}} scripts and styles"
+#index.js && mobile.js
+error_fetching_ip_address: "Error fetching IP address via /api/IP: {{error}}"
+invalid_favurl: "Invalid favUrl: {{favUrl}}"
+invalid_favurls_format: "Invalid favUrls format: {{favUrls}}"
+invalid_urlobj: "Invalid urlObj: {{urlObj}}"
+invalid_urls_format: "Invalid urls format: {{urls}}"
+error_fetching_iframe_or_favicon_url: "Error fetching iframe or favicon URL: {{error}}"
+current_log_level: "Current log level: {{logLevel}}"
+#turnstile.js
+failed_to_fetch_client_ip_address: "Failed to fetch client IP address."
+error_fetching_turnstile_status: "Error fetching Turnstile status: {{error}}"
+turnstile_container_element_not_found: "Turnstile container element not found."
+turnstile_component_not_loaded_clearing_cache_and_refreshing: "Turnstile component not loaded, clearing cache and refreshing the page."
+error_fetching_ip_address_via_api_ip: "Error fetching IP address via /api/IP: {{error}}"
