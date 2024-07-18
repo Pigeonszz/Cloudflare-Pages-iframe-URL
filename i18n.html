@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I18n Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script type="module" src="/scripts/i18n.js"></script>
+  <script type="module">
+    import { getMsg, translate } from '/scripts/i18n.js';
+
+    async function init() {
+      try {
+        const messages = await getMsg();
+        translate(messages);
+      } catch (error) {
+        console.error('Failed to initialize i18n', error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</head>
+<body>
+  <h1 data-i18n="welcome_message">Welcome to our site!</h1>
+  <p data-i18n="intro_text">This is an example of internationalization.</p>
+</body>
+</html>
