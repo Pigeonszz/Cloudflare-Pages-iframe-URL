@@ -8,46 +8,41 @@ fetch('/api/Turnstile')
     const turnstileEnabled = env.TURNSTILE_ENABLED === 'true';
     const siteKey = env.siteKey;
 
-    if (turnstileEnabled) {
-      handleTurnstile(siteKey);
+    // 检查 localStorage 中是否有验证状态
+    const turnstileToken = localStorage.getItem('turnstileToken');
+    const turnstileUUID = localStorage.getItem('turnstileUUID');
+
+    if (turnstileToken && turnstileUUID) {
+      // 获取客户端 IP 地址
+      getClientIP().then(clientIP => {
+        if (clientIP) {
+          // 验证 turnstileToken、turnstileUUID 和 clientIP
+          verifyToken(turnstileToken, turnstileUUID, clientIP).then(isValid => {
+            if (isValid) {
+              window.location.href = 'index.html';
+            } else {
+              // 生成新的 turnstileUUID
+              const newTurnstileUUID = generateUUID();
+              localStorage.setItem('turnstileUUID', newTurnstileUUID);
+              loadTurnstileScript();
+              initializeTurnstile(siteKey);
+              checkTurnstileStatus(20000);
+            }
+          });
+        } else {
+          console.error('Failed to fetch client IP address.');
+        }
+      });
     } else {
-      window.location.href = 'index.html';
+      // 生成新的 turnstileUUID
+      const newTurnstileUUID = generateUUID();
+      localStorage.setItem('turnstileUUID', newTurnstileUUID);
+      loadTurnstileScript();
+      initializeTurnstile(siteKey);
+      checkTurnstileStatus(20000);
     }
   })
   .catch(error => console.error('Error fetching Turnstile status:', error));
-
-// 处理 Turnstile 验证
-async function handleTurnstile(siteKey) {
-  const turnstileToken = localStorage.getItem('turnstileToken');
-  const turnstileUUID = localStorage.getItem('turnstileUUID');
-
-  if (turnstileToken && turnstileUUID) {
-    const clientIP = await getClientIP();
-    if (clientIP) {
-      const isValid = await verifyToken(turnstileToken, turnstileUUID, clientIP);
-      if (isValid) {
-        console.log('Token verification successful, redirecting to index.html');
-        window.location.href = 'index.html';
-      } else {
-        setupTurnstile(siteKey);
-      }
-    } else {
-      console.error('Failed to fetch client IP address.');
-    }
-  } else {
-    setupTurnstile(siteKey);
-  }
-}
-
-// 设置 Turnstile
-function setupTurnstile(siteKey) {
-  const newTurnstileUUID = generateUUID();
-  localStorage.setItem('turnstileUUID', newTurnstileUUID);
-  console.log('New UUID generated and stored:', newTurnstileUUID);
-  loadTurnstileScript();
-  initializeTurnstile(siteKey);
-  checkTurnstileStatus(20000);
-}
 
 // 动态加载 Turnstile 脚本
 function loadTurnstileScript() {
@@ -73,25 +68,22 @@ function onTurnstileSuccess(token) {
   const turnstileUUID = localStorage.getItem('turnstileUUID');
   localStorage.setItem('turnstileToken', token);
   localStorage.setItem('turnstileUUID', turnstileUUID);
-  console.log('Turnstile token and UUID stored:', token, turnstileUUID);
   window.location.href = 'index.html';
 }
 
 // 检测 Turnstile 状态的函数，超时为 20 秒
 function checkTurnstileStatus(timeout) {
   const startTime = Date.now();
-  const check = () => {
+  const interval = setInterval(() => {
     const container = document.querySelector('.cf-turnstile iframe');
     if (container) {
-      return;
+      clearInterval(interval);
     } else if (Date.now() - startTime >= timeout) {
+      clearInterval(interval);
       console.error('Turnstile component not loaded, clearing cache and refreshing the page.');
       clearCacheAndRefresh();
-    } else {
-      requestAnimationFrame(check);
     }
-  };
-  requestAnimationFrame(check);
+  }, 100);
 }
 
 // 清除缓存并硬性刷新页面
@@ -116,13 +108,7 @@ async function verifyToken(token, uuid, ip) {
     body: JSON.stringify({ token, uuid, ip })
   });
 
-  if (!response.ok) {
-    console.error('Error verifying token:', response.status, response.statusText);
-    return false;
-  }
-
   const result = await response.json();
-  console.log('Token verification result:', result);
   return result.success;
 }
 
@@ -140,7 +126,6 @@ async function getClientIP() {
   try {
     const response = await fetch(`https://${currentDomain}/api/IP`);
     const data = await response.json();
-    console.log('Client IP fetched:', data.IP.IP);
     return data.IP.IP; // 直接返回 IP 地址
   } catch (error) {
     console.error('Error fetching IP address via /api/IP:', error);
