@@ -1,6 +1,8 @@
 // /scripts/turnstile.js
 "use strict";
 
+import { getMsg, translate } from './i18n.js';
+
 // 获取人机验证开关状态
 async function fetchTurnstileStatus() {
   try {
@@ -15,7 +17,7 @@ async function fetchTurnstileStatus() {
       window.location.href = 'index.html';
     }
   } catch (error) {
-    console.error('Error fetching turnstile status:', error.message);
+    logError('error_fetching_turnstile_status', { error: error.message });
   }
 }
 
@@ -34,7 +36,7 @@ async function handleTurnstile(siteKey) {
         setupTurnstile(siteKey);
       }
     } else {
-      console.error('Failed to fetch client IP address');
+      logError('failed_to_fetch_client_ip_address');
     }
   } else {
     setupTurnstile(siteKey);
@@ -65,7 +67,7 @@ function initializeTurnstile(siteKey) {
   if (container) {
     container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
   } else {
-    console.error('Turnstile container element not found');
+    logError('turnstile_container_element_not_found');
   }
 }
 
@@ -85,7 +87,7 @@ function checkTurnstileStatus(timeout) {
     if (container) {
       return;
     } else if (Date.now() - startTime >= timeout) {
-      console.error('Turnstile component not loaded, clearing cache and refreshing');
+      logError('turnstile_component_not_loaded_clearing_cache_and_refreshing');
       clearCacheAndRefresh();
     } else {
       requestAnimationFrame(check);
@@ -136,9 +138,22 @@ async function getClientIP() {
     const data = await response.json();
     return data.IP.IP; // 直接返回 IP 地址
   } catch (error) {
-    console.error('Error fetching IP address via API IP:', error.message);
+    logError('error_fetching_ip_address_via_api_ip', { error: error.message });
     return null;
   }
+}
+
+// 记录错误日志的函数
+function logError(key, params = {}) {
+  const message = translate(key, params);
+  console.error(message);
+}
+
+// 翻译函数（假设已经有一个翻译函数 translate）
+function translate(key, params = {}) {
+  // 这里假设有一个翻译函数 translate，它会根据 key 和 params 返回翻译后的字符串
+  // 具体的实现取决于你的翻译库或框架
+  return i18n[key] || key;
 }
 
 // 在 DOMContentLoaded 事件中调用 fetchTurnstileStatus
