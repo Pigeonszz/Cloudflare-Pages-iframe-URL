@@ -28,3 +28,7 @@ error_fetching_turnstile_status: "Error fetching Turnstile status: {{error}}"
 turnstile_container_element_not_found: "Turnstile container element not found."
 turnstile_component_not_loaded_clearing_cache_and_refreshing: "Turnstile component not loaded, clearing cache and refreshing the page."
 error_fetching_ip_address_via_api_ip: "Error fetching IP address via /api/IP: {{error}}"
+
+#404.html
+404_title: "404 Not Found"
+404_message: "This page does not exist"

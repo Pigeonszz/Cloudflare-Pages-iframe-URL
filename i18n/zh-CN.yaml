@@ -28,3 +28,7 @@ error_fetching_turnstile_status: "获取 Turnstile 状态时出错: {{error}}"
 turnstile_container_element_not_found: "未找到 Turnstile 容器元素。"
 turnstile_component_not_loaded_clearing_cache_and_refreshing: "Turnstile 组件未加载，清除缓存并刷新页面。"
 error_fetching_ip_address_via_api_ip: "通过 /api/IP 获取 IP 地址时出错: {{error}}"
+
+#404.html
+404_title: "404 未找到"
+404_message: "此页面不存在"
