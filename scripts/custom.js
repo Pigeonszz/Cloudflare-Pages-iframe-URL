@@ -1,7 +1,7 @@
 // /scripts/custom.js
 "use strict";
 
-import { getMsg, translate } from './i18n.js';
+import { getMsg } from './i18n.js';
 
 // 定义日志级别映射
 const LOG_LEVEL_MAP = {
@@ -22,8 +22,7 @@ function getLogLevel(logLevel) {
 // 日志记录函数
 function log(level, messageKey, logLevel) {
     if (LOG_LEVEL_MAP[level] <= logLevel) {
-        const translatedMessage = i18n.t(messageKey);
-        console[level](translatedMessage);
+        console[level](messageKey); // 直接输出消息键，不进行翻译
     }
 }
 
@@ -131,7 +130,6 @@ function loadScripts(scripts, loadType, logLevel) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const messages = await getMsg();
-    translate(messages);
+    await getMsg(); // 确保 i18n 消息已加载
     fetchCustomScripts();
 });
