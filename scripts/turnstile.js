@@ -141,5 +141,7 @@ async function getClientIP() {
   }
 }
 
-// 导出模块
-export { fetchTurnstileStatus };
+// 在 DOMContentLoaded 事件中调用 fetchTurnstileStatus
+document.addEventListener('DOMContentLoaded', () => {
+  fetchTurnstileStatus();
+});
