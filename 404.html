@@ -4,15 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Not Found</title>
+    <title data-i18n="404_title">404 未找到</title>
     <link rel="stylesheet" href="/CSS/404.css">
-    <script src="/scripts/custom.js" async></script>
+    <script src="/scripts/js-yaml.js"></script>
+    <script type="module" src="/scripts/i18n.js" async></script>
+    <script type="module" src="/scripts/custom.js" async></script>
 </head>
 
 <body>
     <div class="container">
         <img src="https://http.cat/404" alt="404 Not Found">
-        <p>此页面不存在</p>
+        <p data-i18n="404_message">此页面不存在</p>
     </div>
 </body>
 

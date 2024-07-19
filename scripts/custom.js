@@ -1,6 +1,8 @@
 // /scripts/custom.js
 "use strict";
 
+import { getMsg, translate } from './i18n.js';
+
 // 定义日志级别映射
 const LOG_LEVEL_MAP = {
     'off': 0,
@@ -18,9 +20,10 @@ function getLogLevel(logLevel) {
 }
 
 // 日志记录函数
-function log(level, message, logLevel) {
+function log(level, messageKey, logLevel, messages) {
     if (LOG_LEVEL_MAP[level] <= logLevel) {
-        console[level](message);
+        const translatedMessage = messages[messageKey] || messageKey;
+        console[level](translatedMessage);
     }
 }
 
@@ -40,24 +43,28 @@ async function fetchCustomScripts() {
 
         const logLevel = getLogLevel(data.LOG_LEVEL);
 
-        log('info', 'Fetching custom scripts', logLevel);
+        const messages = await getMsg();
+
+        log('info', 'fetching_custom_scripts', logLevel, messages);
 
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
         if (isMobile) {
-            loadScripts(data.M_PRELOAD, 'preload', logLevel);
-            loadScripts(data.M_POST_LOAD, 'postload', logLevel);
+            loadScripts(data.M_PRELOAD, 'preload', logLevel, messages);
+            loadScripts(data.M_POST_LOAD, 'postload', logLevel, messages);
         } else {
-            loadScripts(data.PRELOAD, 'preload', logLevel);
-            loadScripts(data.POST_LOAD, 'postload', logLevel);
+            loadScripts(data.PRELOAD, 'preload', logLevel, messages);
+            loadScripts(data.POST_LOAD, 'postload', logLevel, messages);
         }
     } catch (error) {
         const logLevel = getLogLevel(localStorage.getItem('LOG_LEVEL') || 'info');
-        log('error', `Error fetching custom scripts: ${error}`, logLevel);
+        const messages = await getMsg();
+        log('error', 'error_fetching_custom_scripts', logLevel, messages);
+        console.error(error);
     }
 }
 
-function loadScripts(scripts, loadType, logLevel) {
+function loadScripts(scripts, loadType, logLevel, messages) {
     if (!scripts) return;
 
     // 解析环境变量中的URL和内联代码片段
@@ -123,7 +130,11 @@ function loadScripts(scripts, loadType, logLevel) {
         document.head.appendChild(newLink);
     });
 
-    log('debug', `Loaded ${loadType} scripts and styles`, logLevel);
+    log('debug', 'loaded_scripts_and_styles', logLevel, messages);
 }
 
-document.addEventListener('DOMContentLoaded', fetchCustomScripts);
+document.addEventListener('DOMContentLoaded', async () => {
+    const messages = await getMsg();
+    translate(messages);
+    fetchCustomScripts();
+});
