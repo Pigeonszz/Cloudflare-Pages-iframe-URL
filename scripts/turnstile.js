@@ -70,12 +70,12 @@ function initializeTurnstile(siteKey) {
 }
 
 // Turnstile 验证成功的回调函数
-function onTurnstileSuccess(token) {
+window.onTurnstileSuccess = function(token) {
   const turnstileUUID = localStorage.getItem('turnstileUUID');
   localStorage.setItem('turnstileToken', token);
   localStorage.setItem('turnstileUUID', turnstileUUID);
   window.location.href = 'index.html';
-}
+};
 
 // 检测 Turnstile 状态的函数，超时为 20 秒
 function checkTurnstileStatus(timeout) {
