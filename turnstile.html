@@ -7,15 +7,18 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Turnstile 验证</title>
+  <title data-i18n="turnstile_title">Turnstile 验证</title>
   <link rel="icon" href="/turnstile.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/CSS/turnstile.css">
+  <script src="/scripts/js-yaml.js"></script>
+  <script type="module" src="/scripts/i18n.js" async></script>
+  <script type="module" src="/scripts/turnstile.js"></script>
 </head>
 
 <body>
-  <h1 style="color: white;">在继续前，需要验证你是否为人类</h1>
+  <h1 data-i18n="turnstile_heading" style="color: white;">在继续前，需要验证你是否为人类</h1>
   <div id="turnstile-container"></div>
-  <div id="noscript-message">
+  <div id="noscript-message" data-i18n="turnstile_noscript_message">
     您的浏览器禁用了 JavaScript，请启用 JavaScript 以继续。
   </div>
   <noscript>
@@ -30,7 +33,6 @@
       }
     </style>
   </noscript>
-  <script src="/scripts/turnstile.js"></script>
 </body>
 
 </html>

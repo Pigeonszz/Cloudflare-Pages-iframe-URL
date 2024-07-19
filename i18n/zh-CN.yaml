@@ -1,0 +1,34 @@
+# zh-CN.yaml
+loading: "加载中..."
+current_log_level: "当前日志级别: {{logLevel}}"
+
+# custom.js
+fetching_custom_scripts: "正在获取自定义脚本"
+error_fetching_custom_scripts: "获取自定义脚本时出错: {{error}}"
+loaded_scripts_and_styles: "已加载 {{loadType}} 脚本和样式"
+
+#index.html && mobile.html
+index_select_site: "选择一个站点..."
+mobile_select_site: "选择一个站点..."
+# index.js && mobile.js
+error_fetching_ip_address: "通过 /api/IP 获取 IP 地址时出错: {{error}}"
+invalid_favurl: "无效的 favUrl: {{favUrl}}"
+invalid_favurls_format: "无效的 favUrls 格式: {{favUrls}}"
+invalid_urlobj: "无效的 urlObj: {{urlObj}}"
+invalid_urls_format: "无效的 urls 格式: {{urls}}"
+error_fetching_iframe_or_favicon_url: "获取 iframe 或 favicon URL 时出错: {{error}}"
+
+#turnstile.html
+turnstile_title: "Turnstile 验证"
+turnstile_heading: "在继续前，请验证您是否为人类"
+turnstile_noscript_message: "您的浏览器已禁用 JavaScript，请启用 JavaScript 以继续。"
+# turnstile.js
+failed_to_fetch_client_ip_address: "获取客户端 IP 地址失败。"
+error_fetching_turnstile_status: "获取 Turnstile 状态时出错: {{error}}"
+turnstile_container_element_not_found: "未找到 Turnstile 容器元素。"
+turnstile_component_not_loaded_clearing_cache_and_refreshing: "Turnstile 组件未加载，清除缓存并刷新页面。"
+error_fetching_ip_address_via_api_ip: "通过 /api/IP 获取 IP 地址时出错: {{error}}"
+
+#404.html
+404_title: "404 未找到"
+404_message: "此页面不存在"
