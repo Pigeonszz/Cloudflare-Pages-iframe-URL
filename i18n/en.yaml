@@ -1,17 +1,28 @@
-#en.yaml
-#custom.js
+# en.yaml
+loading: "Loading..."
+current_log_level: "Current log level: {{logLevel}}"
+
+# custom.js
 fetching_custom_scripts: "Fetching custom scripts"
 error_fetching_custom_scripts: "Error fetching custom scripts: {{error}}"
 loaded_scripts_and_styles: "Loaded {{loadType}} scripts and styles"
-#index.js && mobile.js
+
+#index.html && mobile.html
+index_select_site: "Select a site..."
+mobile_select_site: "Select a site..."
+# index.js && mobile.js
 error_fetching_ip_address: "Error fetching IP address via /api/IP: {{error}}"
 invalid_favurl: "Invalid favUrl: {{favUrl}}"
 invalid_favurls_format: "Invalid favUrls format: {{favUrls}}"
 invalid_urlobj: "Invalid urlObj: {{urlObj}}"
 invalid_urls_format: "Invalid urls format: {{urls}}"
 error_fetching_iframe_or_favicon_url: "Error fetching iframe or favicon URL: {{error}}"
-current_log_level: "Current log level: {{logLevel}}"
-#turnstile.js
+
+#turnstile.html
+turnstile_title: "Turnstile Verification"
+turnstile_heading: "Before proceeding, please verify you are human"
+turnstile_noscript_message: "Your browser has JavaScript disabled, please enable JavaScript to continue."
+# turnstile.js
 failed_to_fetch_client_ip_address: "Failed to fetch client IP address."
 error_fetching_turnstile_status: "Error fetching Turnstile status: {{error}}"
 turnstile_container_element_not_found: "Turnstile container element not found."
