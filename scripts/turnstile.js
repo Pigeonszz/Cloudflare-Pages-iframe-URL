@@ -1,22 +1,23 @@
 // /scripts/turnstile.js
 "use strict";
 
-// import { getMsg, translate } from './i18n.js';
-
 // 获取人机验证开关状态
-fetch('/api/Turnstile')
-  .then(response => response.json())
-  .then(env => {
+async function fetchTurnstileStatus() {
+  try {
+    const response = await fetch('/api/Turnstile');
+    const env = await response.json();
     const turnstileEnabled = env.TURNSTILE_ENABLED === 'true';
     const siteKey = env.siteKey;
 
     if (turnstileEnabled) {
-      handleTurnstile(siteKey);
+      await handleTurnstile(siteKey);
     } else {
       window.location.href = 'index.html';
     }
-  })
-  .catch(error => console.error(translate('error_fetching_turnstile_status', { error: error.message })));
+  } catch (error) {
+    console.error('Error fetching turnstile status:', error.message);
+  }
+}
 
 // 处理 Turnstile 验证
 async function handleTurnstile(siteKey) {
@@ -33,7 +34,7 @@ async function handleTurnstile(siteKey) {
         setupTurnstile(siteKey);
       }
     } else {
-      console.error(translate('failed_to_fetch_client_ip_address'));
+      console.error('Failed to fetch client IP address');
     }
   } else {
     setupTurnstile(siteKey);
@@ -64,7 +65,7 @@ function initializeTurnstile(siteKey) {
   if (container) {
     container.innerHTML = `<div class="cf-turnstile" data-sitekey="${siteKey}" data-callback="onTurnstileSuccess"></div>`;
   } else {
-    console.error(translate('turnstile_container_element_not_found'));
+    console.error('Turnstile container element not found');
   }
 }
 
@@ -84,7 +85,7 @@ function checkTurnstileStatus(timeout) {
     if (container) {
       return;
     } else if (Date.now() - startTime >= timeout) {
-      console.error(translate('turnstile_component_not_loaded_clearing_cache_and_refreshing'));
+      console.error('Turnstile component not loaded, clearing cache and refreshing');
       clearCacheAndRefresh();
     } else {
       requestAnimationFrame(check);
@@ -135,7 +136,10 @@ async function getClientIP() {
     const data = await response.json();
     return data.IP.IP; // 直接返回 IP 地址
   } catch (error) {
-    console.error(translate('error_fetching_ip_address_via_api_ip', { error: error.message }));
+    console.error('Error fetching IP address via API IP:', error.message);
     return null;
   }
 }
+
+// 导出模块
+export { fetchTurnstileStatus };
