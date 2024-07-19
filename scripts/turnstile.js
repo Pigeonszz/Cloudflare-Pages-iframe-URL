@@ -149,13 +149,6 @@ function logError(key, params = {}) {
   console.error(message);
 }
 
-// 翻译函数（假设已经有一个翻译函数 translate）
-function translate(key, params = {}) {
-  // 这里假设有一个翻译函数 translate，它会根据 key 和 params 返回翻译后的字符串
-  // 具体的实现取决于你的翻译库或框架
-  return i18n[key] || key;
-}
-
 // 在 DOMContentLoaded 事件中调用 fetchTurnstileStatus
 document.addEventListener('DOMContentLoaded', () => {
   fetchTurnstileStatus();
