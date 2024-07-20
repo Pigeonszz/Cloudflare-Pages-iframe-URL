@@ -105,9 +105,9 @@ async function initKV() {
 }
 
 export async function onRequest(context) {
-  // 检查请求路径是否为 /api/ip
+  // 检查请求路径是否为 /api/init
   const requestPath = new URL(context.request.url).pathname;
-  if (requestPath.toLowerCase() !== '/api/ip') {
+  if (requestPath.toLowerCase() !== '/api/init') {
     return new Response('Not Found', { status: 404 });
   }
 
