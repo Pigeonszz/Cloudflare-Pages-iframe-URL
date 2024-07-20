@@ -1,0 +1,11 @@
+# 禁用 /scripts/custom.js 的缓存
+/scripts/custom.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+# 禁用 /scripts/index.js 的缓存
+/scripts/index.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
