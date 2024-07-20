@@ -25,19 +25,14 @@ function log(level, message) {
 }
 
 async function handleRequest(request) {
-  const url = new URL(request.url);
-  if (url.pathname === '/api/init') {
-    try {
-      await initD1();
-      await initKV();
-      log('INFO', 'D1 数据库和 KV 命名空间初始化成功');
-      return new Response('D1 数据库和 KV 命名空间初始化成功', { status: 200 });
-    } catch (error) {
-      log('ERROR', `初始化失败: ${error.message}`);
-      return new Response(`初始化失败: ${error.message}`, { status: 500 });
-    }
-  } else {
-    return new Response('未找到', { status: 404 });
+  try {
+    await initD1();
+    await initKV();
+    log('INFO', 'D1 数据库和 KV 命名空间初始化成功');
+    return new Response('D1 数据库和 KV 命名空间初始化成功', { status: 200 });
+  } catch (error) {
+    log('ERROR', `初始化失败: ${error.message}`);
+    return new Response(`初始化失败: ${error.message}`, { status: 500 });
   }
 }
 
@@ -52,6 +47,13 @@ async function initD1() {
   const { D1 } = globalThis;
   if (!D1) {
     throw new Error('D1 不可用');
+  }
+
+  // 检查是否已初始化
+  const result = await D1.prepare('SELECT COUNT(*) AS count FROM environment_variables WHERE key = ?').bind('initialized').first();
+  if (result && result.count > 0) {
+    log('INFO', 'D1 数据库已初始化');
+    return;
   }
 
   // 创建环境变量表
@@ -79,6 +81,9 @@ async function initD1() {
       await D1.exec(`INSERT OR REPLACE INTO environment_variables (key, value) VALUES (?, ?)`, [key, value]);
     }
   }
+
+  // 标记已初始化
+  await D1.exec(`INSERT OR REPLACE INTO environment_variables (key, value) VALUES (?, ?)`, ['initialized', 'true']);
 }
 
 async function initKV() {
@@ -94,6 +99,13 @@ async function initKV() {
     throw new Error('KV 不可用');
   }
 
+  // 检查是否已初始化
+  const initialized = await KV.get('initialized');
+  if (initialized) {
+    log('INFO', 'KV 命名空间已初始化');
+    return;
+  }
+
   // 覆写以 KV_ 开头的环境变量到 KV 空间
   const env = process.env;
   for (const key in env) {
@@ -103,4 +115,7 @@ async function initKV() {
       await KV.put(kvKey, value);
     }
   }
+
+  // 标记已初始化
+  await KV.put('initialized', 'true');
 }
