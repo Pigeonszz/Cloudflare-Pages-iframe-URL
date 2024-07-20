@@ -1,10 +1,6 @@
 "use strict";
 
-// /functions/api/init.js
-
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-});
+// init.js
 
 const LOG_LEVELS = {
   OFF: 0,
@@ -21,18 +17,6 @@ let logLevel = LOG_LEVELS[process.env.LOG_LEVEL?.toUpperCase()] || LOG_LEVELS.IN
 function log(level, message) {
   if (LOG_LEVELS[level] <= logLevel) {
     console.log(`[${level}] ${message}`);
-  }
-}
-
-async function handleRequest(request) {
-  try {
-    await initD1();
-    await initKV();
-    log('INFO', 'D1 数据库和 KV 命名空间初始化成功');
-    return new Response('D1 数据库和 KV 命名空间初始化成功', { status: 200 });
-  } catch (error) {
-    log('ERROR', `初始化失败: ${error.message}`);
-    return new Response(`初始化失败: ${error.message}`, { status: 500 });
   }
 }
 
@@ -118,4 +102,20 @@ async function initKV() {
 
   // 标记已初始化
   await KV.put('initialized', 'true');
+}
+
+export async function onRequest(context) {
+  // 检查请求路径是否为 /api/ip
+  const requestPath = new URL(context.request.url).pathname;
+  if (requestPath.toLowerCase() !== '/api/ip') {
+    return new Response('Not Found', { status: 404 });
+  }
+
+  try {
+    await initD1();
+    await initKV();
+    return new Response('D1 数据库和 KV 命名空间初始化成功', { status: 200 });
+  } catch (error) {
+    return new Response(`初始化失败: ${error.message}`, { status: 500 });
+  }
 }
