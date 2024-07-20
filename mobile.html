@@ -4,16 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title data-i18n="loading">加载中...</title>
   <link id="dynamic-favicon" rel="icon" href="/favicon.svg">
   <link rel="stylesheet" href="/CSS/mobile.css">
   <script src="/scripts/js-yaml.js"></script>
   <script type="module" src="/scripts/i18n.js" async></script>
-  <script type="module" src="/scripts/mobile.js" async></script>
-  <script type="module" src="/scripts/custom.js" async></script>
+  <script type="module" src="/scripts/mobile.js?v=<%= Math.random() %>" async></script>
+  <script type="module" src="/scripts/custom.js?v=<%= Math.random() %>" async></script>
 </head>
 
 <body>
