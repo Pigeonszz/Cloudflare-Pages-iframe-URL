@@ -12,7 +12,7 @@ const LOG_LEVELS = {
   TRACE: 6
 };
 
-let logLevel = LOG_LEVELS[process.env.LOG_LEVEL?.toUpperCase()] || LOG_LEVELS.INFO;
+let logLevel = LOG_LEVELS[context.env.LOG_LEVEL?.toUpperCase()] || LOG_LEVELS.INFO;
 
 function log(level, message) {
   if (LOG_LEVELS[level] <= logLevel) {
@@ -58,7 +58,7 @@ async function initD1() {
   `);
 
   // 覆写以 D1_ 开头的环境变量到 D1 数据库
-  const env = process.env;
+  const env = context.env;
   for (const key in env) {
     if (key.startsWith('D1_')) {
       const value = env[key];
@@ -91,7 +91,7 @@ async function initKV() {
   }
 
   // 覆写以 KV_ 开头的环境变量到 KV 空间
-  const env = process.env;
+  const env = context.env;
   for (const key in env) {
     if (key.startsWith('KV_')) {
       const value = env[key];
