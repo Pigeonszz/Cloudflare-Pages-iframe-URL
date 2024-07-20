@@ -1,5 +1,6 @@
-// /functions/api/init.js
 "use strict";
+
+// /functions/api/init.js
 
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
@@ -98,7 +99,7 @@ async function initKV() {
   for (const key in env) {
     if (key.startsWith('KV_')) {
       const value = env[key];
-      const kvKey = key.substring(3); // 去掉前缀 'KV_'
+      const kvKey = `env:${key.substring(3)}`; // 去掉前缀 'KV_' 并添加 'env:'
       await KV.put(kvKey, value);
     }
   }
