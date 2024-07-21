@@ -1,5 +1,5 @@
-# 禁用 /scripts/* 目录下的文件缓存
-/scripts/*
+# 禁用缓存
+/*
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
