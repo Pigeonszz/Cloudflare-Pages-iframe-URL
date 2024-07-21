@@ -31,37 +31,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 获取 Turnstile 状态
-    fetch('/api/Turnstile', {
+    const turnstileResponse = await fetch('/api/Turnstile', {
       headers: {
         'Accept': 'application/json;charset=UTF-8'
       }
-    })
-      .then(response => response.json())
-      .then(env => {
-        if (env.TURNSTILE_ENABLED === 'true') {
-          const turnstileToken = localStorage.getItem('turnstileToken');
-          const turnstileUUID = localStorage.getItem('turnstileUUID');
-          if (turnstileToken && turnstileUUID) {
-            getClientIP().then(ip => {
-              verifyToken(turnstileToken, turnstileUUID, ip).then(isValid => {
-                if (isValid) {
-                  showIframe(turnstileToken, turnstileUUID, ip);
-                } else {
-                  window.location.href = 'turnstile.html';
-                }
-              });
-            });
-          } else {
-            window.location.href = 'turnstile.html';
-          }
+    });
+    const turnstileEnv = await turnstileResponse.json();
+
+    if (turnstileEnv.TURNSTILE_ENABLED === 'true') {
+      const turnstileToken = localStorage.getItem('turnstileToken');
+      const turnstileUUID = localStorage.getItem('turnstileUUID');
+      if (turnstileToken && turnstileUUID) {
+        const ip = await getClientIP();
+        const isValid = await verifyToken(turnstileToken, turnstileUUID, ip);
+        if (isValid) {
+          showIframe(turnstileToken, turnstileUUID, ip);
         } else {
-          showIframe();
+          window.location.href = 'turnstile.html';
         }
-      })
-      .catch(error => console.error(translate('error_fetching_turnstile_status', { error: error.message })));
+      } else {
+        window.location.href = 'turnstile.html';
+      }
+    } else {
+      showIframe();
+    }
 
     // 显示 iframe 内容
-    function showIframe(token, uuid, ip) {
+    async function showIframe(token, uuid, ip) {
       const fetchOptions = {
         method: 'POST',
         headers: {
@@ -71,97 +67,89 @@ document.addEventListener('DOMContentLoaded', async () => {
         body: JSON.stringify({ token, uuid, ip })
       };
 
-      Promise.all([
+      const [iframeUrlsResponse, faviconsResponse] = await Promise.allSettled([
         fetch('/api/iframe-urls', fetchOptions),
         fetch('/api/favicons', fetchOptions)
-      ])
-        .then(responses => Promise.all(responses.map(response => response.json())))
-        .then(data => {
-          const urls = data[0].urls;
-          const favUrls = data[1].faviconUrls;
+      ]);
 
-          const select = document.getElementById('siteSelection');
-          const iframe = document.getElementById('dynamic-iframe');
-          const favicon = document.getElementById('dynamic-favicon');
-          const faviconMap = {};
+      const iframeUrlsData = iframeUrlsResponse.status === 'fulfilled' ? await iframeUrlsResponse.value.json() : { urls: [] };
+      const faviconsData = faviconsResponse.status === 'fulfilled' ? await faviconsResponse.value.json() : { faviconUrls: [] };
 
-          if (Array.isArray(favUrls)) {
-            favUrls.forEach(favUrl => {
-              if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64') && favUrl.hasOwnProperty('contentType')) {
-                faviconMap[favUrl.service] = { base64: favUrl.base64, contentType: favUrl.contentType };
-              } else {
-                console.error(translate('invalid_favurl', { favUrl: JSON.stringify(favUrl) }));
-              }
-            });
-          } else {
-            console.error(translate('invalid_favurls_format', { favUrls: JSON.stringify(favUrls) }));
-          }
+      const urls = iframeUrlsData.urls;
+      const favUrls = faviconsData.faviconUrls;
 
-          if (Array.isArray(urls)) {
-            urls.forEach(urlObj => {
-              if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
-                const iframeUrl = urlObj.url;
-                const service = urlObj.service;
-                const faviconData = faviconMap[service] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
-                const option = document.createElement('option');
-                option.value = iframeUrl;
-                option.textContent = service;
-                select.appendChild(option);
-              } else {
-                console.error(translate('invalid_urlobj', { urlObj: JSON.stringify(urlObj) }));
-              }
-            });
-          } else {
-            console.error(translate('invalid_urls_format', { urls: JSON.stringify(urls) }));
-          }
+      const select = document.getElementById('siteSelection');
+      const iframe = document.getElementById('dynamic-iframe');
+      const favicon = document.getElementById('dynamic-favicon');
+      const faviconMap = {};
 
-          select.addEventListener('change', function () {
-            const selectedUrl = select.value;
-            const selectedOption = select.options[select.selectedIndex].textContent;
-            if (selectedUrl) {
-              iframe.src = selectedUrl;
-              sessionStorage.setItem('selectedSite', selectedUrl);
-              setTitle(selectedOption);
-              setFavicon(selectedOption, faviconMap);
-              select.classList.add('selected');
-            }
-          });
+      favUrls.forEach(favUrl => {
+        if (typeof favUrl === 'object' && favUrl.hasOwnProperty('service') && favUrl.hasOwnProperty('base64') && favUrl.hasOwnProperty('contentType')) {
+          faviconMap[favUrl.service] = { base64: favUrl.base64, contentType: favUrl.contentType };
+        } else {
+          console.error(translate('invalid_favurl', { favUrl: JSON.stringify(favUrl) }));
+        }
+      });
 
-          const lastSelectedSite = sessionStorage.getItem('selectedSite');
-          if (lastSelectedSite) {
-            iframe.src = lastSelectedSite;
-            select.value = lastSelectedSite;
-            const lastSelectedOption = select.options[select.selectedIndex].textContent;
-            setTitle(lastSelectedOption);
-            setFavicon(lastSelectedOption, faviconMap);
-          }
+      urls.forEach(urlObj => {
+        if (typeof urlObj === 'object' && urlObj.hasOwnProperty('url') && urlObj.hasOwnProperty('service')) {
+          const iframeUrl = urlObj.url;
+          const service = urlObj.service;
+          const faviconData = faviconMap[service] || { base64: '/favicon.svg', contentType: 'image/svg+xml' };
+          const option = document.createElement('option');
+          option.value = iframeUrl;
+          option.textContent = service;
+          select.appendChild(option);
+        } else {
+          console.error(translate('invalid_urlobj', { urlObj: JSON.stringify(urlObj) }));
+        }
+      });
 
-          const selectContainer = document.getElementById('selectContainer');
-          selectContainer.addEventListener('touchstart', function (e) {
-            const startY = e.touches[0].clientY;
-            selectContainer.addEventListener('touchmove', function (e) {
-              const moveY = e.touches[0].clientY;
-              if (moveY - startY > 50) {
-                selectContainer.style.top = '50%';
-                selectContainer.style.left = '50%';
-                selectContainer.style.transform = 'translate(-50%, -50%)';
-                setTimeout(() => {
-                  selectContainer.style.top = '20px';
-                  selectContainer.style.left = '20px';
-                  selectContainer.style.transform = 'translate(0)';
-                }, 5000);
-              }
-            });
-          });
+      select.addEventListener('change', function () {
+        const selectedUrl = select.value;
+        const selectedOption = select.options[select.selectedIndex].textContent;
+        if (selectedUrl) {
+          iframe.src = selectedUrl;
+          sessionStorage.setItem('selectedSite', selectedUrl);
+          setTitle(selectedOption);
+          setFavicon(selectedOption, faviconMap);
+          select.classList.add('selected');
+        }
+      });
 
-          select.addEventListener('click', function () {
-            select.classList.remove('selected');
+      const lastSelectedSite = sessionStorage.getItem('selectedSite');
+      if (lastSelectedSite) {
+        iframe.src = lastSelectedSite;
+        select.value = lastSelectedSite;
+        const lastSelectedOption = select.options[select.selectedIndex].textContent;
+        setTitle(lastSelectedOption);
+        setFavicon(lastSelectedOption, faviconMap);
+      }
+
+      const selectContainer = document.getElementById('selectContainer');
+      selectContainer.addEventListener('touchstart', function (e) {
+        const startY = e.touches[0].clientY;
+        selectContainer.addEventListener('touchmove', function (e) {
+          const moveY = e.touches[0].clientY;
+          if (moveY - startY > 50) {
+            selectContainer.style.top = '50%';
+            selectContainer.style.left = '50%';
+            selectContainer.style.transform = 'translate(-50%, -50%)';
             setTimeout(() => {
-              select.classList.add('selected');
+              selectContainer.style.top = '20px';
+              selectContainer.style.left = '20px';
+              selectContainer.style.transform = 'translate(0)';
             }, 5000);
-          });
-        })
-        .catch(error => console.error(translate('error_fetching_iframe_or_favicon_url', { error: error.message })));
+          }
+        });
+      });
+
+      select.addEventListener('click', function () {
+        select.classList.remove('selected');
+        setTimeout(() => {
+          select.classList.add('selected');
+        }, 5000);
+      });
     }
 
     // 设置页面标题

@@ -69,20 +69,20 @@ export async function onRequest(context) {
     const db = context.env.D1;
     log('debug', 'Database connection established', context);
 
-    // 检查是否存在 uuid_store 表，若不存在则创建
-    const tableCheck = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="uuid_store"').first();
+    // 检查是否存在 captcha_token 表，若不存在则创建
+    const tableCheck = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="captcha_token"').first();
     if (!tableCheck) {
-        log('info', 'Creating uuid_store table', context);
-        await db.prepare('CREATE TABLE uuid_store (uuid TEXT PRIMARY KEY, timestamp INTEGER, ip TEXT)').run();
+        log('info', 'Creating captcha_token table', context);
+        await db.prepare('CREATE TABLE captcha_token (uuid TEXT PRIMARY KEY, token TEXT, timestamp INTEGER, ip TEXT)').run();
     }
 
-    // 清理过期的 UUID 记录
+    // 清理过期的 token 记录
     const currentTime = Math.floor(Date.now() / 1000);
-    log('debug', `Cleaning up expired UUID records older than ${currentTime - TURNSTILE_TIME}`, context);
-    await db.prepare('DELETE FROM uuid_store WHERE timestamp < ?').bind(currentTime - TURNSTILE_TIME).run();
+    log('debug', `Cleaning up expired token records older than ${currentTime - TURNSTILE_TIME}`, context);
+    await db.prepare('DELETE FROM captcha_token WHERE timestamp < ?').bind(currentTime - TURNSTILE_TIME).run();
 
     // 检查 UUID 和 IP 是否有变化
-    const storedResult = await db.prepare('SELECT timestamp, ip FROM uuid_store WHERE uuid = ?').bind(uuid).first();
+    const storedResult = await db.prepare('SELECT token, timestamp, ip FROM captcha_token WHERE uuid = ?').bind(uuid).first();
     if (storedResult) {
         const storedTime = storedResult.timestamp;
         const storedIp = storedResult.ip;
@@ -114,7 +114,7 @@ export async function onRequest(context) {
     if (verificationResult.success) {
         const currentTime = Math.floor(Date.now() / 1000);
         log('debug', 'Verification successful, storing UUID and IP', context);
-        await db.prepare('INSERT OR REPLACE INTO uuid_store (uuid, timestamp, ip) VALUES (?, ?, ?)').bind(uuid, currentTime, ip).run();
+        await db.prepare('INSERT OR REPLACE INTO captcha_token (uuid, token, timestamp, ip) VALUES (?, ?, ?, ?)').bind(uuid, token, currentTime, ip).run();
 
         return new Response(JSON.stringify({ success: true, LOG_LEVEL }), {
             headers: { 'Content-Type': 'application/json;charset=UTF-8' }
