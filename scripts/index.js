@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 获取 Turnstile 状态
-    const turnstileResponse = await fetch('/api/Turnstile', {
+    const turnstileResponse = await fetch('/api/env', {
       headers: {
         'Accept': 'application/json;charset=UTF-8'
       }

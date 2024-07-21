@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 获取人机验证开关状态
     async function fetchTurnstileStatus() {
       try {
-        const response = await fetch('/api/Turnstile');
+        const response = await fetch('/api/env');
         const env = await response.json();
         const turnstileEnabled = env.TURNSTILE_ENABLED === 'true';
         const siteKey = env.siteKey;

@@ -1,4 +1,4 @@
-// /functions/api/Turnstile.js
+// /functions/api/env.js
 "use strict";
 
 // 定义日志级别映射
@@ -26,10 +26,31 @@ function log(level, message, context) {
   }
 }
 
+async function getEnvValue(key, context) {
+  // 从环境变量中获取
+  if (context.env[key] !== undefined) {
+    return context.env[key];
+  }
+
+  // 从 D1 数据库中获取
+  const d1Value = await context.env.D1.prepare('SELECT value FROM env WHERE key = ?').bind(key).first();
+  if (d1Value && d1Value.value !== undefined) {
+    return d1Value.value;
+  }
+
+  // 从 KV 中获取
+  const kvValue = await context.env.KV.get(key);
+  if (kvValue !== null) {
+    return kvValue;
+  }
+
+  return undefined;
+}
+
 export async function onRequest(context) {
-  // 检查请求路径是否为 /api/turnstile
+  // 检查请求路径是否为 /api/env
   const requestPath = new URL(context.request.url).pathname;
-  if (requestPath.toLowerCase() !== '/api/turnstile') {
+  if (requestPath.toLowerCase() !== '/api/env') {
     return new Response('Not Found', { status: 404 });
   }
 
@@ -37,15 +58,16 @@ export async function onRequest(context) {
   log('info', 'Processing request', context);
 
   // 从环境变量中获取 Turnstile 的站点密钥
+  const siteKey = await getEnvValue('TURNSTILE_SITE_KEY', context);
   const keys = {
-    siteKey: context.env.TURNSTILE_SITE_KEY,
+    siteKey: siteKey,
   };
 
   // 从环境变量中获取 Turnstile 是否启用的标志，默认为 'false'
-  const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED || 'false';
+  const TURNSTILE_ENABLED = await getEnvValue('TURNSTILE_ENABLED', context) || 'false';
 
   // 从环境变量中获取 LOG_LEVEL
-  const LOG_LEVEL = context.env.LOG_LEVEL || 'info';
+  const LOG_LEVEL = await getEnvValue('LOG_LEVEL', context) || 'info';
 
   // 记录日志
   log('debug', `Turnstile enabled: ${TURNSTILE_ENABLED}`, context);

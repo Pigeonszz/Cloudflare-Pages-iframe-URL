@@ -69,13 +69,6 @@ export async function onRequest(context) {
     const db = context.env.D1;
     log('debug', 'Database connection established', context);
 
-    // 检查是否存在 captcha_token 表，若不存在则创建
-    const tableCheck = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="captcha_token"').first();
-    if (!tableCheck) {
-        log('info', 'Creating captcha_token table', context);
-        await db.prepare('CREATE TABLE captcha_token (uuid TEXT PRIMARY KEY, token TEXT, timestamp INTEGER, ip TEXT)').run();
-    }
-
     // 清理过期的 token 记录
     const currentTime = Math.floor(Date.now() / 1000);
     log('debug', `Cleaning up expired token records older than ${currentTime - TURNSTILE_TIME}`, context);
