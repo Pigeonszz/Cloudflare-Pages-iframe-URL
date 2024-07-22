@@ -31,9 +31,10 @@ export async function onRequest(context) {
   const hasD1Database = context.env.D1 !== undefined;
 
   if (!hasKVNamespace && !hasD1Database) {
-    return new Response(JSON.stringify({ error: 'No KV or D1 environment variables found' }), {
+    log('warn', 'No KV or D1 environment variables found, skipping initialization', context);
+    return new Response(JSON.stringify({ message: 'No KV or D1 environment variables found, skipping initialization' }), {
       headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-      status: 500,
+      status: 200,
     });
   }
 
@@ -68,17 +69,21 @@ export async function onRequest(context) {
     }
 
     // 检查是否存在 captcha_token 表，若不存在则创建
-    const tableCheckCaptchaToken = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="captcha_token"').first();
-    if (!tableCheckCaptchaToken) {
-      await db.prepare('CREATE TABLE captcha_token (uuid TEXT PRIMARY KEY, token TEXT, timestamp INTEGER, ip TEXT)').run();
-      log('info', 'captcha_token table created', context);
+    if (hasD1Database) {
+      const tableCheckCaptchaToken = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="captcha_token"').first();
+      if (!tableCheckCaptchaToken) {
+        await db.prepare('CREATE TABLE captcha_token (uuid TEXT PRIMARY KEY, token TEXT, timestamp INTEGER, ip TEXT)').run();
+        log('info', 'captcha_token table created', context);
+      }
     }
 
     // 检查是否存在 env 表，若不存在则创建
-    const tableCheckEnv = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="env"').first();
-    if (!tableCheckEnv) {
-      await db.prepare('CREATE TABLE env (key TEXT PRIMARY KEY, value TEXT)').run();
-      log('info', 'env table created', context);
+    if (hasD1Database) {
+      const tableCheckEnv = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="env"').first();
+      if (!tableCheckEnv) {
+        await db.prepare('CREATE TABLE env (key TEXT PRIMARY KEY, value TEXT)').run();
+        log('info', 'env table created', context);
+      }
     }
 
     // 获取 KV 和 D1 数据库实例
