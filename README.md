@@ -4,8 +4,8 @@ Render embedded iframe content based on Cloudflare Pages.
 
 ## Other Languages
 
-- [简体中文](README.zh-CN.md)
-- [繁體中文](README.zh-TW.md)
+- [简体中文](README.zh-cn.md)
+- [繁體中文](README.zh-tw.md)
 
 ## How to Use
 
