@@ -26,6 +26,43 @@ function log(level, message, context) {
     }
 }
 
+async function getEnvValue(key, context) {
+    // 从环境变量中获取
+    if (context.env[key] !== undefined) {
+        return context.env[key];
+    }
+
+    // 从 D1 数据库中获取
+    if (context.env.D1 !== undefined) {
+        try {
+            const d1Value = await context.env.D1.prepare('SELECT value FROM env WHERE key = ?').bind(`D1_${key}`).first();
+            if (d1Value && d1Value.value !== undefined) {
+                return d1Value.value;
+            }
+        } catch (error) {
+            log('error', `Error fetching from D1: ${error.message}`, context);
+            // 可以返回默认值或抛出错误
+            throw error;
+        }
+    }
+
+    // 从 KV 中获取
+    if (context.env.KV !== undefined) {
+        try {
+            const kvValue = await context.env.KV.get(`KV_${key}`);
+            if (kvValue !== null) {
+                return kvValue;
+            }
+        } catch (error) {
+            log('error', `Error fetching from KV: ${error.message}`, context);
+            // 可以返回默认值或抛出错误
+            throw error;
+        }
+    }
+
+    return undefined;
+}
+
 export async function onRequest(context) {
     // 检查请求方法是否为 POST
     if (context.request.method !== 'POST') {
@@ -36,15 +73,15 @@ export async function onRequest(context) {
     log('info', 'Processing request', context);
 
     // 从环境变量中获取 Turnstile 的密钥
-    const TURNSTILE_SECRET_KEY = context.env.TURNSTILE_SECRET_KEY;
+    const TURNSTILE_SECRET_KEY = await getEnvValue('TURNSTILE_SECRET_KEY', context);
     log('debug', `Turnstile secret key retrieved: ${TURNSTILE_SECRET_KEY}`, context);
 
     // 从环境变量中获取 Turnstile 的有效时间，默认为 4 小时（以秒为单位）
-    const TURNSTILE_TIME = context.env.TURNSTILE_TIME || 14400;
+    const TURNSTILE_TIME = await getEnvValue('TURNSTILE_TIME', context) || 14400;
     log('debug', `Turnstile time retrieved: ${TURNSTILE_TIME}`, context);
 
     // 从环境变量中获取 LOG_LEVEL
-    const LOG_LEVEL = context.env.LOG_LEVEL || 'info';
+    const LOG_LEVEL = await getEnvValue('LOG_LEVEL', context) || 'info';
     log('debug', `Log level retrieved: ${LOG_LEVEL}`, context);
 
     // 解析请求体中的 JSON 数据

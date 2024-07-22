@@ -28,6 +28,43 @@ function log(level, message, context) {
   }
 }
 
+async function getEnvValue(key, context) {
+  // 从环境变量中获取
+  if (context.env[key] !== undefined) {
+    return context.env[key];
+  }
+
+  // 从 D1 数据库中获取
+  if (context.env.D1 !== undefined) {
+    try {
+      const d1Value = await context.env.D1.prepare('SELECT value FROM env WHERE key = ?').bind(`D1_${key}`).first();
+      if (d1Value && d1Value.value !== undefined) {
+        return d1Value.value;
+      }
+    } catch (error) {
+      log('error', `Error fetching from D1: ${error.message}`, context);
+      // 可以返回默认值或抛出错误
+      throw error;
+    }
+  }
+
+  // 从 KV 中获取
+  if (context.env.KV !== undefined) {
+    try {
+      const kvValue = await context.env.KV.get(`KV_${key}`);
+      if (kvValue !== null) {
+        return kvValue;
+      }
+    } catch (error) {
+      log('error', `Error fetching from KV: ${error.message}`, context);
+      // 可以返回默认值或抛出错误
+      throw error;
+    }
+  }
+
+  return undefined;
+}
+
 export async function onRequest(context) {
   // 检查请求方法是否为 POST
   if (context.request.method !== 'POST') {
@@ -38,9 +75,9 @@ export async function onRequest(context) {
   log('info', 'Processing request', context);
 
   // 从环境变量中获取 IFRAME_URL 和 TURNSTILE_ENABLED
-  const IFRAME_URL = context.env.IFRAME_URL;
-  const TURNSTILE_ENABLED = context.env.TURNSTILE_ENABLED === 'true';
-  const LOG_LEVEL = context.env.LOG_LEVEL || 'info';
+  const IFRAME_URL = await getEnvValue('IFRAME_URL', context);
+  const TURNSTILE_ENABLED = (await getEnvValue('TURNSTILE_ENABLED', context)) === 'true';
+  const LOG_LEVEL = await getEnvValue('LOG_LEVEL', context) || 'info';
 
   // 如果 TURNSTILE_ENABLED 为 false，直接返回 IFRAME_URL
   if (!TURNSTILE_ENABLED) {
