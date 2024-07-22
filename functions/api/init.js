@@ -26,22 +26,10 @@ export async function onRequest(context) {
     return new Response('Not Found', { status: 404 });
   }
 
-  // 获取环境变量
-  const envVars = context.env;
-
   // 检查是否有 KV 或 D1 环境变量
-  const hasKVNamespace = envVars.KV !== undefined;
-  const hasD1Database = envVars.D1 !== undefined;
+  const hasKVNamespace = context.env.KV !== undefined;
+  const hasD1Database = context.env.D1 !== undefined;
 
-  if (!hasKVNamespace) {
-    log('warn', 'KV environment variable not found, skipping KV operations', context);
-  }
-
-  if (!hasD1Database) {
-    log('warn', 'D1 environment variable not found, skipping D1 operations', context);
-  }
-
-  // 如果没有任何环境变量，返回错误响应
   if (!hasKVNamespace && !hasD1Database) {
     return new Response(JSON.stringify({ error: 'No KV or D1 environment variables found' }), {
       headers: { 'Content-Type': 'application/json;charset=UTF-8' },
@@ -50,14 +38,14 @@ export async function onRequest(context) {
   }
 
   // 获取数据库实例
-  const db = envVars.D1;
+  const db = context.env.D1;
 
   try {
     // 检查是否已经初始化
     let isInitialized = false;
 
     if (hasKVNamespace) {
-      const kvInitialized = await envVars.KV.get('initialized');
+      const kvInitialized = await context.env.KV.get('initialized');
       if (kvInitialized === 'true') {
         isInitialized = true;
         log('info', 'KV already initialized', context);
@@ -94,16 +82,16 @@ export async function onRequest(context) {
     }
 
     // 获取 KV 和 D1 数据库实例
-    const kvNamespace = envVars.KV;
+    const kvNamespace = context.env.KV;
 
     // 遍历环境变量并将以 KV_ 和 D1_ 开头的环境变量存入相应的数据库
-    for (const key in envVars) {
+    for (const key in context.env) {
       if (key.startsWith('KV_') && hasKVNamespace) {
-        await kvNamespace.put(key, envVars[key]);
+        await kvNamespace.put(key, context.env[key]);
         log('debug', `Stored ${key} in KV`, context);
       } else if (key.startsWith('D1_') && hasD1Database) {
         // 将环境变量存入 env 表
-        await db.prepare('INSERT OR REPLACE INTO env (key, value) VALUES (?, ?)').bind(key, envVars[key]).run();
+        await db.prepare('INSERT OR REPLACE INTO env (key, value) VALUES (?, ?)').bind(key, context.env[key]).run();
         log('debug', `Stored ${key} in D1 env table`, context);
       }
     }
