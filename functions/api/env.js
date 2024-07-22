@@ -33,15 +33,19 @@ async function getEnvValue(key, context) {
   }
 
   // 从 D1 数据库中获取
-  const d1Value = await context.env.D1.prepare('SELECT value FROM env WHERE key = ?').bind(key).first();
-  if (d1Value && d1Value.value !== undefined) {
-    return d1Value.value;
+  if (context.env.D1 !== undefined) {
+    const d1Value = await context.env.D1.prepare('SELECT value FROM env WHERE key = ?').bind(key).first();
+    if (d1Value && d1Value.value !== undefined) {
+      return d1Value.value;
+    }
   }
 
   // 从 KV 中获取
-  const kvValue = await context.env.KV.get(key);
-  if (kvValue !== null) {
-    return kvValue;
+  if (context.env.KV !== undefined) {
+    const kvValue = await context.env.KV.get(key);
+    if (kvValue !== null) {
+      return kvValue;
+    }
   }
 
   return undefined;
