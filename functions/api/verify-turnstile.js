@@ -109,10 +109,38 @@ export async function onRequest(context) {
     // 清理过期的 token 记录
     const currentTime = Math.floor(Date.now() / 1000);
     log('debug', `Cleaning up expired token records older than ${currentTime - TURNSTILE_TIME}`, context);
-    await db.prepare('DELETE FROM captcha_token WHERE timestamp < ?').bind(currentTime - TURNSTILE_TIME).run();
+
+    // 清理 D1 数据库中的过期记录
+    if (context.env.D1 !== undefined) {
+        await db.prepare('DELETE FROM captcha_token WHERE timestamp < ?').bind(currentTime - TURNSTILE_TIME).run();
+    }
+
+    // 清理 KV 空间中的过期记录
+    if (context.env.KV !== undefined) {
+        const kvKeys = await context.env.KV.list({ prefix: '' });
+        for (const key of kvKeys.keys) {
+            const kvValue = await context.env.KV.get(key.name);
+            if (kvValue) {
+                const [storedToken, storedTime, storedIp] = kvValue.split('@');
+                if (currentTime - parseInt(storedTime) > TURNSTILE_TIME) {
+                    await context.env.KV.delete(key.name);
+                }
+            }
+        }
+    }
 
     // 检查 UUID 和 IP 是否有变化
-    const storedResult = await db.prepare('SELECT token, timestamp, ip FROM captcha_token WHERE uuid = ?').bind(uuid).first();
+    let storedResult = null;
+    if (context.env.D1 !== undefined) {
+        storedResult = await db.prepare('SELECT token, timestamp, ip FROM captcha_token WHERE uuid = ?').bind(uuid).first();
+    } else if (context.env.KV !== undefined) {
+        const kvValue = await context.env.KV.get(uuid);
+        if (kvValue) {
+            const [storedToken, storedTime, storedIp] = kvValue.split('@');
+            storedResult = { token: storedToken, timestamp: parseInt(storedTime), ip: storedIp };
+        }
+    }
+
     if (storedResult) {
         const storedTime = storedResult.timestamp;
         const storedIp = storedResult.ip;
@@ -144,7 +172,15 @@ export async function onRequest(context) {
     if (verificationResult.success) {
         const currentTime = Math.floor(Date.now() / 1000);
         log('debug', 'Verification successful, storing UUID and IP', context);
-        await db.prepare('INSERT OR REPLACE INTO captcha_token (uuid, token, timestamp, ip) VALUES (?, ?, ?, ?)').bind(uuid, token, currentTime, ip).run();
+
+        // 优先写入 D1 数据库
+        if (context.env.D1 !== undefined) {
+            await db.prepare('INSERT OR REPLACE INTO captcha_token (uuid, token, timestamp, ip) VALUES (?, ?, ?, ?)').bind(uuid, token, currentTime, ip).run();
+        } else if (context.env.KV !== undefined) {
+            // 如果没有 D1 变量，则尝试储存到 KV
+            const kvValue = `${token}@${currentTime}@${ip}`;
+            await context.env.KV.put(uuid, kvValue);
+        }
 
         return new Response(JSON.stringify({ success: true, LOG_LEVEL }), {
             headers: { 'Content-Type': 'application/json;charset=UTF-8' }
