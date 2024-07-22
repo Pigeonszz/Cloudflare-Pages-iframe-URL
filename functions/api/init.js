@@ -1,7 +1,6 @@
 // /functions/api/init.js
 "use strict";
 
-// 日志级别映射
 const LOG_LEVEL_MAP = {
   'off': 0,
   'fatal': 1,
@@ -12,7 +11,6 @@ const LOG_LEVEL_MAP = {
   'trace': 6
 };
 
-// 日志记录函数
 function log(level, message, context) {
   const logLevel = context.env.LOG_LEVEL || 'info';
   const currentLogLevel = LOG_LEVEL_MAP[logLevel] || LOG_LEVEL_MAP['info'];
@@ -21,7 +19,6 @@ function log(level, message, context) {
   }
 }
 
-// onRequest函数是Cloudflare Worker的入口点
 export async function onRequest(context) {
   // 检查请求路径是否为 /api/init
   const requestPath = new URL(context.request.url).pathname;
@@ -56,21 +53,6 @@ export async function onRequest(context) {
   const db = envVars.D1;
 
   try {
-    // 先创建表，以避免 SQL 错误
-    // 检查并创建 captcha_token 表
-    const tableCheckCaptchaToken = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="captcha_token"').first();
-    if (!tableCheckCaptchaToken) {
-      await db.prepare('CREATE TABLE captcha_token (uuid TEXT PRIMARY KEY, token TEXT, timestamp INTEGER, ip TEXT)').run();
-      log('info', 'captcha_token table created', context);
-    }
-
-    // 检查并创建 env 表
-    const tableCheckEnv = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="env"').first();
-    if (!tableCheckEnv) {
-      await db.prepare('CREATE TABLE env (key TEXT PRIMARY KEY, value TEXT)').run();
-      log('info', 'env table created', context);
-    }
-
     // 检查是否已经初始化
     let isInitialized = false;
 
@@ -95,6 +77,20 @@ export async function onRequest(context) {
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
         status: 200,
       });
+    }
+
+    // 检查是否存在 captcha_token 表，若不存在则创建
+    const tableCheckCaptchaToken = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="captcha_token"').first();
+    if (!tableCheckCaptchaToken) {
+      await db.prepare('CREATE TABLE captcha_token (uuid TEXT PRIMARY KEY, token TEXT, timestamp INTEGER, ip TEXT)').run();
+      log('info', 'captcha_token table created', context);
+    }
+
+    // 检查是否存在 env 表，若不存在则创建
+    const tableCheckEnv = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="env"').first();
+    if (!tableCheckEnv) {
+      await db.prepare('CREATE TABLE env (key TEXT PRIMARY KEY, value TEXT)').run();
+      log('info', 'env table created', context);
     }
 
     // 获取 KV 和 D1 数据库实例
