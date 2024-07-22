@@ -26,6 +26,43 @@ function log(level, message, context) {
   }
 }
 
+async function getEnvValue(key, context) {
+  // 从环境变量中获取
+  if (context.env[key] !== undefined) {
+    return context.env[key];
+  }
+
+  // 从 D1 数据库中获取
+  if (context.env.D1 !== undefined) {
+    try {
+      const d1Value = await context.env.D1.prepare('SELECT value FROM env WHERE key = ?').bind(`D1_${key}`).first();
+      if (d1Value && d1Value.value !== undefined) {
+        return d1Value.value;
+      }
+    } catch (error) {
+      log('error', `Error fetching from D1: ${error.message}`, context);
+      // 可以返回默认值或抛出错误
+      throw error;
+    }
+  }
+
+  // 从 KV 中获取
+  if (context.env.KV !== undefined) {
+    try {
+      const kvValue = await context.env.KV.get(`KV_${key}`);
+      if (kvValue !== null) {
+        return kvValue;
+      }
+    } catch (error) {
+      log('error', `Error fetching from KV: ${error.message}`, context);
+      // 可以返回默认值或抛出错误
+      throw error;
+    }
+  }
+
+  return undefined;
+}
+
 export async function onRequest(context) {
   const { env } = context;
 
@@ -33,11 +70,11 @@ export async function onRequest(context) {
   log('info', 'Processing request for custom scripts', context);
 
   const response = {
-    M_POST_LOAD: env.M_POST_LOAD || '',
-    M_PRELOAD: env.M_PRELOAD || '',
-    POST_LOAD: env.POST_LOAD || '',
-    PRELOAD: env.PRELOAD || '',
-    LOG_LEVEL: env.LOG_LEVEL || 'info'
+    M_POST_LOAD: await getEnvValue('M_POST_LOAD', context) || '',
+    M_PRELOAD: await getEnvValue('M_PRELOAD', context) || '',
+    POST_LOAD: await getEnvValue('POST_LOAD', context) || '',
+    PRELOAD: await getEnvValue('PRELOAD', context) || '',
+    LOG_LEVEL: await getEnvValue('LOG_LEVEL', context) || 'info'
   };
 
   // 记录响应信息
