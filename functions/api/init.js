@@ -72,19 +72,24 @@ export async function onRequest(context) {
       });
     }
 
+    log('info', 'Checking captcha_token table', context);
     const tableCheckCaptchaToken = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="captcha_token"').first();
     if (!tableCheckCaptchaToken) {
+      log('info', 'Creating captcha_token table', context);
       await db.prepare('CREATE TABLE captcha_token (uuid TEXT PRIMARY KEY, token TEXT, timestamp INTEGER, ip TEXT)').run();
       log('info', 'captcha_token table created', context);
     }
 
+    log('info', 'Checking env table', context);
     const tableCheckEnv = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="env"').first();
     if (!tableCheckEnv) {
+      log('info', 'Creating env table', context);
       await db.prepare('CREATE TABLE env (key TEXT PRIMARY KEY, value TEXT)').run();
       log('info', 'env table created', context);
     }
 
     // 再次检查 env 表是否成功创建
+    log('info', 'Verifying env table creation', context);
     const tableCheckEnvConfirm = await db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="env"').first();
     if (!tableCheckEnvConfirm) {
       throw new Error('Failed to create env table');
