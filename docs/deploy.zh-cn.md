@@ -25,9 +25,9 @@
 1. 前往 [Cloudflare 控制面板](https://dash.cloudflare.com/?to=/:account/workers/services/view/:worker/)，创建一个 D1 数据库，名称随意。
 2. 绑定你的 D1 数据库到已部署的项目：设置 --> 函数 --> 绑定数据库，"变量名称"设为: `D1`。
 
-## 5. 绑定自定义域（可选）
+## 5. 初始化数据库 (若有)
 
-如果需要，你可以为项目绑定一个自定义域名。
+访问 `https://$域名/api/init` 进行数据库初始化
 
 ## 6. 创建 API Token
 
