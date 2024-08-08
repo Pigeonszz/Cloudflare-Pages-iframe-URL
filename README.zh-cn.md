@@ -15,15 +15,15 @@
 |------|------|------|--------|
 | LOG_LEVEL | 日志等级 (可选) | off, fatal, error, warn, info, debug, trace | info |
 | IFRAME_URL | iframe 要加载的 URL，支持多个 URL，服务名称用作站点标题 | URL1;服务名称1, URL2;服务名称2, ... |  |
-| FAVICON_URL | 站点图标 URL | 服务名称1;Favicon_URL1, 服务名称2;Favicon_URL2, ... |  |
-| TURNSTILE_ENABLED | Turnstile 人机验证开关 | true / false | false |
-| TURNSTILE_SITE_KEY | Cloudflare Turnstile 人机验证站点密钥 |  |  |
-| TURNSTILE_SECRET_KEY | Cloudflare Turnstile 人机验证密钥 |  |  |
-| TURNSTILE_TIME | Turnstile 人机验证通过后的有效时间（单位：秒） |  | 14400 |
-| M_POST_LOAD | 移动端后加载自定义 CSS/JS (试验性) |  |  |
-| M_PRELOAD | 移动端预加载自定义 CSS/JS (试验性) |  |  |
-| POST_LOAD | 桌面端后加载自定义 CSS/JS (试验性) |  |  |
-| PRELOAD | 桌面端预加载自定义 CSS/JS (试验性) |  |  |
+| FAVICON_URL | 站点图标 URL (可选) | 服务名称1;Favicon_URL1, 服务名称2;Favicon_URL2, ... |  |
+| TURNSTILE_ENABLED | Turnstile 人机验证开关 (可选) | true / false | false |
+| TURNSTILE_SITE_KEY | Cloudflare Turnstile 人机验证站点密钥 (当TURNSTILE_ENABLED=True时为必须) |  |  |
+| TURNSTILE_SECRET_KEY | Cloudflare Turnstile 人机验证密钥 (当TURNSTILE_ENABLED=True时为必须) |  |  |
+| TURNSTILE_TIME | Turnstile 人机验证通过后的有效时间（单位：秒）(可选) |  | 14400 |
+| M_POST_LOAD | 移动端后加载自定义 CSS/JS (试验性)(可选) |  |  |
+| M_PRELOAD | 移动端预加载自定义 CSS/JS (试验性)(可选) |  |  |
+| POST_LOAD | 桌面端后加载自定义 CSS/JS (试验性)(可选) |  |  |
+| PRELOAD | 桌面端预加载自定义 CSS/JS (试验性)(可选) |  |  |
 
 加入前缀的环境变量(目前有)："KV_" "D1_" 将在访问 https://${域名}/api/init 端点时载入到相应的 KV 或 D1 中 
 
